@@ -80,3 +80,6 @@ Route::get('/get-session', function (Request $request) {
 });
 
 Route::inertia("/counter", "Counter");
+
+    Route::get('/expenditures/items', [DashboardController::class, 'getExpendituresPerItem'])->name('expenditures.items');
+    Route::get('/expenditures/items/export/xlsx', [DashboardController::class, 'toXlsxExpendituresPerItem'])->name('expenditures.items.export.xlsx');

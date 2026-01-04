@@ -9,7 +9,6 @@ use App\Models\TransactionItem;
 use App\Models\Recipient;
 use App\Service\DashboardService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use OpenSpout\Common\Entity\Row;
@@ -191,7 +190,45 @@ class DashboardController extends Controller
                 $writer->close();
             }
         };
+        return response()->streamDownload($callback, $this->service->makeXlsxExportFileName('pengeluaran_per_sku', $start, $end));
+    }
 
-        return response()->streamDownload($callback, 'pengeluaran_' . (Date::now("+8")->format('d-m-Y')) . '.xlsx');
+    public function getExpendituresPerItem(Request $request)
+    {
+        $search = $request->string('search');
+        $start = $request->date('start');
+        $end = $request->date('end');
+        $page = $request->integer('page', 1);
+        return response()->json(
+            $this->service->getExpendituresPerItem($search, $start, $end, $page)
+        );
+    }
+
+    public function toXlsxExpendituresPerItem(Request $request)
+    {
+        $start = $request->date('start');
+        $end = $request->date('end');
+        $service = $this->service;
+        $callback = function () use ($service, $start, $end) {
+            try {
+                $writer = new Writer();
+                $writer->openToFile('php://output');
+                $writer->addRow(Row::fromValues(['Nama Barang', 'Jumlah', 'Satuan', 'Harga/Satuan', 'Total Pengeluaran']));
+                $service->toXlsxExpendituresPerItem(function ($items) use ($writer) {
+                    foreach ($items as $item) {
+                        $writer->addRow(Row::fromValues([
+                            $item->name,
+                            $item->quantity_total,
+                            $item->baseMeasurementUnit->name,
+                            (float) $item->out_price ?? $item->skus->avg('price') ?? 0,
+                            (float) $item->expenditure,
+                        ]));
+                    }
+                }, $start, $end);
+            } finally {
+                $writer->close();
+            }
+        };
+        return response()->streamDownload($callback, $this->service->makeXlsxExportFileName('pengeluaran_per_item', $start, $end));
     }
 }

@@ -20,7 +20,20 @@ const props = defineProps({
   date_range: Object,
 });
 
-// Expenditure table state
+// Expenditure Per Item table state
+const itemExpenditureData = ref([]);
+const itemExpenditurePage = ref(1);
+const itemExpenditurePerPage = ref(10);
+const itemExpenditureLastPage = ref(1);
+const itemExpenditureTotal = ref(0);
+const itemExpenditureLoading = ref(false);
+const searchItemOutbound = ref('');
+
+// Date filter for item expenditure table
+const itemExpenditureStartDate = ref(props.date_range.start_date);
+const itemExpenditureEndDate = ref(props.date_range.end_date);
+
+// Expenditure Per SKU table state
 const expenditureData = ref([]);
 const expenditurePage = ref(1);
 const expenditurePerPage = ref(10);
@@ -33,9 +46,31 @@ const searchOutbound = ref('');
 const expenditureStartDate = ref(props.date_range.start_date);
 const expenditureEndDate = ref(props.date_range.end_date);
 
-const formatDate = formatDateIndonesia;
+// Fetch Item Expenditure Data
+const fetchItemExpenditureData = async () => {
+  itemExpenditureLoading.value = true;
+  try {
+    const response = await axios.get(route('expenditures.items'), {
+      params: {
+        start: itemExpenditureStartDate.value,
+        end: itemExpenditureEndDate.value,
+        page: itemExpenditurePage.value,
+        search: searchItemOutbound.value || undefined,
+      }
+    });
 
-// Fetch expenditure data from API
+    itemExpenditureData.value = response.data.data;
+    itemExpenditurePage.value = response.data.currentPage;
+    itemExpenditurePerPage.value = response.data.perPage;
+    itemExpenditureLastPage.value = response.data.lastPage;
+    itemExpenditureTotal.value = response.data.total;
+  } catch (error) {
+    console.error('Error fetching item expenditure data:', error);
+  } finally {
+    itemExpenditureLoading.value = false;
+  }
+};
+
 const fetchExpenditureData = async () => {
   expenditureLoading.value = true;
   try {
@@ -60,39 +95,65 @@ const fetchExpenditureData = async () => {
   }
 };
 
-// Debounced search function
+// Debounced search functions
+const debouncedItemSearch = debounce(() => {
+  itemExpenditurePage.value = 1;
+  fetchItemExpenditureData();
+}, 500);
+
 const debouncedSearch = debounce(() => {
-  expenditurePage.value = 1; // Reset to first page on search
+  expenditurePage.value = 1;
   fetchExpenditureData();
 }, 500);
 
-// Debounced date filter function
+// Debounced date filter functions
+const debouncedItemDateFilter = debounce(() => {
+  itemExpenditurePage.value = 1;
+  fetchItemExpenditureData();
+}, 800);
+
 const debouncedDateFilter = debounce(() => {
-  expenditurePage.value = 1; // Reset to first page on date change
+  expenditurePage.value = 1;
   fetchExpenditureData();
 }, 800);
 
-// Watch for page changes
+// Watch for item expenditure changes
+watch(itemExpenditurePage, () => {
+  fetchItemExpenditureData();
+});
+
+watch(searchItemOutbound, () => {
+  debouncedItemSearch();
+});
+
+watch([itemExpenditureStartDate, itemExpenditureEndDate], () => {
+  debouncedItemDateFilter();
+});
+
+// Watch for SKU expenditure changes
 watch(expenditurePage, () => {
   fetchExpenditureData();
 });
 
-// Watch for search input changes with debounce
 watch(searchOutbound, () => {
   debouncedSearch();
 });
 
-// Watch for date changes with debounce
 watch([expenditureStartDate, expenditureEndDate], () => {
   debouncedDateFilter();
 });
 
-// Calculate total value of displayed data
+// Calculate total values
+const totalItemExpenditureValue = computed(() => {
+  return itemExpenditureData.value.reduce((sum, item) => sum + item.expenditure, 0);
+});
+
 const totalExpenditureValue = computed(() => {
   return expenditureData.value.reduce((sum, item) => sum + item.expenditure, 0);
 });
 
 onBeforeMount(() => {
+  fetchItemExpenditureData();
   fetchExpenditureData();
 });
 </script>
@@ -202,13 +263,99 @@ onBeforeMount(() => {
       </v-col>
     </v-row>
 
+    <!-- Pengeluaran Per Item Table -->
+    <v-row class="mt-4">
+      <v-col cols="12">
+        <v-card>
+          <v-card-title class="d-flex align-center justify-space-between">
+            <div class="d-flex align-center">
+              Pengeluaran Per Item
+            </div>
+            <v-btn :href="route('expenditures.items.export.xlsx')" color="grey" size="small" variant="plain" :disabled="expenditureLoading">
+              <v-icon start>mdi-download</v-icon>
+               SpreadSheet
+            </v-btn>
+          </v-card-title>
+
+          <v-card-text>
+            <!-- Search and Date Filter -->
+            <v-row class="mb-3">
+              <v-col cols="12" md="6">
+                <v-text-field v-model="searchItemOutbound" density="compact" label="Cari"
+                  hint="Cari berdasarkan Nama Barang"
+                  prepend-inner-icon="mdi-magnify" clearable :loading="itemExpenditureLoading"
+                  placeholder="Ketik untuk mencari..." />
+              </v-col>
+              <v-col cols="6" md="2">
+                <DateTimePickerInput v-model="itemExpenditureStartDate" label="Mulai" density="compact"
+                  :loading="itemExpenditureLoading" />
+              </v-col>
+              <v-col cols="6" md="2">
+                <DateTimePickerInput v-model="itemExpenditureEndDate" label="Sampai" density="compact"
+                  :loading="itemExpenditureLoading" />
+              </v-col>
+              <v-col cols="12" md="2" class="text-right">
+                <div class="text-body-2 text-medium-emphasis">Total Nilai Pengeluaran</div>
+                <div class="text-h6 font-weight-bold text-blue">{{ formatRp(totalItemExpenditureValue) }}</div>
+              </v-col>
+            </v-row>
+
+            <!-- Table with Loading State -->
+            <v-progress-linear v-if="itemExpenditureLoading" indeterminate color="primary" class="mb-3" />
+
+            <v-table density="comfortable" class="[&_td]:border-none!" striped="even" hover>
+              <thead>
+                <tr>
+                  <th class="text-left">Nama Barang</th>
+                  <th class="text-center">Jumlah</th>
+                  <th class="text-right">Harga/Unit</th>
+                  <th class="text-right">Total Pengeluaran</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="item in itemExpenditureData" :key="item.itemName">
+                  <td class="font-weight-medium">{{ item.itemName }}</td>
+                  <td class="text-center font-weight-bold">
+                    <v-chip size="small" :color="item.count > 0 ? 'blue' : 'grey'">
+                      {{ item.count }} {{ item.measurementUnit }}
+                    </v-chip>
+                  </td>
+                  <td class="text-right">{{ formatRp(item.pricePerUnit) }}</td>
+                  <td class="text-right font-weight-bold" :class="item.expenditure > 0 ? 'text-blue' : 'text-grey'">
+                    {{ formatRp(item.expenditure) }}
+                  </td>
+                </tr>
+                <tr v-if="itemExpenditureData.length === 0 && !itemExpenditureLoading">
+                  <td colspan="4" class="text-center text-medium-emphasis py-8">
+                    <v-icon size="48" color="grey-lighten-1">mdi-database-off</v-icon>
+                    <div class="mt-2">
+                      {{ searchItemOutbound ? 'Tidak ada data yang sesuai dengan pencarian' : 'Tidak ada data pengeluaran'
+                      }}
+                    </div>
+                    <div v-if="searchItemOutbound" class="text-caption mt-1">
+                      Coba kata kunci lain atau hapus filter pencarian
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </v-table>
+
+            <!-- Pagination -->
+            <div v-if="itemExpenditureData.length > 0" class="d-flex justify-end align-center mt-4">
+              <v-pagination v-model="itemExpenditurePage" :length="itemExpenditureLastPage" :total-visible="7"
+                density="comfortable" :disabled="itemExpenditureLoading" />
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+
     <!-- Pengeluaran Per-SKU Table -->
     <v-row class="mt-4">
       <v-col cols="12">
         <v-card>
           <v-card-title class="d-flex align-center justify-space-between">
             <div class="d-flex align-center">
-              <!-- <v-icon class="mr-2" color="blue">mdi-file-table-box-multiple</v-icon> -->
               Pengeluaran Per SKU
             </div>
             <v-btn :href="route('expenditures.skus.export.xlsx')" color="grey" size="small" variant="plain" :disabled="expenditureLoading">
@@ -317,7 +464,7 @@ onBeforeMount(() => {
               </thead>
               <tbody>
                 <tr v-for="transaction in recent_transactions" :key="transaction.id">
-                  <td>{{ formatDate(transaction.transaction_date) }}</td>
+                  <td>{{ formatDateIndonesia(transaction.transaction_date) }}</td>
                   <td>
                     <v-chip :color="transaction.type === 'in' ? 'blue-darken-2' : 'blue-lighten-1'" size="small" variant="tonal">
                       <v-icon start size="small">
