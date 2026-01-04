@@ -1,0 +1,40 @@
+@startuml Account Management And Login
+|actor1|Admin
+|Sistem|
+|actor2|Admin-lain/Pegawai/Direktur
+
+|actor1|
+start
+:Membuka halaman kelola akun;
+
+|Sistem|
+:Menampilkan daftar akun;
+
+|actor1|
+:Melihat daftar akun;
+:Menekan tombol tambah akun;
+:Input penambahan akun;
+
+|Sistem|
+:Menyimpan akun;
+
+|actor1|
+:Menyerahkan kredensial akun ke pegawai;
+
+|actor2|
+:Membuka halaman login;
+:Input kredensial;
+
+|Sistem|
+:Sistem verifikasi kredensial;
+if (kredensial valid?) then
+|Sistem|
+:Akses tidak diberikan;
+kill
+
+else
+|actor2|
+:Dapat akses aplikasi;
+
+stop
+@enduml

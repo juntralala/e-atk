@@ -6,14 +6,14 @@ config:
 ---
 erDiagram
     roles ||--o{ users : "assigned_to"
-    items ||--o{ item_skus : "has_variants"
-    item_skus ||--o{ transaction_items : "recorded_in"
+    items ||--o{ skus : "has_variants"
+    skus ||--o{ transaction_items : "recorded_in"
     measurement_units ||--o{ transaction_items : "measures"
-    recipients ||--o{ transactions : "involved_in"
-    items ||--|| measurement_units : "measured_by"
+    recipients ||--o{ transactions : "receive"
+    items ||--|| measurement_units : "has_base_unit"
     measurement_units ||--o{ measurement_units : "derived"
-    transactions ||--|{ transaction_items : "consists_of"
-    sku_measurement_unit_conversions }o--|| item_skus : "converts_for"
+    transactions ||--|{ transaction_items : "contains"
+    sku_measurement_unit_conversions }o--|| skus : "converts_for"
     sku_measurement_unit_conversions }o--|| measurement_units : "converts_to"
     users ||--o{ transactions : "created_by"
 
@@ -68,7 +68,7 @@ erDiagram
         type enum "in/out"
         user_id VARCHAR(100) FK
         recipient_id VARCHAR(100) FK
-        supplier VARCHAR(255) "For type=in"
+        supplier VARCHAR(255) "Hanya untuk transaksi barang masuk"
         division VARCHAR(255)
         notes text
         transaction_date date
@@ -80,10 +80,10 @@ erDiagram
     transaction_items {
         id VARCHAR(100) PK
         transaction_id VARCHAR(100) FK
-        item_sku_id VARCHAR(100) FK "Track specific SKU"
+        sku_id VARCHAR(100) FK "SKU dari barang yang masuk dalam transaksi"
         unit_id VARCHAR(100) FK "Satuan transaksi, bisa pakai satuan terkecil bisa tidak"
-        quantity INTEGER "Jumlah dalam satuan unit_id"
-        base_quantity INTEGER "Jumlah dalam satuan terkecil"
+        quantity INTEGER "Jumlah dalam satuan yang digunakan dalam transaksi"
+        base_quantity INTEGER "Jumlah dalam satuan terkecil (sesudah konversi)"
         price DECIMAL(22_4) "Harga modal per unit saat transaksi"
         created_at DATETIME
         updated_at DATETIME
@@ -100,7 +100,7 @@ erDiagram
         deleted_at DATETIME
     }
 
-    item_skus {
+    skus {
         id VARCHAR(100) PK
         item_id VARCHAR(100) FK
         sku VARCHAR(100) UK "Kode SKU unik"
@@ -115,7 +115,7 @@ erDiagram
     sku_measurement_unit_conversions {
         id VARCHAR(100)
         measurement_unit_id VARCHAR(100) FK, UK
-        item_sku_id VARCHAR(100) FK, UK
+        sku_id VARCHAR(100) FK, UK
         conversion INTEGER
         created_at DATETIME
         updated_at DATETIME

@@ -1,0 +1,15 @@
+@startuml Pengaturan Aplikasi
+|actor1|Admin
+start
+:Membuka halaman pengaturan;
+:Mengubah pengaturan;
+:Tekan simpan;
+
+|Sistem|
+:Menyimpan pengaturan;
+
+|actor1|
+:melihat perubahan pada\n sistem yang tersebar;
+
+stop
+@enduml

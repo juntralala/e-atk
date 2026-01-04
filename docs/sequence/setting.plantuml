@@ -1,0 +1,17 @@
+@startuml aasas
+actor pegawai as actor1
+participant Pengaturan as setting
+participant Sistem as sistem
+database "basis data" as db
+
+activate actor1
+actor1 -> setting: perubahan setting
+activate setting
+setting -> sistem: perubahan
+activate sistem
+sistem -> db: menyimpan perubahan
+activate db
+return settingan diperbarui
+return tampilan setting terbaru
+return tampilan terbaru
+@enduml

@@ -1,0 +1,19 @@
+---
+title: Sistem Usulan
+config:
+  theme: default
+---
+flowchart TB
+    START((Awal)) -->
+    login[/Login/] -->
+    branch1{Mengisi<br> masuk atau keluar<br> barang?}
+
+    branch1 -->|Barang Masuk|inForm(Mengisi form barang masuk) --> 
+    sistem1(Sistem menambah stok) -->
+    sistem3
+
+    branch1 --> |Barang Keluar|outForm(Mengisi formbarang keluar) -->
+    sistem2(Sistem mengurangi stok) -->
+
+    sistem3[/Sistem secara otomatis menghasilkan laporan/] --> 
+    END((Akhir))
