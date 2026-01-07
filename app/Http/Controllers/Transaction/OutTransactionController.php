@@ -56,15 +56,15 @@ class OutTransactionController extends Controller
             ]);
             foreach ($validated['transaction_items'] as $item) {
                 $sku = Sku::findOrFail($item['sku_id']);
-                if ($sku->quantity < $item['quantity']) {
+                $conversion = $this->measurementUnitService->getConversion($item['unit_id'], $sku->id);
+                $baseQuantity = $item['quantity'] * $conversion;
+                if ($sku->quantity < $baseQuantity) {
                     throw new \Exception(
                         "Stok tidak mencukupi untuk barang '{$sku->item->name}'. " .
                         "Stok tersedia: {$sku->quantity} {$sku->item->baseMeasurementUnit->name}, " .
                         "Diminta: {$item['quantity']} {$sku->item->name}"
                     );
                 }
-                $conversion = $this->measurementUnitService->getConversion($item['unit_id'], $sku->id);
-                $baseQuantity = $item['quantity'] * $conversion;
                 $sku->increment('quantity',  );
                 TransactionItem::create([
                     'transaction_id' => $transaction->id,

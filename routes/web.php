@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\MeasurementUnitController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RecipientController;
 use App\Http\Controllers\RoleController;
@@ -13,10 +14,16 @@ use App\Http\Controllers\Transaction\InTransactionController;
 use App\Http\Controllers\Transaction\OutTransactionController;
 use App\Http\Controllers\Transaction\TransactionHistoryController;
 use App\Http\Controllers\UserController;
+use App\Notifications\InvalidLogin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->group(function () {
+    Route::get('/notifications', [NotificationController::class, 'getCurrentUserNotifications'])->name('notifications');
+    Route::post('/notifications/{id}/read', function ($id) {
+        auth()->user()->notifications()->find($id)->markAsRead();
+    })->name('notifications.read');
+    Route::get('/notifications/unread/count', [NotificationController::class, 'countUnreadNotification'])->name('notifications.unread.count');
     Route::get('/', [DashboardController::class, 'index'])->name('home');
     Route::prefix('/api')->group(function () {
         Route::get('/roles', [RoleController::class, 'getAll']);
@@ -25,6 +32,8 @@ Route::middleware('auth')->group(function () {
         Route::put('/users/{id}', [UserController::class, 'editUser']);
         Route::delete('/users/{id}', [UserController::class, 'deleteUser']);
     });
+    Route::get('/expenditures/items', [DashboardController::class, 'getExpendituresPerItem'])->name('expenditures.items');
+    Route::get('/expenditures/items/export/xlsx', [DashboardController::class, 'toXlsxExpendituresPerItem'])->name('expenditures.items.export.xlsx');
     Route::get('/expenditures/skus', [DashboardController::class, 'getExpendituresPerSKU'])->name('expenditures.skus');
     Route::get('/expenditures/skus/export/xlsx', [DashboardController::class, 'toXlsx'])->name('expenditures.skus.export.xlsx');
     Route::get('/recipients', [RecipientController::class, 'page'])->name('recipients');
@@ -81,5 +90,3 @@ Route::get('/get-session', function (Request $request) {
 
 Route::inertia("/counter", "Counter");
 
-    Route::get('/expenditures/items', [DashboardController::class, 'getExpendituresPerItem'])->name('expenditures.items');
-    Route::get('/expenditures/items/export/xlsx', [DashboardController::class, 'toXlsxExpendituresPerItem'])->name('expenditures.items.export.xlsx');

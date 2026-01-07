@@ -23,7 +23,7 @@ class DashboardRepository
                     $tq->whereBetween('transaction_date', [$start, $end]);
                 });
             }
-        ])
+            ])
             ->when($search, function ($query) use ($search) {
                 $query->orWhereLike('sku', "%$search%");
                 $query->orWhereLike('spesification_name', "%$search%");
@@ -33,6 +33,7 @@ class DashboardRepository
                 'transactionItems as total_quantity' => function ($q) use ($start, $end) {
                     $q->whereHas('transaction', function ($tq) use ($start, $end) {
                         $tq->where('type', 'out');
+                        $tq->whereBetween('transaction_date', [$start, $end]);
                     });
                 }
             ], 'base_quantity')
@@ -40,6 +41,7 @@ class DashboardRepository
                 'transactionItems as expenditure' => function ($q) use ($start, $end) {
                     $q->whereHas('transaction', function ($tq) use ($start, $end) {
                         $tq->where('type', 'out');
+                        $tq->whereBetween('transaction_date', [$start, $end]);
                     });
                 }
             ], DB::raw("base_quantity * price"))
@@ -47,6 +49,7 @@ class DashboardRepository
                 'transactionItems as out_price' => function ($q) use ($start, $end) {
                     $q->whereHas('transaction', function ($tq) use ($start, $end) {
                         $tq->where('type', 'out');
+                        $tq->whereBetween('transaction_date', [$start, $end]);
                     });
                 }
             ], 'price');

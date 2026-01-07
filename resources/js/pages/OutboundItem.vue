@@ -80,10 +80,10 @@ function submitTransaction() {
   form
     .transform((data) => {
       if (data.transaction_date instanceof Date) {
-        data.transaction_date = data.transaction_date.toISOString();
+        data.transaction_date = data.transaction_date?.toISOString();
       }
       if (!(data.recipient_id instanceof String)) {
-        data.recipient_id = data.recipient_id.id
+        data.recipient_id = data?.recipient_id?.id;
       }
       data.transaction_items = data.transaction_items.map(item => {
         return {

@@ -1,7 +1,7 @@
 <script setup>
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import { onMounted, onUpdated, ref } from 'vue';
-
+import Notification from '@/components/organisms/Notification.vue';
 
 const page = usePage();
 const user = page.props?.auth?.user;
@@ -38,7 +38,7 @@ function selectMenu() {
     }
 }
 
-onMounted(function () {
+onMounted(async function () {
     showDrawerOnMdScreenSize();
 
     // expand group menu yang terpilih
@@ -55,12 +55,14 @@ onMounted(function () {
 onUpdated(function () {
     selectMenu();
 });
+
 </script>
 
 <template>
+
     <Head v-slot="props">
         <link rel="shortcut icon" :href="$page?.props?.settings?.app_icon || 'favicon.ico'" type="image/x-icon">
-        <title>{{$page?.props?.settings?.app_name}}</title>
+            <title>{{ $page?.props?.settings?.app_name }}</title>
     </Head>
     <v-app>
         <v-app-bar elevation="1" color="blue-darken-2" class="pe-2">
@@ -69,9 +71,9 @@ onUpdated(function () {
                 <span class="ms-2">{{ $page.props.settings.app_name }}</span>
             </v-app-bar-title>
             <template #append>
+                <Notification/>
                 <v-avatar id="profile-avatar">
-                    <img
-v-if="page.props.auth?.user?.profile_photo_path"
+                    <img v-if="page.props.auth?.user?.profile_photo_path"
                         :src="page.props.auth?.user?.profile_photo_path" alt="alt">
                     <v-icon v-else class="cursor-pointer" icon="mdi-account" size="x-large" />
                 </v-avatar>
@@ -82,12 +84,12 @@ v-if="page.props.auth?.user?.profile_photo_path"
                         <v-divider />
                         <v-list density="comfortable">
                             <Link :href="route('account.profile')">
-                            <v-list-item value="profile">Profil</v-list-item>
+                                <v-list-item value="profile">Profil</v-list-item>
                             </Link>
                             <Link :href="route('logout')" class="w-full! text-left" method="post">
-                            <v-list-item value="logout">
-                                Log out
-                            </v-list-item>
+                                <v-list-item value="logout">
+                                    Log out
+                                </v-list-item>
                             </Link>
                         </v-list>
                     </v-card>
@@ -97,50 +99,50 @@ v-if="page.props.auth?.user?.profile_photo_path"
         <v-navigation-drawer v-model="showDrawer">
             <v-list v-model:selected="selectedMenu" v-model:opened="expandedGroups" color="blue" mandatory>
                 <Link :href="route('home')">
-                <v-list-item value="home">
-                    <div class="flex items-baseline gap-1">
-                        <v-icon icon="mdi-home" />
-                        <div>Home</div>
-                    </div>
-                </v-list-item>
+                    <v-list-item value="home">
+                        <div class="flex items-baseline gap-1">
+                            <v-icon icon="mdi-home" />
+                            <div>Dashboard</div>
+                        </div>
+                    </v-list-item>
                 </Link>
                 <Link :href="route('items.inbound')">
-                <v-list-item value="items.inbound">
-                    <div class="flex items-baseline gap-1">
-                        <v-icon icon="mdi-card-plus" />
-                        <div>Barang Masuk</div>
-                    </div>
-                </v-list-item>
+                    <v-list-item value="items.inbound">
+                        <div class="flex items-baseline gap-1">
+                            <v-icon icon="mdi-card-plus" />
+                            <div>Barang Masuk</div>
+                        </div>
+                    </v-list-item>
                 </Link>
                 <Link :href="route('items.outbound')">
-                <v-list-item value="items.outbound">
-                    <div class="flex items-baseline gap-1">
-                        <v-icon icon="mdi-card-minus" />
-                        <div>Barang Keluar</div>
-                    </div>
-                </v-list-item>
+                    <v-list-item value="items.outbound">
+                        <div class="flex items-baseline gap-1">
+                            <v-icon icon="mdi-card-minus" />
+                            <div>Barang Keluar</div>
+                        </div>
+                    </v-list-item>
                 </Link>
                 <Link v-if="false" :href="route('items.stocks')">
-                <v-list-item value="items.stocks">
-                    <div class="flex items-baseline gap-1"><v-icon icon="mdi-cube-outline" /><span>Stok</span>
-                    </div>
-                </v-list-item>
+                    <v-list-item value="items.stocks">
+                        <div class="flex items-baseline gap-1"><v-icon icon="mdi-cube-outline" /><span>Stok</span>
+                        </div>
+                    </v-list-item>
                 </Link>
                 <Link :href="route('items.transactions.history')">
-                <v-list-item value="items.transactions.history">
-                    <div class="flex items-baseline gap-1">
-                        <v-icon icon="mdi-history" />
-                        <div>Riwayat</div>
-                    </div>
-                </v-list-item>
+                    <v-list-item value="items.transactions.history">
+                        <div class="flex items-baseline gap-1">
+                            <v-icon icon="mdi-history" />
+                            <div>Riwayat</div>
+                        </div>
+                    </v-list-item>
                 </Link>
                 <Link :href="route('items.skus')">
-                <v-list-item value="items.skus">
-                    <div class="flex items-baseline gap-1">
-                        <v-icon icon="mdi-cube" />
-                        <div>SKU</div>
-                    </div>
-                </v-list-item>
+                    <v-list-item value="items.skus">
+                        <div class="flex items-baseline gap-1">
+                            <v-icon icon="mdi-cube" />
+                            <div>SKU</div>
+                        </div>
+                    </v-list-item>
                 </Link>
                 <v-list-group value="master">
                     <template #activator="{ props }">
@@ -160,34 +162,34 @@ v-if="page.props.auth?.user?.profile_photo_path"
                         </div>
                     </v-list-item> -->
                     <Link :href="route('items.units')">
-                    <v-list-item value="items.units">
-                        <div class="flex items-baseline gap-1"><v-icon icon="mdi-scale" /><span>Unit Ukuran</span>
-                        </div>
-                    </v-list-item>
+                        <v-list-item value="items.units">
+                            <div class="flex items-baseline gap-1"><v-icon icon="mdi-scale" /><span>Unit Ukuran</span>
+                            </div>
+                        </v-list-item>
                     </Link>
                     <Link :href="route('recipients')">
-                    <v-list-item value="recipients">
-                        <div class="flex items-baseline gap-1"><v-icon icon="mdi-account" /><span>Penerima</span>
-                        </div>
-                    </v-list-item>
+                        <v-list-item value="recipients">
+                            <div class="flex items-baseline gap-1"><v-icon icon="mdi-account" /><span>Penerima</span>
+                            </div>
+                        </v-list-item>
                     </Link>
                     <Link :href="route('items')">
-                    <v-list-item value="items">
-                        <div class="flex items-baseline gap-1"><v-icon icon="mdi-cube-outline" /><span>Barang</span>
-                        </div>
-                    </v-list-item>
+                        <v-list-item value="items">
+                            <div class="flex items-baseline gap-1"><v-icon icon="mdi-cube-outline" /><span>Barang</span>
+                            </div>
+                        </v-list-item>
                     </Link>
                     <Link v-if="user?.role?.name == 'admin'" :href="route('users')">
-                    <v-list-item value="users">
-                        <div class="flex items-baseline gap-1"><v-icon icon="mdi-account-group" /><span>Akun</span>
-                        </div>
-                    </v-list-item>
+                        <v-list-item value="users">
+                            <div class="flex items-baseline gap-1"><v-icon icon="mdi-account-group" /><span>Akun</span>
+                            </div>
+                        </v-list-item>
                     </Link>
                 </v-list-group>
                 <Link v-if="user.role.name == 'admin'" :href="route('settings')">
-                <v-list-item value="settings">
-                    <v-icon icon="mdi-cog"></v-icon> Pengaturan
-                </v-list-item>
+                    <v-list-item value="settings">
+                        <v-icon icon="mdi-cog"></v-icon> Pengaturan
+                    </v-list-item>
                 </Link>
             </v-list>
         </v-navigation-drawer>
@@ -197,7 +199,8 @@ v-if="page.props.auth?.user?.profile_photo_path"
 
         <v-footer app color="secondary" class="static! max-h-12 self-end">
             <p class="w-full! text-center">
-                    ©{{ new Date().getFullYear() }} {{ $page?.props?.settings?.company_name }} - {{$page?.props?.settings?.company_address}}
+                ©{{ new Date().getFullYear() }} {{ $page?.props?.settings?.company_name }} -
+                {{ $page?.props?.settings?.company_address }}
             </p>
         </v-footer>
     </v-app>
