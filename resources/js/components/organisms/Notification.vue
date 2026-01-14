@@ -109,8 +109,10 @@ onUnmounted(() => clearInterval(interval));
 <template>
   <v-btn 
     id="btn-notification" 
-    rounded 
-    class="me-1" 
+    rounded
+    class="me-1 pa-0"
+    width="50" 
+    height="50" 
     @click="reloadNotifications"
   >
     <v-badge v-if="unreadCount > 0" color="warning" dot>

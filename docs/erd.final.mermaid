@@ -1,122 +1,145 @@
 ---
-title: ERD Warehouse Distribution System
+title: A
 config:
   theme: default
   layout: elk
 ---
 erDiagram
-    roles ||--o{ users : "assigned_to"
-    items ||--o{ skus : "has_variants"
-    skus ||--o{ transaction_items : "recorded_in"
-    measurement_units ||--o{ transaction_items : "measures"
-    recipients ||--o{ transactions : "receive"
-    items ||--|| measurement_units : "has_base_unit"
-    measurement_units ||--o{ measurement_units : "derived"
-    transactions ||--|{ transaction_items : "contains"
-    sku_measurement_unit_conversions }o--|| skus : "converts_for"
-    sku_measurement_unit_conversions }o--|| measurement_units : "converts_to"
-    users ||--o{ transactions : "created_by"
+    roles ||--o{ users : "diberikan ke"
+    barang ||--o{ varian : "punya varian"
+    varian ||--o{ item_aktifitas : "tercatat pada"
+    satuan ||--o{ item_aktifitas : "mengukur"
+    penerima ||--o{ aktifitas : "menerima"
+    barang ||--|| satuan : "punya satuan terkecil"
+    satuan ||--o{ satuan : "punya turunan"
+    aktifitas ||--|{ item_aktifitas : "mengandung"
+    konversi_satuan_varian }o--|| varian : "konversi untuk"
+    konversi_satuan_varian }o--|| satuan : "konversi ke"
+    users ||--o{ aktifitas : "dilakukan oleh"
+    users ||--|{ sessions : "punya"
 
     roles {
+        id VARCHAR(100) PK  "Id unik untuk role"
+        nama VARCHAR(100) UK "Nama role: Admin Gudang, Super Admin, Unit Kerja"
+    }
+
+    notifications {
+        id VARCHAR(100) PK "Id unik notification"
+        type VARCHAR(100) "Tipe notifikasi"
+        notifiable_id CHAR(64) "Reference id untuk polymorphic relation"
+        notifiable_type VARCHAR(255) "Type untuk polymorphic relation"
+        data TEXT "Data notifikasi berupa json"
+        read_at TIMESTAMP "Tanggal notifikasi serta indikator telah dibaca"
+        created_at TIMESTAMP "Tanggal notifikasi dicreate"
+        updated_at TIMESTAMP "Tanggal notifikasi didelete"
+    }
+
+    sessions {
         id VARCHAR(100) PK
-        name VARCHAR(100) UK
+        user_id VARCHAR(100) FK
+        ip_address VARCHAR(45)
+        user_agent TEXT
+        payload LONGTEXT
+        last_activity INTEGER
     }
 
     users {
-        id VARCHAR(100) PK
-        name VARCHAR(255)
-        username VARCHAR(255) UK
-        password VARCHAR(100)
-        role_id VARCHAR(100) FK
-        profile_photo_path VARCHAR(500)
-        remember_token VARCHAR(100)
-        created_at DATETIME
-        updated_at DATETIME
-        deleted_at DATETIME
+        id VARCHAR(100) PK "Id unik user"
+        nama VARCHAR(255) "Nama user"
+        username VARCHAR(255) UK "Username unik user"
+        password VARCHAR(100) "Password rahasia untuk login"
+        role_id VARCHAR(100) FK "Id role yang diberikan kepada pengguna"
+        path_poto_profil VARCHAR(100) "Path ke file poto profil pengguna"
+        created_at TIMESTAMP "Tanggal user dicreate"
+        updated_at TIMESTAMP "Tanggal user diupdate"
+        deleted_at TIMESTAMP "Tanggal user didelete, untuk indikator soft delete"
     }
 
-    settings {
+    setting {
         id VARCHAR(100) PK
-        key VARCHAR(255) UK
-        value VARCHAR(255)
+        icon_aplikasi VARCHAR(255)
+        nama_aplikasi VARCHAR(255)
+        nama_instansi VARCHAR(255)
+        alamat_instansi VARCHAR(255)
+        telepon_instansi VARCHAR(20)
+        moto VARCHAR(255)
+        visi_misi TEXT
+        struktur_organisasi VARCHAR(255)
     }
 
-    %% mendukung konversi secara global atau per sku
-    measurement_units {
-        id VARCHAR(100) PK
-        name VARCHAR(255) UK
-        base_measurement_unit_id VARCHAR(100) FK
-        conversion INTEGER "nullable"
-        is_base boolean
-        created_at DATETIME
-        updated_at DATETIME
-        deleted_at DATETIME
+    satuan {
+        id VARCHAR(100) PK "Id unik satuan"
+        nama VARCHAR(255) UK "Nama satuan"
+        satuan_terkecil_id VARCHAR(100) FK "Relasi ke satuan terkecil"
+        konversi INTEGER "Nilai konversi ke satuan terkecil"
+        satuan_terkecil boolean "Indikator satuan terkecil atau turunan"
+        created_at TIMESTAMP "Tanggal satuan dicreate"
+        updated_at TIMESTAMP "Tanggal satuan diupdate"
+        deleted_at TIMESTAMP "Tanggal satuan didelete, untuk indikator soft delete"
     } 
 
-    recipients {
-        id VARCHAR(100) PK
-        name VARCHAR(255)
-        nickname VARCHAR(255)
-        division VARCHAR(255)
-        created_at DATETIME
-        updated_at DATETIME
-        deleted_at DATETIME
+    penerima {
+        id VARCHAR(100) PK "Id unik penerima"
+        nama VARCHAR(255) "Nama penerima"
+        nama_panggilan VARCHAR(255) "Nama panggilan penerima"
+        unit_kerja VARCHAR(255) "Unit kerja dari penerima"
+        created_at TIMESTAMP "Tanggal penerima dicreate"
+        updated_at TIMESTAMP "Tanggal penerima diupdate"
+        deleted_at TIMESTAMP "Tanggal penerima didelete, untuk indikator soft delete"
     }
 
-    transactions {
-        id VARCHAR(100) PK
-        type enum "in/out"
-        user_id VARCHAR(100) FK
-        recipient_id VARCHAR(100) FK
-        supplier VARCHAR(255) "Hanya untuk transaksi barang masuk"
-        division VARCHAR(255)
-        notes text
-        transaction_date date
-        created_at DATETIME
-        updated_at DATETIME
-        deleted_at DATETIME
+    aktifitas {
+        id VARCHAR(100) PK "Id unik dari aktifitas"
+        tipe enum "Nilai: masuk/keluar, indikator tipe aktifitas" 
+        user_id VARCHAR(100) FK "Foreign key ke tabel users"
+        penerima_id VARCHAR(100) FK "Foreing key ke tabel penerima"
+        penyuplai VARCHAR(255) "Nama penyuplai, Hanya untuk transaksi barang masuk"
+        unit_kerja VARCHAR(255) "Nama unit kerja"
+        tanggal date "Tanggal aktifitas"
+        created_at TIMESTAMP "Tanggal aktifitas dicreate"
+        updated_at TIMESTAMP "Tanggal aktifitas diupdate"
+        deleted_at TIMESTAMP "Tanggal aktifitas didelete, untuk indikator soft delete"
     }
 
-    transaction_items {
-        id VARCHAR(100) PK
-        transaction_id VARCHAR(100) FK
-        sku_id VARCHAR(100) FK "SKU dari barang yang masuk dalam transaksi"
-        unit_id VARCHAR(100) FK "Satuan transaksi, bisa pakai satuan terkecil bisa tidak"
-        quantity INTEGER "Jumlah dalam satuan yang digunakan dalam transaksi"
-        base_quantity INTEGER "Jumlah dalam satuan terkecil (sesudah konversi)"
-        price DECIMAL(22_4) "Harga modal per unit saat transaksi"
-        created_at DATETIME
-        updated_at DATETIME
-        deleted_at DATETIME
+    item_aktifitas {
+        id VARCHAR(100) PK "Id unik item_aktifitas"
+        aktifitas_id VARCHAR(100) FK "Foreign key ke tabel aktifitas"
+        varian_id VARCHAR(100) FK "Varian dari barang yang masuk dalam aktifitas"
+        satuan_id VARCHAR(100) FK "Satuan aktifitas, bisa pakai satuan terkecil bisa tidak"
+        kuantitas INTEGER "Jumlah dalam satuan yang digunakan dalam aktifitas"
+        kutantitas_dasar INTEGER "Jumlah dalam satuan terkecil (sesudah konversi)"
+        harga DECIMAL(22_4) "Harga per satuan saat aktifitas"
+        created_at TIMESTAMP "Tanggal item_aktifitas dicreate"
+        updated_at TIMESTAMP "Tanggal item_aktifitas diupdate"
+        deleted_at TIMESTAMP "Tanggal item_aktifitas didelete, untuk indikator soft delete"
     }
 
-    items {
-        id VARCHAR(100) PK
-        name VARCHAR(100) UK
-        %% description text
-        base_measurement_unit_id VARCHAR(100) FK
-        created_at DATETIME
-        updated_at DATETIME
-        deleted_at DATETIME
+    barang {
+        id VARCHAR(100) PK "Id unikbarang"
+        nama VARCHAR(100) UK "Nama barang"
+        satuan_terkecil_id VARCHAR(100) FK "Satuan terkecil yang digunakan pada barang"
+        created_at TIMESTAMP "Tanggal barang dicreate"
+        updated_at TIMESTAMP "Tanggal barang diupdate"
+        deleted_at TIMESTAMP "Tanggal barang didelete, untuk indikator soft delete"
     }
 
-    skus {
+    varian {
         id VARCHAR(100) PK
-        item_id VARCHAR(100) FK
-        sku VARCHAR(100) UK "Kode SKU unik"
-        specification_name VARCHAR(255) "Merk/varian: Sidu, Paperline"
-        quantity INTEGER
-        price DECIMAL(22_4)
-        created_at DATETIME
-        updated_at DATETIME
-        deleted_at DATETIME
+        barang_id VARCHAR(100) FK
+        kode_barang VARCHAR(100) UK "Kode SKU unik"
+        nama_spesifikasi VARCHAR(255) "Merk/varian: Sidu, Paperline"
+        stok INTEGER "Stok yang tersedia pada gundang"
+        harga DECIMAL(22_4) "Harga barang pada varian"
+        created_at TIMESTAMP "Tanggal user dicreate"
+        updated_at TIMESTAMP "Tanggal user diupdate"
+        deleted_at TIMESTAMP "Tanggal user didelete, untuk indikator soft delete"
     }
 
-    sku_measurement_unit_conversions {
-        id VARCHAR(100)
-        measurement_unit_id VARCHAR(100) FK, UK
-        sku_id VARCHAR(100) FK, UK
-        conversion INTEGER
-        created_at DATETIME
-        updated_at DATETIME
+    konversi_satuan_varian {
+        id VARCHAR(100) "Id unik konversi satuan varian"
+        satuan_id VARCHAR(100) FK, UK "Id satuan pemilik konversi"
+        varian_id VARCHAR(100) FK, UK "Foreign key ke varian"
+        konversi INTEGER "Nilai konversi ke satuan terkecil"
+        created_at TIMESTAMP "Tanggal konversi satuan dicreate"
+        updated_at TIMESTAMP "Tanggal konversi satuan diupdate"
     }

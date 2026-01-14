@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('notifications', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->string('id', 100)->primary();
             $table->string('type');
             $table->uuidMorphs('notifiable');
             $table->text('data');

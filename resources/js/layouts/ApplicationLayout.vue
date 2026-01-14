@@ -199,7 +199,7 @@ onUpdated(function () {
 
         <v-footer app color="secondary" class="static! max-h-12 self-end">
             <p class="w-full! text-center">
-                ©{{ new Date().getFullYear() }} {{ $page?.props?.settings?.company_name }} -
+                ©2026 {{ $page?.props?.settings?.company_name }} -
                 {{ $page?.props?.settings?.company_address }}
             </p>
         </v-footer>
