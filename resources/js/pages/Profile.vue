@@ -137,7 +137,6 @@ const saveChanges = async () => {
       _method: 'PUT',
       name: editForm.value.name.trim(),
       username: editForm.value.username.trim(),
-      role: 'admin',
     };
 
     // Only include password if it's being changed
@@ -146,13 +145,20 @@ const saveChanges = async () => {
       formData.password_confirmation = editForm.value.password_confirmation;
     }
 
-    // Include photo if changed
-    if (editForm.value.photoFile) {
+    // Include photo if changed - pastikan file object yang valid
+    if (editForm.value.photoFile && editForm.value.photoFile instanceof File) {
       formData.profilePhoto = editForm.value.photoFile;
+      console.log('Photo file:', {
+        name: editForm.value.photoFile.name,
+        type: editForm.value.photoFile.type,
+        size: editForm.value.photoFile.size
+      });
     }
 
+    console.log('Sending formData:', formData);
+
     // Use Inertia's router.post with forceFormData
-    router.post(`/api/users/${user.id}`, formData, {
+    router.post(route('profile.update', user.id), formData, {
       forceFormData: true,
       preserveScroll: true,
       onSuccess: (page) => {
@@ -174,6 +180,10 @@ const saveChanges = async () => {
         successMessage.value = 'Profil berhasil diperbarui';
         isEditing.value = false;
         validationErrors.value = {};
+        
+        // Reset form
+        editForm.value.photoFile = null;
+        editForm.value.photoPreview = null;
 
         setTimeout(() => {
           successMessage.value = '';
@@ -229,6 +239,7 @@ const handleFileChange = (event) => {
 
   delete validationErrors.value.photo;
   editForm.value.photoFile = file;
+  
   const reader = new FileReader();
   reader.onload = (e) => {
     editForm.value.photoPreview = e.target.result;
@@ -287,7 +298,7 @@ const displayPhoto = computed(() => {
               @change="handleFileChange" />
             <div v-if="isEditing" class="mb-2">
               <div class="text-caption text-grey mb-2">
-                Klik foto untuk mengganti (JPG, PNG, WEBP - Max 2MB)
+                <span class="font-semibold text-gray-500">Klik foto</span> untuk mengganti
               </div>
               <v-btn v-if="editForm.photoPreview" size="small" color="error" variant="text" @click="removePhoto">
                 Hapus Foto Baru
@@ -367,7 +378,7 @@ const displayPhoto = computed(() => {
           <div class="d-flex ga-2">
             <v-btn v-if="!isEditing" color="primary" variant="elevated" @click="startEdit">
               <v-icon start>mdi-pencil</v-icon>
-              Sunting
+              Edit
             </v-btn>
             <template v-else>
               <v-btn variant="outlined" :disabled="processing" @click="cancelEdit">

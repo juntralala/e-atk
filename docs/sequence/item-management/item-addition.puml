@@ -1,0 +1,25 @@
+@startuml
+title Sequence Diagram - Penambahan Barang
+
+actor "Petugas" as actor1
+participant "Halaman\nPenambahan Barang" as penambahan
+participant "Aplikasi Server" as sistem
+database "Database" as db
+
+actor1 -> penambahan: Menginput penambahan barang
+activate penambahan
+penambahan -> sistem: Request simpan penambahan barang
+activate sistem
+sistem -> db: Insert data penambahan barang
+activate db
+db --> sistem: data penambahan barang
+deactivate db
+sistem -> db: Update stok barang
+activate db
+db --> sistem: Sukses update stok
+deactivate db
+sistem --> penambahan: Pesan Sukses 
+deactivate sistem
+penambahan --> actor1: Pesan Sukses 
+deactivate penambahan
+@enduml

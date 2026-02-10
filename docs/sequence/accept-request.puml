@@ -1,0 +1,54 @@
+@startuml
+title Sequence Diagram - Menerima Permintaan Barang
+actor "Petugas" as Bendahara
+actor "Unit" as Unit
+participant "Halaman\nPermintaan" as DaftarPermintaan
+participant "Aplikasi Server" as Sistem
+database "Database" as DB
+Bendahara -> DaftarPermintaan: Membuka halaman permintaan barang
+activate DaftarPermintaan
+DaftarPermintaan -> Sistem: Request data permintaan barang
+activate Sistem
+Sistem -> DB: Query permintaan barang
+activate DB
+DB --> Sistem: Data permintaan barang
+deactivate DB
+Sistem --> DaftarPermintaan: Tampilkan data permintaan barang
+deactivate Sistem
+DaftarPermintaan --> Bendahara: Tampilkan daftar permintaan barang
+alt Menerima Permintaan barang
+Bendahara -> DaftarPermintaan: Terima permintaan & tentukan jumlah
+DaftarPermintaan -> Sistem: Update status (Diterima) & jumlah
+    activate Sistem
+Sistem -> DB: Perbarui status permintaan barang\ndan simpan penerima permintaan
+    activate DB
+DB --> Sistem: Sukses
+    deactivate DB
+    
+DB --> Sistem: Update detail permintaan
+    activate DB
+DB --> Sistem: Update Sukses
+    deactivate DB
+Sistem -> DB: Update jumlah stok barang
+    activate DB
+DB --> Sistem: Update sukes
+    deactivate DB
+Sistem -> Unit: Notifikasi penerimaan permintaan barang
+Sistem --> DaftarPermintaan: Data permintaan barang yang diterima
+    deactivate Sistem
+DaftarPermintaan --> Bendahara: Tampilkan data permintaan barang yang diterima
+else Menolak Permintaan Barang
+Bendahara -> DaftarPermintaan: Tolak permintaan barang
+DaftarPermintaan -> Sistem: Update status (Ditolak)
+    activate Sistem
+Sistem -> DB: Perbarui status permintaan\ndan simpan penolak permintaan
+    activate DB
+DB --> Sistem: Status diperbarui
+    deactivate DB
+Sistem -> Unit: Notifikasi penolakan permintaan barang
+Sistem --> DaftarPermintaan: Data permintaan barang yang ditolak
+    deactivate Sistem
+DaftarPermintaan --> Bendahara: Tampilkan data permintaan barang yang ditolak
+end
+deactivate DaftarPermintaan
+@enduml

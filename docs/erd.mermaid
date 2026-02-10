@@ -1,150 +1,115 @@
 ---
-title: ERD
+title: Warehouse Management System ERD
 config:
- layout: elk
+  theme: neutral
+  layout: elk
 ---
 erDiagram
-    direction TB
-
-    users {
-        id VARCHAR(100) PK
-        name VARCHAR(255)
-        password VARCHAR(255)
-        role_id VARCHAR(100) FK
-        nip VARCHAR(20) UK
-        profile_photo_path VARCHAR(255)
-        created_at BIGINT
-        updated_at BIGINT
-        deleted_at BIGINT
-    }
-
+    roles ||--o{ users : "assigned to"
+    barang ||--o{ permintaan_barang_detail : "recorded in"
+    barang ||--|| satuan : "measured by"
+    users ||--o{ permintaan_barang : "creates request"
+    users ||--o{ permintaan_barang : "responds to request"
+    users ||--o{ penambahan_barang : "performs addition"
+    permintaan_barang ||--o{ permintaan_barang_detail : "has details"
+    penambahan_barang ||--o{ penambahan_barang_detail : "has details"
+    barang ||--o{ penambahan_barang_detail : "added to"
+    
     roles {
         id VARCHAR(100) PK
         name VARCHAR(100) UK
     }
-
-    products {
-        id VARCHAR(100) PK
-        name VARCHAR(255)
-        type_id VARCHAR(100) FK
-        unit_measures VARCHAR(100) FK
-        quantity BIGINT
-        description TEXT
-        created_at BIGINT
-        updated_at BIGINT
-        deleted_at BIGINT
-    }
-
-    types {
-        id VARCHAR(100) PK
-        name VARCHAR(100) UK
-        description TEXT
-        created_at BIGINT
-        updated_at BIGINT
-    }
-
-    customers {
-        id VARCHAR(100) PK
-        name VARCHAR(255)
-        nickname VARCHAR(255)
-    }
-
-    suppliers {
-        id VARCHAR(100) PK
-        name VARCHAR(255)
-        phone VARCHAR(20)
-        email VARCHAR(255)
-        address TEXT
-        description TEXT
-        created_at BIGINT
-        updated_at BIGINT
-        deleted_at BIGINT
-    }
-
-    categories {
-        id VARCHAR(100) PK
-        name VARCHAR(100) UK
-        created_at BIGINT
-        updated_at BIGINT
-    }
-
-    product_categories {
-        product_id VARCHAR(100) PK, FK
-        category_id VARCHAR(100) PK, FK   created_at BIGINT
-    }
-
-    transactions {
-        id VARCHAR(100) PK
-        action_id VARCHAR(100) FK "in/out/revert"
-        user_id VARCHAR(100) FK
-        description TEXT
-        reverted_from VARCHAR(100) FK
-        created_at BIGINT
-        updated_at BIGINT
-    }
-
-    unit_measures {
-        id VARCHAR(100) PK
-        name VARCHAR(100) UK
-        created_at BIGINT
-        deleted_at BIGINT
-    }
-
-    actions {
-        id VARCHAR(100) PK
-        name VARCHAR(100) UK
-    }
-
-    in_products {
-        id VARCHAR(100) PK
-        transaction_id VARCHAR(100) FK
-        supplier_id VARCHAR(100) FK
-    }
-
-    out_products {
-        id VARCHAR(100) PK
-        transaction_id VARCHAR(100) FK
-        customer_id VARCHAR(100) FK
-    }
-
-    transaction_items {
-        id VARCHAR(100) PK
-        transaction_id VARCHAR(100) FK
-        product_id VARCHAR(100) FK
-        quantity INT
-    }
-
-    in_transaction_items {
-        id VARCHAR(100) PK
-        transaction_item_id VARCHAR(100) FK
-        unit_price BIGINT
-        subtotal BIGINT
-    }
-
-    stock_histories {
-        id VARCHAR(100) PK
-        %% product_id VARCHAR(100) FK
-        transaction_item_id VARCHAR(100) FK
-        stock_before BIGINT
-        stock_change INT
-        stock_after BIGINT
-    }
-
-    users }|--o|  roles: has
-    products ||--o{ product_categories: has
-    categories ||--o{ product_categories: has
-    products }o--o| types: has
-    products }o--|| unit_measures: has
     
-    users ||--o{ transactions: perform
+    users {
+        id VARCHAR(100) PK
+        name VARCHAR(255)
+        username VARCHAR(255) UK
+        password VARCHAR(100)
+        role_id VARCHAR(100) FK
+        profile_photo_path VARCHAR(100)
+        created_at DATETIME
+        updated_at DATETIME 
+        deleted_at DATETIME 
+    }
     
-    transactions ||--o| out_products: has
-    transactions ||--o| in_products: has
-    customers ||--o{ out_products: has
-    suppliers ||--o{ in_products: has
-    transactions ||--|{ transaction_items: has
-    transactions }o--|| actions: has
-    products ||--o{ transaction_items: has
-    stock_histories ||--|| transaction_items: has
-    %% stock_histories ||--|| products: has
-    in_transaction_items |o--|| transaction_items: has
+    notifications {
+        id VARCHAR(100) PK
+        type VARCHAR(100) 
+        notifiable_id CHAR(64)
+        notifiable_type VARCHAR(255)
+        data TEXT
+        read_at DATETIME
+        created_at DATETIME 
+        updated_at DATETIME 
+    }
+    
+    items {
+        id VARCHAR(100) PK 
+        name VARCHAR(100)
+        unit_id VARCHAR(100) FK 
+        specification_name VARCHAR(255) 
+        stock INTEGER 
+        price DECIMAL(20_2)
+        created_at DATETIME 
+        updated_at DATETIME 
+        deleted_at DATETIME 
+    }
+
+    settings {
+        id VARCHAR(100) PK
+        icon VARCHAR(500)
+        logo VARCHAR(500)
+        application_name VARCHAR(255) 
+        institution_name VARCHAR(255)
+        institution_address TEXT 
+        institution_phone VARCHAR(20)
+        created_at DATETIME 
+        updated_at DATETIME 
+    }
+    
+    units {
+        id VARCHAR(100) PK 
+        name VARCHAR(255)
+        created_at DATETIME 
+        updated_at DATETIME 
+        deleted_at DATETIME
+    }
+    
+    item_requests {
+        id VARCHAR(100) PK 
+        requester_id VARCHAR(100) FK 
+        status ENUM 
+        request_date DATE
+        responder_id VARCHAR(100) FK 
+        responder_notes TEXT 
+        response_date DATE
+        created_at DATETIME 
+        updated_at DATETIME 
+    }
+    
+    item_request_details {
+        id VARCHAR(100) PK  
+        item_request_id VARCHAR(100) FK 
+        item_id VARCHAR(100) 
+        requested_quantity INTEGER 
+        received_quantity INTEGER 
+        price DECIMAL(20_2)
+        created_at DATETIME
+        updated_at DATETIME
+    }
+    
+    item_additions {
+        id VARCHAR(100) PK
+        user_id VARCHAR(100) FK 
+        addition_date DATE
+        created_at DATETIME 
+    }
+    
+    item_addition_details {
+        id VARCHAR(100) PK  
+        item_addition_id VARCHAR(100) FK
+        item_id VARCHAR(100) FK
+        quantity INTEGER 
+        price DECIMAL(20_2)
+        created_at DATETIME
+    }

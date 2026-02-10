@@ -1,0 +1,72 @@
+@startuml Sequence Diagram Kelola Satuan
+title Sequence Diagram - Kelola Satuan
+
+actor "Bendahara/Pegawai" as actor1
+participant "Halaman\nSatuan" as satuan
+participant "Aplikasi Server" as sistem
+database "Database" as db
+
+actor1 -> satuan: Membuka halaman satuan
+activate satuan
+satuan -> sistem: Request data satuan
+activate sistem
+sistem -> db: Query data satuan
+activate db
+db --> sistem: Data satuan
+deactivate db
+sistem --> satuan: Data satuan
+deactivate sistem
+
+actor1 -> satuan: Lihat data satuan
+
+alt Tambah Satuan
+    actor1 -> satuan: Input data satuan baru
+    satuan -> sistem: Request tambah satuan
+    activate sistem
+    sistem -> db: Insert data satuan
+    activate db
+    db --> sistem: Data satuan
+    deactivate db
+    sistem -> db: Query data satuan
+    activate db
+    db --> sistem: Data satuan
+    deactivate db
+    sistem --> satuan: Kirim data satuan
+    deactivate sistem
+    satuan --> actor1: Menampilkan data satuan
+    
+else Ubah Satuan
+    actor1 -> satuan: Input perubahan data satuan
+    satuan -> sistem: Request update satuan
+    activate sistem
+    sistem -> db: Update data satuan
+    activate db
+    db --> sistem: Jumlah data terupdate
+    deactivate db
+    sistem -> db: Query data satuan
+    activate db
+    db --> sistem: Data satuan
+    deactivate db
+    sistem --> satuan: Data satuan
+    deactivate sistem
+    satuan --> actor1: Menampilkan data satuan
+    
+else Hapus Satuan
+    actor1 -> satuan: Pilih data untuk dihapus
+    satuan -> sistem: Request hapus satuan
+    activate sistem
+    sistem -> db: Delete data satuan
+    activate db
+    db --> sistem: Jumlah data terdelete
+    deactivate db
+    sistem -> db: Query data satuan
+    activate db
+    db --> sistem: Data satuan
+    deactivate db
+    sistem --> satuan: Data satuan
+    deactivate sistem
+    satuan --> actor1: Menampilkan data satuan
+end
+deactivate satuan
+
+@enduml

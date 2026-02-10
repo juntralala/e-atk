@@ -1,310 +1,462 @@
 <script setup>
-import ApplicationLayout from '@/layouts/ApplicationLayout.vue';
-import { ref } from 'vue';
-import { useForm, Head } from '@inertiajs/vue3';
-import { router } from '@inertiajs/vue3';
 import PageTitleHighlightPart from '@/components/atoms/PageTitleHighlightPart.vue';
+import AlertDialog from '@/components/organisms/AlertDialog.vue';
+import ApplicationLayout from '@/layouts/ApplicationLayout.vue';
+import { Head, router, useForm } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
 
 defineOptions({
-    layout: ApplicationLayout
+  layout: ApplicationLayout,
 });
 
 const props = defineProps({
-    items: Array,
-    baseUnits: Array // hanya di pakai di form add/edit (refactor nanti)
+  items: {
+    type: [Array, null],
+    default: [],
+  },
+  units: {
+    type: [Array, null],
+    default: [],
+  },
 });
 
-const showItemAddDialog = ref(false);
-const showItemEditDialog = ref(false);
-const itemAddFormRef = ref(null);
-const itemEditFormRef = ref(null);
-const disableItemAddSubmit = ref(false);
-const disableItemEditSubmit = ref(false);
-
-const itemAddForm = useForm({
-    name: '',
-    base_measurement_unit_id: ''
+const dialog = ref(false);
+const editingId = ref(null);
+const form = useForm({
+  name: '',
+  unit_id: '',
+  spesification_name: '',
+  stock: 0,
+  price: 0,
 });
 
-const itemEditForm = useForm({
-    id: null,
-    name: '',
-    base_measurement_unit_id: ''
-});
+const errorDialog = ref(false);
+const errorMessage = ref('');
+const errorTitle = ref('Gagal!');
 
-const itemFormRule = {
-    name: [
-        (value) => !!value || "Harus diisi",
-        (value) => value.length >= 2 || "Nama barang harus setidaknya 2 karakter",
-        (value) => value.length < 255 || "Nama barang tidak boleh lebih 255 karakter",
-    ]
+const openAddDialog = () => {
+  editingId.value = null;
+  form.reset();
+  form.clearErrors();
+  dialog.value = true;
 };
 
 const openEditDialog = (item) => {
-    itemEditForm.id = item.id;
-    itemEditForm.name = item.name;
-    itemEditForm.base_measurement_unit_id = item.base_measurement_unit.id;
-    itemEditForm.clearErrors();
-    showItemEditDialog.value = true;
-    itemEditForm.defaults();
+  editingId.value = item.id;
+  form.name = item.name;
+  form.unit_id = item.unit_id;
+  form.spesification_name = item.spesification_name;
+  form.stock = item.stock;
+  form.price = item.price;
+  form.clearErrors();
+  dialog.value = true;
 };
 
-async function submitItemAddForm() {
-    const validated = await itemAddFormRef.value.validate();
-    if (validated.valid) {
-        disableItemAddSubmit.value = true;
-        itemAddForm.post('/items', {
-            onSuccess: () => {
-                showItemAddDialog.value = false;
-                itemAddFormRef.value.reset();
-                disableItemAddSubmit.value = false;
-                router.reload();
-            },
-            onError: () => {
-                disableItemAddSubmit.value = false;
-            }
-        });
-    }
-}
-
-async function submitItemEditForm() {
-    const validated = await itemEditFormRef.value.validate();
-    if (validated.valid) {
-        disableItemEditSubmit.value = true;
-        itemEditForm.put(`/items/${itemEditForm.id}`, {
-            onSuccess: () => {
-                showItemEditDialog.value = false;
-                itemEditFormRef.value.reset();
-                disableItemEditSubmit.value = false;
-                router.reload();
-            },
-            onError: () => {
-                disableItemEditSubmit.value = false;
-            },
-        });
-    }
-}
+const submitForm = () => {
+  if (editingId.value) {
+    form.put(route('items.update', editingId.value), {
+      onSuccess: () => {
+        dialog.value = false;
+        form.reset();
+        router.reload();
+      },
+      onError: (errors) => {
+        // Cek apakah ada error non-field
+        const fieldErrors = ['name', 'unit_id', 'spesification_name', 'stock', 'price'];
+        const hasNonFieldError = Object.keys(errors).some(key => !fieldErrors.includes(key));
+        
+        if (hasNonFieldError || errors.message) {
+          errorTitle.value = 'Gagal Memperbarui!';
+          errorMessage.value = errors.message || 'Terjadi kesalahan saat memperbarui barang.';
+          errorDialog.value = true;
+        }
+      },
+    });
+  } else {
+    form.post(route('items.create'), {
+      onSuccess: () => {
+        dialog.value = false;
+        form.reset();
+        router.reload();
+      },
+      onError: (errors) => {
+        // Cek apakah ada error non-field
+        const fieldErrors = ['name', 'unit_id', 'spesification_name', 'stock', 'price'];
+        const hasNonFieldError = Object.keys(errors).some(key => !fieldErrors.includes(key));
+        
+        if (hasNonFieldError || errors.message) {
+          errorTitle.value = 'Gagal Menyimpan!';
+          errorMessage.value = errors.message || 'Terjadi kesalahan saat menyimpan barang.';
+          errorDialog.value = true;
+        }
+      },
+    });
+  }
+};
 
 const deleteItem = (id) => {
-    itemEditForm.delete(`/items/${id}`, {
-        onSuccess: () => {
-            router.reload();
-        }
-    });
+  form.delete(route('items.delete', id), {
+    onSuccess: () => {
+      router.reload();
+    },
+    onError: (errors) => {
+      errorTitle.value = 'Gagal Menghapus!';
+      errorMessage.value = errors.message || 'Terjadi kesalahan saat menghapus barang.';
+      errorDialog.value = true;
+    },
+  });
+};
+
+const closeDialog = () => {
+  dialog.value = false;
+  form.reset();
+  form.clearErrors();
+};
+
+// Format harga ke Rupiah
+const formatRupiah = (value) => {
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0,
+  }).format(value);
 };
 </script>
 
 <template>
-    <Head title="Barang"></Head>
-    <v-container>
-        <v-row>
-            <v-col>
-                <PageTitleHighlightPart first-part-title="Kelola" second-part-title="Barang"/>
-            </v-col>
-        </v-row>
-        <v-row>
-            <v-col>
-                <v-btn variant="tonal" color="blue-darken-2">
-                    <span>
-                        <v-icon icon="mdi-plus" />
-                        Tambah barang
-                    </span>
-                    <v-dialog activator="parent" max-width="800" v-slot="{ isActive }" v-model="showItemAddDialog">
+  <Head>
+    <title>Data barang</title>
+  </Head>
+  <v-container>
+    <!-- Alert Dialog untuk error non-field -->
+    <AlertDialog
+      v-model="errorDialog"
+      :title="errorTitle"
+      :message="errorMessage"
+    />
+
+    <v-row>
+      <v-col>
+        <PageTitleHighlightPart
+          first-part-title="Data"
+          second-part-title="Barang"
+        />
+      </v-col>
+    </v-row>
+
+    <v-row>
+      <v-col>
+        <v-btn
+          variant="tonal"
+          color="primary"
+          prepend-icon="mdi-package-variant-plus"
+          @click="openAddDialog"
+        >
+          Tambah Barang
+        </v-btn>
+      </v-col>
+    </v-row>
+
+    <!-- Desktop Table View -->
+    <v-row class="hidden! md:block!">
+      <v-col cols="12">
+        <v-table class="borderless-table">
+          <thead class="bg-blue-darken-2">
+            <tr>
+              <th class="w-1/16 text-left">No</th>
+              <th class="text-left">Nama Barang</th>
+              <th class="text-left">Satuan</th>
+              <th class="text-left">Spesifikasi</th>
+              <th class="text-left">Stok</th>
+              <th class="text-left">Harga</th>
+              <th class="w-1/12 text-left">Tindakan</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="(item, index) in items"
+              :key="item.id"
+            >
+              <td>{{ index + 1 }}</td>
+              <td>{{ item.name }}</td>
+              <td>{{ item.unit.name }}</td>
+              <td>{{ item.spesification_name }}</td>
+              <td>{{ item.stock }}</td>
+              <td>{{ formatRupiah(item.price) }}</td>
+              <td>
+                <v-btn
+                  size="small"
+                  icon="mdi-dots-vertical"
+                  variant="text"
+                ></v-btn>
+                <v-menu activator="parent">
+                  <v-list density="compact">
+                    <v-list-item
+                      value="edit"
+                      @click="openEditDialog(item)"
+                    >
+                      <v-icon
+                        icon="mdi-pencil"
+                        class="mr-2"
+                      />
+                      Edit
+                    </v-list-item>
+                    <v-list-item value="delete">
+                      <v-icon
+                        icon="mdi-delete"
+                        class="mr-2"
+                      />
+                      Hapus
+                      <v-dialog
+                        v-slot="{ isActive }"
+                        activator="parent"
+                        max-width="400"
+                      >
                         <v-card>
-                            <v-card-title class="text-center">Tambah Barang</v-card-title>
-                            <v-divider />
+                          <v-card-title class="bg-blue-darken-2 text-center text-wrap">Konfirmasi!</v-card-title>
+                          <v-card-text>
+                            <div>
+                              Apakah Anda yakin ingin menghapus barang <span class="text-blue-600 font-weight-bold">{{ item.name }}</span>?
+                            </div>
+                          </v-card-text>
+                          <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn @click="isActive.value = false">Batal</v-btn>
+                            <v-btn
+                              color="error"
+                              @click="
+                                deleteItem(item.id);
+                                isActive.value = false;
+                              "
+                            >
+                              Hapus
+                            </v-btn>
+                          </v-card-actions>
+                        </v-card>
+                      </v-dialog>
+                    </v-list-item>
+                  </v-list>
+                </v-menu>
+              </td>
+            </tr>
+            <tr v-if="!items || items.length === 0">
+              <td
+                colspan="7"
+                class="text-grey text-center"
+              >
+                Belum ada barang yang ditambahkan
+              </td>
+            </tr>
+          </tbody>
+        </v-table>
+      </v-col>
+    </v-row>
+
+    <!-- Mobile Card View -->
+    <v-row class="md:hidden!">
+      <v-col>
+        <v-row
+          v-for="item in items"
+          :key="item.id"
+        >
+          <v-col>
+            <v-card>
+              <v-card-actions class="bg-blue-darken-2 flex justify-end">
+                <v-btn
+                  variant="text"
+                  icon
+                >
+                  <v-icon icon="mdi-dots-vertical" />
+                  <v-menu activator="parent">
+                    <v-list density="compact">
+                      <v-list-item
+                        value="edit"
+                        @click="openEditDialog(item)"
+                      >
+                        <v-icon
+                          icon="mdi-pencil"
+                          class="mr-2"
+                        />
+                        Edit
+                      </v-list-item>
+                      <v-list-item value="delete">
+                        <v-icon
+                          icon="mdi-delete"
+                          class="mr-2"
+                        />
+                        Hapus
+                        <v-dialog
+                          v-slot="{ isActive }"
+                          activator="parent"
+                          max-width="400"
+                        >
+                          <v-card>
+                            <v-card-title class="bg-blue-darken-2 text-center text-wrap">Konfirmasi!</v-card-title>
                             <v-card-text>
-                                <v-form ref="itemAddFormRef" @submit.prevent="submitItemAddForm">
-                                    <v-text-field 
-                                        v-model="itemAddForm.name" 
-                                        label="Nama Barang" 
-                                        density="comfortable"
-                                        :rules="itemFormRule.name"
-                                        :error-messages="itemAddForm.errors.name" />
-                                    <v-autocomplete 
-                                        v-model="itemAddForm.base_measurement_unit_id"
-                                        :error-messages="itemAddForm.errors.base_measurement_unit_id"
-                                        label="Satuan dasar"
-                                        :items="baseUnits"
-                                        item-title="name"
-                                        item-value="id"/>
-                                </v-form>
+                              <div>
+                                Apakah Anda yakin ingin menghapus barang <span class="text-blue-600 font-weight-bold">{{ item.name }}</span>?
+                              </div>
                             </v-card-text>
                             <v-card-actions>
-                                <v-btn @click="isActive.value = false">Cancel</v-btn>
-                                <v-btn color="blue-darken-4" :disabled="disableItemAddSubmit"
-                                    @click="submitItemAddForm">
-                                    <span v-if="!disableItemAddSubmit">Submit</span>
-                                    <span v-else>
-                                        <v-progress-circular indeterminate size="20" />
-                                    </span>
-                                </v-btn>
+                              <v-spacer></v-spacer>
+                              <v-btn @click="isActive.value = false">Batal</v-btn>
+                              <v-btn
+                                color="error"
+                                @click="
+                                  deleteItem(item.id);
+                                  isActive.value = false;
+                                "
+                              >
+                                Hapus
+                              </v-btn>
                             </v-card-actions>
-                        </v-card>
-                    </v-dialog>
+                          </v-card>
+                        </v-dialog>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
                 </v-btn>
-            </v-col>
+              </v-card-actions>
+              <v-card-text>
+                <v-row>
+                  <v-col cols="5">Nama Barang</v-col>
+                  <v-col>{{ item.name }}</v-col>
+                </v-row>
+                <v-row>
+                  <v-col cols="5">Satuan</v-col>
+                  <v-col>{{ item.unit.name }}</v-col>
+                </v-row>
+                <v-row>
+                  <v-col cols="5">Spesifikasi</v-col>
+                  <v-col>{{ item.spesification_name }}</v-col>
+                </v-row>
+                <v-row>
+                  <v-col cols="5">Stok</v-col>
+                  <v-col>{{ item.stock }}</v-col>
+                </v-row>
+                <v-row>
+                  <v-col cols="5">Harga</v-col>
+                  <v-col>{{ formatRupiah(item.price) }}</v-col>
+                </v-row>
+              </v-card-text>
+            </v-card>
+          </v-col>
         </v-row>
 
-        <!-- Edit Item Dialog -->
-        <v-dialog max-width="800" v-model="showItemEditDialog">
+        <v-row v-if="!items || items.length === 0">
+          <v-col>
             <v-card>
-                <v-card-title class="text-center">Sunting Barang</v-card-title>
-                <v-divider />
-                <v-card-text>
-                    <v-form ref="itemEditFormRef">
-                        <v-text-field 
-                        v-model="itemEditForm.name" 
-                        label="Nama Barang" 
-                        density="comfortable"
-                        :rules="itemFormRule.name"
-                        :error-messages="itemEditForm.errors.name" />
-                        <v-autocomplete
-                        v-model="itemEditForm.base_measurement_unit_id"
-                        :error-messages="itemAddForm.errors.base_measurement_unit_id"
-                        label="Satuan dasar"
-                        :items="baseUnits"
-                        item-title="name"
-                        item-value="id"/>
-                    </v-form>
-                </v-card-text>
-                <v-card-actions>
-                    <v-btn @click="showItemEditDialog = false">Cancel</v-btn>
-                    <v-btn color="blue-darken-4"
-                    :disabled="disableItemEditSubmit || (!itemEditForm.isDirty)"
-                    @click="submitItemEditForm">
-                    <span v-if="!disableItemEditSubmit">Update</span>
-                        <span v-else>
-                            <v-progress-circular indeterminate size="20" />
-                        </span>
-                    </v-btn>
-                </v-card-actions>
+              <v-card-text class="text-center text-grey">
+                Belum ada barang yang ditambahkan
+              </v-card-text>
             </v-card>
-        </v-dialog>
-        
-        <!-- Desktop -->
-        <v-row class="hidden! md:block!">
-            <v-col>
-                <v-data-table 
-                    :headers="[
-                        { title: 'No', key: 'no', width: '6%' },
-                        { title: 'Nama Barang', key: 'name' },
-                        { title: 'Satuan Dasar', key: 'baseMeasurementUnit' },
-                        { title: 'Tindakan', key: 'more', width: '10%' }
-                    ]" 
-                    :items="items.map((item, index) => ({ 
-                        no: index + 1, 
-                        name: item.name, 
-                        baseMeasurementUnit: item?.base_measurement_unit.name, 
-                        more: item.id,
-                        fullData: item
-                    }))"
-                    class="hidden! md:block!">
-                    <template #headers="{ headers }">
-                        <tr class="bg-blue-darken-2">
-                            <th v-for="i in (headers.at(0).length)" :key="i">{{ headers.at(0).at(i - 1).title }}</th>
-                        </tr>
-                    </template>
-                    <template #item.more="{ item }">
-                        <v-btn variant="text" icon>
-                            <v-icon icon="mdi-dots-vertical" />
-                                <v-menu activator="parent">
-                                    <v-list density="compact">
-                                        <v-list-item 
-                                            value="edit" 
-                                            @click="openEditDialog(item.fullData)">
-                                            <v-icon icon="mdi-pencil" class="mr-2" />
-                                            Sunting
-                                        </v-list-item>
-                                        <v-list-item value="delete">
-                                            <v-icon icon="mdi-delete" class="mr-2" />
-                                            Hapus
-                                            <v-dialog activator="parent" max-width="400" v-slot="{ isActive }">
-                                                <v-card>
-                                                    <v-card-title
-                                                        class="text-wrap text-center bg-blue-darken-2">Konfirmasi!</v-card-title>
-                                                    <v-card-text>
-                                                        <div>Apakah yakin untuk menghapus barang dengan nama <span
-                                                                class="text-blue-600">{{ item.name }}</span></div>
-                                                    </v-card-text>
-                                                    <v-card-actions>
-                                                        <v-btn @click="deleteItem(item.more); isActive.value = false">Ya</v-btn>
-                                                        <v-btn @click="isActive.value = false">Batal</v-btn>
-                                                    </v-card-actions>
-                                                </v-card>
-                                            </v-dialog>
-                                        </v-list-item>
-                                    </v-list>
-                                </v-menu>
-                        </v-btn>
-                    </template>
-                </v-data-table>
-            </v-col>
+          </v-col>
         </v-row>
-        
-        <!-- Mobile -->
-        <v-row class="md:hidden!">
-            <v-col>
-                <v-row v-for="(item, index) in items" :key="item.id">
-                    <v-col>
-                        <v-card>
-                            <v-card-actions class="flex justify-end bg-blue-darken-2">
-                                <v-btn variant="text" icon>
-                                    <v-icon icon="mdi-dots-vertical" />
-                                    <v-menu activator="parent">
-                                        <v-list density="compact">
-                                            <v-list-item 
-                                                value="edit" 
-                                                @click="openEditDialog(item)">
-                                                <v-icon icon="mdi-pencil" class="mr-2" />
-                                                Sunting
-                                            </v-list-item>
-                                            <v-list-item value="delete">
-                                                <v-icon icon="mdi-delete" class="mr-2" />
-                                                Hapus
-                                                <v-dialog activator="parent" max-width="400" v-slot="{ isActive }">
-                                                    <v-card>
-                                                        <v-card-title
-                                                            class="text-wrap text-center bg-blue-darken-2">Konfirmasi!</v-card-title>
-                                                        <v-card-text>
-                                                            <div>Apakah yakin untuk menghapus barang dengan nama <span
-                                                                    class="text-blue-600">{{ item.name }}</span></div>
-                                                        </v-card-text>
-                                                        <v-card-actions>
-                                                            <v-btn @click="deleteItem(item.id); isActive.value = false">Ya</v-btn>
-                                                            <v-btn @click="isActive.value = false">Batal</v-btn>
-                                                        </v-card-actions>
-                                                    </v-card>
-                                                </v-dialog>
-                                            </v-list-item>
-                                        </v-list>
-                                    </v-menu>
-                                </v-btn>
-                            </v-card-actions>
-                            <v-card-text>
-                                <v-row>
-                                    <v-col cols="5">No</v-col>
-                                    <v-col>{{ index + 1 }}</v-col>
-                                </v-row>
-                                <v-row>
-                                    <v-col cols="5">Nama Barang</v-col>
-                                    <v-col>{{ item.name }}</v-col>
-                                </v-row>
-                            </v-card-text>
-                        </v-card>
-                    </v-col>
-                </v-row>
-                
-                <v-row v-if="!items || items.length === 0">
-                    <v-col>
-                        <v-card>
-                            <v-card-text class="text-center text-grey">
-                                Tidak ada barang yang tersedia
-                            </v-card-text>
-                        </v-card>
-                    </v-col>
-                </v-row>
-            </v-col>
-        </v-row>
-    </v-container>
+      </v-col>
+    </v-row>
+
+    <!-- Add/Edit Barang Dialog Form -->
+    <v-dialog
+      v-model="dialog"
+      max-width="700px"
+      persistent
+    >
+      <v-card>
+        <v-card-title class="bg-blue-darken-2">
+          <span class="text-h5">{{ editingId ? 'Edit Barang' : 'Tambah Barang Baru' }}</span>
+        </v-card-title>
+        <v-card-text>
+          <v-container>
+            <v-form @submit.prevent="submitForm">
+              <v-row>
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    v-model="form.name"
+                    label="Nama Barang *"
+                    :error-messages="form.errors.name"
+                    placeholder="Contoh: Laptop Dell"
+                    required
+                    variant="outlined"
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <v-select
+                    v-model="form.unit_id"
+                    label="Satuan *"
+                    :items="units"
+                    item-title="name"
+                    item-value="id"
+                    :error-messages="form.errors.unit_id"
+                    placeholder="Pilih satuan"
+                    required
+                    variant="outlined"
+                  ></v-select>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="12">
+                  <v-textarea
+                    v-model="form.spesification_name"
+                    label="Spesifikasi *"
+                    :error-messages="form.errors.spesification_name"
+                    placeholder="Contoh: Core i5, RAM 8GB, SSD 256GB"
+                    required
+                    variant="outlined"
+                    rows="3"
+                  ></v-textarea>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    v-model.number="form.stock"
+                    label="Stok"
+                    :error-messages="form.errors.stock"
+                    type="number"
+                    min="0"
+                    placeholder="0"
+                    variant="outlined"
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    v-model.number="form.price"
+                    label="Harga"
+                    :error-messages="form.errors.price"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="0"
+                    prefix="Rp"
+                    variant="outlined"
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+            </v-form>
+          </v-container>
+          <small class="text-grey">* Wajib diisi</small>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="grey-darken-1"
+            variant="text"
+            :disabled="form.processing"
+            @click="closeDialog"
+          >
+            Batal
+          </v-btn>
+          <v-btn
+            color="primary"
+            variant="tonal"
+            :loading="form.processing"
+            @click="submitForm"
+          >
+            {{ editingId ? 'Perbarui' : 'Simpan' }}
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </v-container>
 </template>

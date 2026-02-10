@@ -1,34 +1,31 @@
 @startuml usecase
 left to right direction
-' skinparam actorBackgroundColor #FFE4B5
-' skinparam usecaseBackgroundColor #E1F5FE
-' skinparam arrowColor #333333
+skinparam linetype polyline
 
-actor Admin as admin
-actor "Pegawai" as staff
-actor "Direktur" as director
+actor "Administrator" as admin
+actor "Bendahara" as bendahara
+actor "Petugas" as petugas
+actor "Unit" as unit
 
-rectangle "Aplikasi Gudang ATK" {
-    usecase "Mengelola Akun" as UC1
+rectangle "Aplikasi Manajemen ATK" {
+    usecase "Mengelola Pengguna" as UC1
+    usecase "Mengelola Satuan" as UC7
     usecase "Mengelola Barang" as UC3
-    usecase "Audit Barang keluar dan masuk" as UC2
-    usecase "Melihat Laporan" as UC4
+    usecase "Meminta barang" as UC2
+    usecase "Menerima permintaan barang" as UC6
+    usecase "Laporan" as UC4
+    usecase "Laporan Pengeluaran" as UC4_1
     usecase "Pengaturan Aplikasi" as UC5
-    ' usecase "Export Laporan" as UC6
 }
 
-admin --> UC1
-admin --> UC5
-admin --> UC3
-admin --> UC2
-
-staff --> UC2
-staff --> UC3
-staff --> UC4
-
-director --> UC4
-' director --> UC6
-
-' UC4 .> UC6 : extends
+' UC1 <-- admin
+UC5 <-- admin
+UC1 <-- admin
+unit --> UC2
+petugas --> UC7
+petugas --> UC3
+petugas --> UC6
+petugas --> UC4
+UC4_1 <-- bendahara
 
 @enduml

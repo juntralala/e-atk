@@ -1,207 +1,283 @@
 <script setup>
-import { Head, Link, usePage } from '@inertiajs/vue3';
-import { onMounted, onUpdated, ref } from 'vue';
+import ProfilePhoto from '@/components/atoms/ProfilePhoto.vue';
+import DrawerItem from '@/components/molecules/DrawerItem.vue';
+import AlertDialog from '@/components/organisms/AlertDialog.vue';
+import Footer from '@/components/organisms/Footer.vue';
 import Notification from '@/components/organisms/Notification.vue';
+import {
+  canAddItem,
+  canInItemRequestPage,
+  canInUnitPage,
+  canInUserPage,
+  canManageItem,
+  canReadReport,
+  canRequestItem,
+  canSeeMasterData,
+  canSetting,
+} from '@/lib/can';
+import { Head, Link } from '@inertiajs/vue3';
+import { onMounted, onUpdated, ref, watch } from 'vue';
+import { useDisplay } from 'vuetify/lib/composables/display.mjs';
 
-const page = usePage();
-const user = page.props?.auth?.user;
+const { auth, settings, errors } = defineProps({
+  auth: {
+    type: Object,
+    default: null,
+  },
+  settings: {
+    type: Object,
+    default: null,
+  },
+  errors: {
+    type: Object,
+    default: null,
+  },
+});
 
-const showDrawer = ref(false);
+// penangkap error global START
+const showAlert = ref(false);
+const alertMessage = ref('');
+watch(
+  () => errors?.message,
+  (newVal) => {
+    if (!!newVal) {
+      showAlert.value = true;
+      alertMessage.value = errors?.message;
+    }
+  },
+  { immediate: true },
+);
+watch(
+  () => showAlert.value,
+  (newVal) => {
+    if (!newVal) {
+      errors.message = '';
+    }
+  },
+);
+// penangkap error global END
+
+const { user } = auth;
+const { mdAndUp } = useDisplay();
+
+const showDrawer = ref(mdAndUp);
 const selectedMenu = ref([]);
 const expandedGroups = ref([]);
 
-function showDrawerOnMdScreenSize() {
-    if (window.innerWidth > 1024) {
-        showDrawer.value = true;
-    }
-}
 function toggleDrawer() {
-    showDrawer.value = !showDrawer.value;
+  showDrawer.value = !showDrawer.value;
 }
-function updateSelectedMenu(menu) {
-    selectedMenu.value = [menu];
-}
-function selectMenu() {
-    switch (route().current()) {
-        case 'home': updateSelectedMenu('home'); break;
-        case 'items.inbound': updateSelectedMenu('items.inbound'); break;
-        case 'items.outbound': updateSelectedMenu('items.outbound'); break;
-        case 'items.transactions.history': updateSelectedMenu('items.transactions.history'); break;
-        case 'settings': updateSelectedMenu('settings'); break;
-        case 'users': updateSelectedMenu('users'); break;
-        case 'items': updateSelectedMenu('items'); break;
-        case 'items.units': updateSelectedMenu('items.units'); break;
-        case 'items.stocks': updateSelectedMenu('items.stocks'); break;
-        case 'items.skus': updateSelectedMenu('items.skus'); break;
-        case 'recipients': updateSelectedMenu('recipients'); break;
-        default: updateSelectedMenu(null);
-    }
+
+// ambil route saat ini dan isi nilai dari selectedMenu.value
+// agar menampilkan hightlight pada saat halman pertama kali dibuka
+function hightlightSelectedMenu() {
+  selectedMenu.value = [route(route().current())];
 }
 
 onMounted(async function () {
-    showDrawerOnMdScreenSize();
+  // expand group menu yang terpilih
+  switch (route().current()) {
+    case 'users':
+    case 'items':
+    case 'units':
+      expandedGroups.value = ['master'];
+      break;
+    case 'items.exports.view':
+    case 'items.additions.exports.view':
+    case 'items.requests.exports.view':
+    case 'items.expenditures.exports.view':
+    case 'expenditures.units.exports.view':
+      expandedGroups.value = ['report'];
+      break;
+  }
 
-    // expand group menu yang terpilih
-    switch (route().current()) {
-        case 'users': expandedGroups.value = ['master']; break;
-        case 'items': expandedGroups.value = ['master']; break;
-        // case 'supliers': expandedGroups.value = ['master']; break;
-        case 'items.units': expandedGroups.value = ['master']; break;
-        case 'recipients': expandedGroups.value = ['master']; break;
-    }
-
-    selectMenu();
+  hightlightSelectedMenu();
 });
 onUpdated(function () {
-    selectMenu();
+  hightlightSelectedMenu();
 });
-
 </script>
 
 <template>
-
-    <Head v-slot="props">
-        <link rel="shortcut icon" :href="$page?.props?.settings?.app_icon || 'favicon.ico'" type="image/x-icon">
-            <title>{{ $page?.props?.settings?.app_name }}</title>
-    </Head>
-    <v-app>
-        <v-app-bar elevation="1" color="blue-darken-2" class="pe-2">
-            <v-app-bar-title>
-                <v-icon icon="mdi-menu" @click="toggleDrawer"></v-icon>
-                <span class="ms-2">{{ $page.props.settings.app_name }}</span>
-            </v-app-bar-title>
-            <template #append>
-                <Notification/>
-                <v-avatar id="profile-avatar">
-                    <img v-if="page.props.auth?.user?.profile_photo_path"
-                        :src="page.props.auth?.user?.profile_photo_path" alt="alt">
-                    <v-icon v-else class="cursor-pointer" icon="mdi-account" size="x-large" />
-                </v-avatar>
-                <v-menu activator="#profile-avatar" :close-on-content-click="false">
-                    <v-card>
-                        <v-card-title>{{ $page.props.auth.user?.name }}</v-card-title>
-                        <v-card-subtitle>{{ $page.props.auth.user?.role?.name }}</v-card-subtitle>
-                        <v-divider />
-                        <v-list density="comfortable">
-                            <Link :href="route('account.profile')">
-                                <v-list-item value="profile">Profil</v-list-item>
-                            </Link>
-                            <Link :href="route('logout')" class="w-full! text-left" method="post">
-                                <v-list-item value="logout">
-                                    Log out
-                                </v-list-item>
-                            </Link>
-                        </v-list>
-                    </v-card>
-                </v-menu>
-            </template>
-        </v-app-bar>
-        <v-navigation-drawer v-model="showDrawer">
-            <v-list v-model:selected="selectedMenu" v-model:opened="expandedGroups" color="blue" mandatory>
-                <Link :href="route('home')">
-                    <v-list-item value="home">
-                        <div class="flex items-baseline gap-1">
-                            <v-icon icon="mdi-home" />
-                            <div>Dashboard</div>
-                        </div>
-                    </v-list-item>
-                </Link>
-                <Link :href="route('items.inbound')">
-                    <v-list-item value="items.inbound">
-                        <div class="flex items-baseline gap-1">
-                            <v-icon icon="mdi-card-plus" />
-                            <div>Barang Masuk</div>
-                        </div>
-                    </v-list-item>
-                </Link>
-                <Link :href="route('items.outbound')">
-                    <v-list-item value="items.outbound">
-                        <div class="flex items-baseline gap-1">
-                            <v-icon icon="mdi-card-minus" />
-                            <div>Barang Keluar</div>
-                        </div>
-                    </v-list-item>
-                </Link>
-                <Link v-if="false" :href="route('items.stocks')">
-                    <v-list-item value="items.stocks">
-                        <div class="flex items-baseline gap-1"><v-icon icon="mdi-cube-outline" /><span>Stok</span>
-                        </div>
-                    </v-list-item>
-                </Link>
-                <Link :href="route('items.transactions.history')">
-                    <v-list-item value="items.transactions.history">
-                        <div class="flex items-baseline gap-1">
-                            <v-icon icon="mdi-history" />
-                            <div>Riwayat</div>
-                        </div>
-                    </v-list-item>
-                </Link>
-                <Link :href="route('items.skus')">
-                    <v-list-item value="items.skus">
-                        <div class="flex items-baseline gap-1">
-                            <v-icon icon="mdi-cube" />
-                            <div>SKU</div>
-                        </div>
-                    </v-list-item>
-                </Link>
-                <v-list-group value="master">
-                    <template #activator="{ props }">
-                        <v-list-item :="props">
-                            <v-list-item-title>
-                                <div class="flex items-baseline gap-1">
-                                    <v-icon icon="mdi-shape" />Master
-                                </div>
-                            </v-list-item-title>
-                        </v-list-item>
-                    </template>
-                    <!-- <v-list-item value="1">
-                        <div class="flex items-baseline gap-1"><v-icon icon="mdi-tag" /><span>Jenis Barang</span></div>
-                    </v-list-item>
-                    <v-list-item value="2">
-                        <div class="flex items-baseline gap-1"><v-icon icon="mdi-face-agent" /><span>Suplier</span>
-                        </div>
-                    </v-list-item> -->
-                    <Link :href="route('items.units')">
-                        <v-list-item value="items.units">
-                            <div class="flex items-baseline gap-1"><v-icon icon="mdi-scale" /><span>Unit Ukuran</span>
-                            </div>
-                        </v-list-item>
-                    </Link>
-                    <Link :href="route('recipients')">
-                        <v-list-item value="recipients">
-                            <div class="flex items-baseline gap-1"><v-icon icon="mdi-account" /><span>Penerima</span>
-                            </div>
-                        </v-list-item>
-                    </Link>
-                    <Link :href="route('items')">
-                        <v-list-item value="items">
-                            <div class="flex items-baseline gap-1"><v-icon icon="mdi-cube-outline" /><span>Barang</span>
-                            </div>
-                        </v-list-item>
-                    </Link>
-                    <Link v-if="user?.role?.name == 'admin'" :href="route('users')">
-                        <v-list-item value="users">
-                            <div class="flex items-baseline gap-1"><v-icon icon="mdi-account-group" /><span>Akun</span>
-                            </div>
-                        </v-list-item>
-                    </Link>
-                </v-list-group>
-                <Link v-if="user.role.name == 'admin'" :href="route('settings')">
-                    <v-list-item value="settings">
-                        <v-icon icon="mdi-cog"></v-icon> Pengaturan
-                    </v-list-item>
-                </Link>
+  <Head v-slot="props">
+    <link
+      rel="shortcut icon"
+      :href="settings?.icon || 'favicon.ico'"
+      type="image/x-icon"
+    />
+    <title>{{ settings?.applicationName }}</title>
+  </Head>
+  <v-app>
+    <v-app-bar
+      elevation="1"
+      color="blue-darken-2"
+      class="pe-2"
+    >
+      <v-app-bar-title>
+        <v-icon
+          icon="mdi-menu"
+          @click="toggleDrawer"
+        />
+        <span class="ms-2">
+          <v-avatar variant="text">
+            <v-img :src="settings?.icon" />
+          </v-avatar>
+          <span class="ms-1">{{ settings?.applicationName }}</span>
+        </span>
+      </v-app-bar-title>
+      <template #append>
+        <Notification />
+        <ProfilePhoto
+          :url="auth?.user?.profile_photo_path"
+          id="profile-avatar"
+        />
+        <v-menu
+          activator="#profile-avatar"
+          :close-on-content-click="false"
+        >
+          <v-card min-width="170">
+            <v-card-title>{{ user?.name }}</v-card-title>
+            <v-card-subtitle>{{ user?.role?.name }}</v-card-subtitle>
+            <v-divider />
+            <v-list density="comfortable">
+              <Link :href="route('profile')">
+                <v-list-item value="profile">Profil</v-list-item>
+              </Link>
+              <Link
+                :href="route('logout')"
+                class="w-full! text-left"
+                method="post"
+              >
+                <v-list-item value="logout"> Log out </v-list-item>
+              </Link>
             </v-list>
-        </v-navigation-drawer>
-        <v-main>
-            <slot />
-        </v-main>
+          </v-card>
+        </v-menu>
+      </template>
+    </v-app-bar>
+    <v-navigation-drawer v-model="showDrawer">
+      <v-list
+        v-model:selected="selectedMenu"
+        v-model:opened="expandedGroups"
+        color="blue"
+        mandatory
+      >
+        <DrawerItem
+          v-if="user?.role?.name == 'unit'"
+          :href="'nothing'"
+          icon="mdi-package-variant-plus"
+          >Daftar Barang</DrawerItem
+        >
+        <DrawerItem
+          v-if="canAddItem(user)"
+          :href="route('items.additions')"
+          icon="mdi-package-variant-plus"
+          >Penambahan Barang</DrawerItem
+        >
+        <DrawerItem
+          v-if="canRequestItem(user)"
+          :href="route('items.requests.form')"
+          icon="mdi-clipboard-list"
+          >Minta Barang</DrawerItem
+        >
+        <DrawerItem
+          v-if="canInItemRequestPage(user)"
+          :href="route('items.requests')"
+          icon="mdi-clipboard-text-clock"
+          >Permintaan</DrawerItem
+        >
+        <v-list-group
+          v-if="canReadReport(user)"
+          value="report"
+        >
+          <template #activator="{ props }">
+            <v-list-item :="props">
+              <v-list-item-title>
+                <div class="flex items-baseline gap-1"><v-icon icon="mdi-file-chart" />Laporan</div>
+              </v-list-item-title>
+            </v-list-item>
+          </template>
+          <DrawerItem
+            :href="route('items.exports.view')"
+            icon="mdi-package-variant"
+            >Barang</DrawerItem
+          >
+          <DrawerItem
+            :href="route('items.additions.exports.view')"
+            icon="mdi-package-up"
+            >Penambahan Barang</DrawerItem
+          >
+          <DrawerItem
+            :href="route('items.requests.exports.view')"
+            icon="mdi-file-document-edit"
+            >Permintaan Barang</DrawerItem
+          >
+          <DrawerItem
+            :href="route('items.expenditures.exports.view')"
+            icon="mdi-receipt-text"
+            >Pengeluaran Barang</DrawerItem
+          >
+          <DrawerItem
+            :href="route('expenditures.units.exports.view')"
+            icon="mdi-wallet-outline"
+            >Pengeluaran Unit</DrawerItem
+          >
+        </v-list-group>
+        <v-list-group
+          v-if="canSeeMasterData(user)"
+          value="master"
+        >
+          <template #activator="{ props }">
+            <v-list-item :="props">
+              <v-list-item-title>
+                <div class="flex items-baseline gap-1"><v-icon icon="mdi-database" />Master</div>
+              </v-list-item-title>
+            </v-list-item>
+          </template>
+          <DrawerItem
+            v-if="canInUnitPage(user)"
+            :href="route('units')"
+            icon="mdi-ruler"
+            >Satuan</DrawerItem
+          >
+          <DrawerItem
+            v-if="canManageItem(user)"
+            :href="route('items')"
+            icon="mdi-package-variant-closed"
+            >Barang</DrawerItem
+          >
+          <DrawerItem
+            v-if="canInUserPage(user)"
+            :href="route('users')"
+            icon="mdi-account-group"
+            >Akun</DrawerItem
+          >
+        </v-list-group>
+        <DrawerItem
+        v-if="canSetting(user)"
+        :href="route('settings')"
+        icon="mdi-cog"
+        >Pengaturan</DrawerItem
+        >
+        <DrawerItem
+          href="/masih nggak ada"
+          icon="mdi-account-tie"
+          >Pemangku Kepentingan</DrawerItem
+        >
+      </v-list>
+    </v-navigation-drawer>
+    <v-main>
+      <slot />
+    </v-main>
+    <AlertDialog
+      v-model="showAlert"
+      :message="alertMessage"
+      title="Error"
+    />
 
-        <v-footer app color="secondary" class="static! max-h-12 self-end">
-            <p class="w-full! text-center">
-                ©2026 {{ $page?.props?.settings?.company_name }} -
-                {{ $page?.props?.settings?.company_address }}
-            </p>
-        </v-footer>
-    </v-app>
+    <Footer
+      :namaInstansi="settings?.institutionName"
+      :alamatInstansi="settings?.institutionAddress"
+    ></Footer>
+  </v-app>
 </template>

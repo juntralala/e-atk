@@ -2,22 +2,23 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUlids;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 
 class Setting extends Model
 {
-    use HasUlids;
+    use HasUuids;
 
-    protected $table = 'settings';
-    protected $primaryKey = 'id';
     protected $keyType = 'string';
+    public $timestamps = true;
     public $incrementing = false;
-    public $timestamps = false;
 
     protected $fillable = [
-        'key',
-        'value'
+        'logo',
+        'icon',
+        'application_name',
+        'institution_name',
+        'institution_address',
+        'institution_phone'
     ];
-    
 }

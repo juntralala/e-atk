@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Dto\Response\Notification;
-use App\Dto\Response\PaginatedResponse;
+use App\Http\Resources\NotificationResource;
 use Illuminate\Http\Request;
 
 /*
@@ -15,37 +14,31 @@ class NotificationController extends Controller
     public function getCurrentUserNotifications(Request $request)
     {
         $page = $request->integer('page', 1);
-        $data = collect();
         $notifications = auth()->user()->notifications()->paginate(page: $page, perPage: 5);
-        foreach ($notifications as $notification) {
-            $data->add(
-                new Notification(
-                    $notification->id,
-                    $notification->data['title'] ?? null,
-                    $notification->data['message'],
-                    $notification->data['url'] ?? null,
-                    $notification->data['icon'] ?? null,
-                    $notification->created_at,
-                    $notification->read_at
-                )
-            );
-        }
-
-        return response()->json(new PaginatedResponse(
-            $data,
-            $notifications->currentPage(),
-            $notifications->perPage(),
-            $notifications->lastPage(),
-            $notifications->total()
-        ));
+        return NotificationResource::collection($notifications)
+            ->additional([
+                'currentPage' => $notifications->currentPage(),
+                'lastPage' => $notifications->lastPage(),
+                'perPage' => $notifications->perPage(),
+                'total' => $notifications->total(),
+            ]);
+        ;
     }
 
-    public function countUnreadNotification()
+    public function isUnreadNotificationExists()
     {
         return response()->json([
-            'data' => [
-                'unread_count' => auth()->user()->notifications()->whereNull('read_at')->count()
-            ]
+            'data' => auth()->user()->unreadNotifications()->exists()
         ]);
+    }
+
+    public function markAsReadNotification($id)
+    {
+        $notification = auth()->user()->notifications()->find($id);
+        if (!$notification) {
+            return response()->json(['message' => 'Notification not found'], 404);
+        }
+        $notification->markAsRead();
+        return response()->json(['message' => 'Notification marked as read']);
     }
 }

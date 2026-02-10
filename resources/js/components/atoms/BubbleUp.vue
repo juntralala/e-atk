@@ -1,20 +1,22 @@
 <script setup>
+import { randomMinMax } from '@/lib/utils';
+
 defineProps({
     size: {
         type: [Number, String],
-        default: () => Math.floor(Math.random() * 100) % 40 + 10
+        default: () => randomMinMax(10, 40)
     },
     duration: {
         type: String,
-        default: () => `${Math.floor(Math.random() * 100) % 20 + 12}s`,
+        default: () => `${randomMinMax(12, 20)}s`,
     },
     delay: {
         type: String,
-        default: () => `${Math.floor(Math.random() * 10) % 12}s`,
+        default: () => `${randomMinMax(1, 12)}s`,
     },
     left: {
         type: String,
-        default: () => `${Math.floor(Math.random() * 100)}%`,
+        default: () => `${randomMinMax(1, 100)}%`,
     },
     alpha: {
         type: Number,
@@ -24,8 +26,7 @@ defineProps({
 </script>
 
 <template>
-    <div
-class="rounded-2xl" :style="{
+    <div class="rounded-2xl" :style="{
         position: 'absolute',
         opacity: 0,
         left: left,

@@ -1,0 +1,43 @@
+@startuml usecase
+left to right direction
+skinparam linetype polyline
+
+actor "Administrator" as admin
+actor "Bendahara" as bendahara
+actor "Petugas" as petugas
+actor "Unit" as unit
+
+rectangle "Sistem Gudang ATK" {
+    usecase "Pengaturan Aplikasi" as UC7
+    usecase "Mengelola Pengguna" as UC1
+    usecase "Mengelola Satuan" as UC2
+    usecase "Mengelola Barang" as UC3
+    usecase "Mengajukan Permintaan Barang" as UC4
+    usecase "Memproses Permintaan Barang" as UC5
+    usecase "Mengunduh Laporan" as UC6
+    usecase "Mengelola Barang" as UC8
+}
+
+' Administrator
+admin --> UC1
+admin --> UC7
+
+' Bendahara
+UC1 <-- bendahara 
+UC2 <-- bendahara 
+UC3 <-- bendahara 
+UC5 <-- bendahara 
+UC6 <-- bendahara 
+UC8 <-- bendahara 
+
+' Petugas
+petugas --> UC3
+petugas --> UC2
+petugas --> UC5
+petugas --> UC6
+petugas --> UC8
+
+' Unit
+unit --> UC4
+
+@enduml

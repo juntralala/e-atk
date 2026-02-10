@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Http\Resources\SettingResource;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -36,21 +37,14 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        $settings = Setting::all()->pluck('value', 'key')->toArray();
+        $settings = new SettingResource(Setting::first());
         return array_merge(parent::share($request), [
             ...parent::share($request),
             'name' => config('app.name'),
-            'settings' => [
-                'app_name' => $settings['app_name'] ?? config('app.name') ?? 'Inventory',
-                'company_name' => $settings['company_name'] ?? 'Ujun Corporation',
-                'company_address' => $settings['company_address'] ?? 'Nebula',
-                'company_phone_number' => $settings['company_phone_number'] ?? '08123453121',
-                'app_icon' => $settings['app_icon'] ?? null,
-            ],
-            // 'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
                 'user' => $request->user(),
-            ]
+            ],
+            'settings' => $settings->toArray(request())
         ]);
     }
 }

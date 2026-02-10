@@ -1,35 +1,58 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Item extends Model
 {
     use HasUuids, SoftDeletes;
-
+    
     protected $table = 'items';
-    protected $primaryKey = 'id';
     protected $keyType = 'string';
     public $incrementing = false;
-    public $timestamps = true;
-
-    protected $fillable = [
-        'name',
-        'base_measurement_unit_id'
-    ];
-
-    public function skus(): HasMany
+    
+    protected $fillable = ['name', 'unit_id', 'specification_name', 'stock', 'price'];
+    
+    // PENTING: Tambahkan ini agar accessor ikut di-serialize
+    protected $appends = ['spesification_name'];
+    
+    // Untuk backward compatibility saat create/update
+    public function fill(array $attributes)
     {
-        return $this->hasMany(Sku::class, 'item_id', 'id');
+        if (isset($attributes['spesification_name'])) {
+            $attributes['specification_name'] = $attributes['spesification_name'];
+            unset($attributes['spesification_name']);
+        }
+        
+        return parent::fill($attributes);
     }
-
-    public function baseMeasurementUnit(): BelongsTo {
-        return $this->belongsTo(MeasurementUnit::class, 'base_measurement_unit_id', 'id');
+    
+    // ACCESSOR: untuk baca $item->spesification_name
+    public function getSpesificationNameAttribute()
+    {
+        return $this->attributes['specification_name'] ?? null;
     }
-
+    
+    // MUTATOR: untuk set $item->spesification_name = 'value'
+    public function setSpesificationNameAttribute($value)
+    {
+        $this->attributes['specification_name'] = $value;
+    }
+    
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class, 'unit_id', 'id');
+    }
+    
+    public function itemAdditionDetails()
+    {
+        return $this->hasMany(ItemAddition::class);
+    }
+    
+    public function itemRequestDetails()
+    {
+        return $this->hasMany(ItemRequestDetail::class);
+    }
 }

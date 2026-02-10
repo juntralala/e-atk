@@ -6,14 +6,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasUuids, SoftDeletes;
 
     /**
@@ -23,38 +21,40 @@ class User extends Authenticatable
         'name',
         'username',
         'role_id',
-        'profile_image_path',
+        'profile_photo_path',
+        'password'
+    ];
+
+    protected $hidden = [
         'password',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
     protected $with = ['role'];
 
     /**
-     * Get the attributes that should be cast.
-     *
      * @return array<string, string>
      */
     protected function casts(): array
     {
         return [
-            'password' => 'hashed'
+            'password' => 'hashed',
         ];
     }
 
-    public function role(): BelongsTo {
+    public function role(): BelongsTo
+    {
         return $this->belongsTo(Role::class);
     }
 
-    public function transactions(): HasMany {
-        return $this->hasMany(Transaction::class, 'user_id', 'id');
+    public function itemAdditions(){
+        return $this->hasMany(ItemAddition::class);
+    }
+
+    public function itemRequests() {
+        return $this->hasMany(ItemRequest::class, 'requester_id', 'id');
+    }
+
+    public function respondedItemRequests() {
+        return $this->hasMany(ItemRequest::class, 'responder_id', 'id');
     }
 }

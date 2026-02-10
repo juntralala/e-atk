@@ -1,0 +1,77 @@
+@startuml item request
+title Activity Diagram - Minta Barang dan Terima Permintaan Barang
+
+!pragma useVerticalIf on
+skinparam conditionStyle diamond
+skinparam wrapWidth 130
+skinparam DefaultTextAlignment center
+
+|actor1|Bendahara/Petugas
+|Sistem|Aplikasi
+|actor2|Unit
+start
+|actor2|
+:Membuka formulir permintaan barang;
+:Menginput permintaan barang;
+
+|Sistem|
+:Menyimpan permintaan barang;
+
+split
+    |Sistem|
+    :Kirim notifikasi permintaan barang baru;
+    |actor1|
+    :Meneriam notifikasi permintaan barang;
+    :Membuka halaman permintaan barang;
+    
+    split
+        :Menolak permintaan barang;
+    split again
+        :Menerima permintaan barang dan menetukan jumlah permintaan yang diterima;
+        |Sistem|
+        :Menyimpan jumlah yang diterima;
+    end split
+    
+    |Sistem|
+    :Memperbarui status permintaan barang;
+    
+    split
+        |Sistem|
+        :Menampilkan pembaruan permintaan;
+        |actor1|
+        :Melihat pembaruan permintaan;
+        :Memilih laporan pada menu;
+        
+        ' split
+        '     :Pilih laporan barang;
+        split
+            :Pilih laporan permintaan barang;
+        split again
+            :Pilih laporan pengeluaran barang;
+        split again
+            :Pilih laporan pengeluaran unit;
+        end split
+        
+        |Sistem|
+        :Menampilkan laporan;
+        
+        |actor1|
+        :Mengunduh laporan;
+        stop
+    split again
+        |Sistem|
+        :Mengirim notifikasi penerimaan/penolakan permintaan;
+        |actor2|
+        :Menerima notifikasi penerimaan/penolakan permintaan;
+        detach
+    end split
+split again
+    |Sistem|
+    :Tampilkan permintaan barang;
+    |actor2|
+    :Lihat permintaan barang;
+    :Cetak permintaan barang;
+    detach
+end split
+
+@enduml

@@ -2,97 +2,106 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\User\UserCreateRequest;
-use App\Http\Requests\User\UserEditRequest;
-use App\Http\Resources\User\UserResource;
-use App\Dto\User\UserCreateRequest as UserCreateDto;
-use App\Dto\User\UserEditRequest as UserEditDto;
-use App\Service\UserService;
-use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Exceptions\HttpResponseException;
+use App\Http\Requests\UpdateProfileRequest;
+use App\Http\Requests\UserUpdateRequest;
+use App\Http\Requests\UserCreateRequest;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use function PHPUnit\Framework\returnArgument;
 
 class UserController extends Controller
 {
-
-    public function __construct(
-        private UserService $userService
-    ) {
-
-    }
-
-    public function index() {
-        return Inertia::render('User');
-    }
-
-    public function getUsers(Request $request)
+    public function showPage(Request $request)
     {
-        $page = $request->integer('page', 1);
-        $perPage = $request->integer('per_page', 5);
+        $users = User::paginate(
+            $request->input('per_page', 10),
+            page: $request->input('page', 1)
+        );
 
-        return UserResource::collection($this->userService->getUsers($page, $perPage));
+        $users->through(function ($user, $key) use ($users) {
+            return array_merge($user->toArray(), [
+                'no' => $users->firstItem() + $key
+            ]);
+        });
+
+        return inertia('User', ['users' => $users]);
     }
 
-    public function addUser(UserCreateRequest $request)
+    public function create(UserCreateRequest $request)
     {
         $safe = $request->safe();
-        return response()->json($this->userService->addUsers(
-            new UserCreateDto(
-                $safe->name,
-                $safe->username,
-                $safe->password,
-                $safe->role
-            ),
-
-        ), 201);
+        User::create([
+            'name' => $safe->name,
+            'username' => $safe->username,
+            'password' => $safe->password,
+            'role_id' => $safe->role,
+        ]);
+        return back();
     }
 
-    public function deleteUser(Request $request, string $id)
+    public function update(User $user, UserUpdateRequest $request)
     {
-        $deletingUser = $this->userService->getUserById($id);
-        if (!$deletingUser) {
-            throw new HttpResponseException(response()->json(['message' => 'user not found'], 404));
+        $safe = $request->safe();
+        $user->update([
+            'name' => $safe->name,
+            'username' => $safe->username,
+            'role_id' => $safe->role,
+        ]);
+        if ($safe->password != null) {
+            $user->update([
+                'password' => $safe->password,
+            ]);
         }
-        $canDelete = $this->userService->isCanDelete($request->user(), $deletingUser);
-        if (!$canDelete) {
-            throw new AuthorizationException('You have no permission to perform this action');
-        }
-        $deleted = $this->userService->deleteById($id);
-        if (!$deleted) {
-            throw new ModelNotFoundException('User not found');
-        }
-        return response(status: 200);
+        return back();
     }
 
-
-    public function editUser(UserEditRequest $request, string $id)
+    public function delete(User $user)
     {
-        $safe = $request->validated();
+        if ($user == null) {
+            return back()->withErrors([
+                'message' => 'User tidak ditemukan di database'
+            ]);
+        }
+        $user->delete();
+        return back();
+    }
 
-        $profilePhotoPath = null;
+    public function showProfile()
+    {
+        return Inertia::render('Profile', [
+            'user' => auth()->user()
+        ]);
+    }
+
+      public function updateProfile(UpdateProfileRequest $request)
+    {
+        $user = Auth::user();
+        $validated = $request->validated();
+
+        // Handle profile photo upload
         if ($request->hasFile('profilePhoto')) {
-            $file = $request->file('profilePhoto');
-            $profilePhotoPath = $file->store('profile-photos', 'public');
+            // Delete old photo if exists
+            if (str_replace('/storage', '', $user->profile_photo_path, )) {
+                Storage::disk('public')->delete($user->profile_photo_path);
+            }
+
+            // Store new photo
+            $path = $request->file('profilePhoto')
+                ->store('profile-photos', 'public');
+            $validated['profile_photo_path'] = "/storage/$path";
         }
-        
-        $data = new UserEditDto(
-            $safe['name'],
-            $safe['username'],
-            $safe['password'] ?? null,
-            $safe['role'],
-            "/storage/$profilePhotoPath",
-        );
-        
-        $edited = $this->userService->editById($id, $data);
-        if (!$edited) {
-            abort(response()->json(['message' => 'user not found'], 404));
+
+        // Handle password update
+        if (empty($validated['password'])) {
+            unset($validated['password']);
         }
-        
-        if($request->acceptsJson()) {
-            return $edited;
-        }
-        return redirect()->route('account.profile');
+
+        // Update user
+        $user->update($validated);
+
+        return back()->with('success', 'Profile berhasil diperbarui');
     }
 }

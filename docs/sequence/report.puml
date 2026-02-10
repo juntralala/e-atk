@@ -1,0 +1,79 @@
+@startuml
+title Sequence Diagram - Laporan
+
+actor "Petugas" as actor1
+participant "Halaman Laporan" as laporan
+participant "Aplikasi Server" as sistem
+database "Database" as db
+
+actor1 -> laporan: Memilih laporan pada menu
+activate laporan
+
+alt Pilih Laporan Barang
+    laporan -> sistem: Request laporan barang
+    activate sistem
+    sistem -> db: Query data barang untuk laporan
+    activate db
+    db --> sistem: Data barang
+    deactivate db
+    sistem --> laporan: Data laporan
+    deactivate sistem
+    laporan --> actor1: Laporan barang
+    
+else Pilih Laporan Penambahan Barang
+    laporan -> sistem: Request laporan penambahan
+    activate sistem
+    sistem -> db: Query data penambahan untuk laporan
+    activate db
+    db --> sistem: Data penambahan
+    deactivate db
+    sistem --> laporan: Data laporan
+    deactivate sistem
+    laporan --> actor1: Laporan penambahan
+    
+else Pilih Laporan Permintaan Barang
+    laporan -> sistem: Request laporan permintaan barang
+    activate sistem
+    sistem -> db: Query data permintaan barang
+    activate db
+    db --> sistem: Data permintaan
+    deactivate db
+    sistem --> laporan: Data laporan
+    deactivate sistem
+    laporan --> actor1: Laporan permintaan barang
+    
+else Pilih Laporan Pengeluaran Barang
+    laporan -> sistem: Request laporan pengeluaran barang
+    activate sistem
+    sistem -> db: Query data pengeluaran barang
+    activate db
+    db --> sistem: Data pengeluaran
+    deactivate db
+    sistem --> laporan: Data laporan
+    deactivate sistem
+    laporan --> actor1: Laporan pengeluaran barang
+    
+else Pilih Laporan Pengeluaran Unit
+    laporan -> sistem: Request laporan pengeluaran unit
+    activate sistem
+    sistem -> db: Query data pengeluaran unit
+    activate db
+    db --> sistem: Data pengeluaran unit
+    deactivate db
+    sistem --> laporan: Data laporan
+    deactivate sistem
+    laporan --> actor1: Laporan pengeluaran unit
+end
+
+actor1 -> laporan: Klik unduh laporan
+laporan -> sistem: Permintaan file
+activate sistem
+sistem -> db: Query data untuk file laporan
+activate db
+db --> sistem: Data
+deactivate db
+sistem --> laporan: File laporan
+deactivate sistem
+laporan --> actor1: File laporan
+deactivate laporan
+@enduml

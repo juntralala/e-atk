@@ -1,0 +1,40 @@
+<?php
+
+namespace App\Listeners;
+
+use App\Events\ItemRequestAccepted;
+use App\Events\ItemRequestCreated;
+use App\Events\ItemRequestRejected;
+use App\Models\User;
+use App\Notifications\ItemRequestAcceptedNotification;
+use App\Notifications\ItemRequestCreatedNotification;
+use App\Notifications\ItemRequestRejectedNotification;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
+
+class SendItemRequestNotification
+{
+    public function __construct()
+    {
+    }
+
+    public function handle(ItemRequestCreated|ItemRequestAccepted|ItemRequestRejected $event): void
+    {
+        if ($event instanceof ItemRequestCreated) {
+            $users = User::whereHas('role', function ($q) {
+                $q->whereIn('name', ['bendahara', 'petugas', 'administrator']);
+            })->get();
+            foreach ($users as $user) {
+                $user->notify(new ItemRequestCreatedNotification($event->itemRequest));
+            }
+        } else if ($event instanceof ItemRequestAccepted) {
+            $event->itemRequest
+                ->requester
+                ->notify(new ItemRequestAcceptedNotification($event->itemRequest));
+        } else if ($event instanceof ItemRequestRejected) {
+            $event->itemRequest
+                ->requester
+                ->notify(new ItemRequestRejectedNotification($event->itemRequest));
+        }
+    }
+}

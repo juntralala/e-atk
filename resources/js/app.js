@@ -8,17 +8,17 @@ import { createVuetify } from 'vuetify';
 import 'vuetify/styles';
 import '@mdi/font/css/materialdesignicons.css';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Inventory';
+const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 const vuetify = createVuetify();
-
+    
 createInertiaApp({
-    title: (title) => `${title}`,
+    title: (title) => `${title} - ${appName}`,
     resolve: (name) => resolvePageComponent(`./pages/${name}.vue`, import.meta.glob('./pages/**/*.vue')),
     setup({ el, App, props, plugin }) {
         createApp({ render: () => h(App, props) })
             .use(plugin)
-            .use(vuetify)
             .use(ZiggyVue)
+            .use(vuetify)
             .mount(el);
     },
     progress: {

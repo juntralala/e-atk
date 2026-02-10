@@ -1,0 +1,115 @@
+@startuml Class Diagram
+
+title Class Diagram - Sistem Manajemen Alat Tulis Kantor
+
+class Role  {
+    +int id
+    +string name
+}
+
+class User  {
+    +int id
+    +string name
+    +string username
+    +string password
+    +int role_id
+    +string profile_photo_path
+    +datetime created_at
+    +datetime updated_at
+    +datetime deleted_at
+}
+
+class ItemAddition {
+    +int id
+    +int user_id
+    +date addition_date
+    +datetime created_at
+}
+
+class ItemAdditionDetail {
+    +int id
+    +int item_addition_id
+    +string item_id
+    +int quantity
+    +decimal price
+    +datetime created_at
+}
+
+class Item  {
+    +int id
+    +string name
+    +int unit_id
+    +string specification
+    +int stock
+    +decimal price
+    +datetime created_at
+    +datetime updated_at
+    +datetime deleted_at
+}
+
+class Unit  {
+    +int id
+    +string name
+    +datetime created_at
+    +datetime updated_at
+    +datetime deleted_at
+}
+
+class ItemRequest {
+    +int id
+    +string request_id
+    +enum status
+    +date request_date
+    +string responder_id
+    +string responder_notes
+    +date response_date
+    +datetime responded_at
+    +datetime created_at
+    +datetime updated_at
+}
+
+class ItemRequestDetail {
+    +int id
+    +string item_request_id
+    +string item_id
+    +int requested_quantity
+    +int responded_quantity
+    +decimal price
+    +datetime created_at
+    +datetime updated_at
+}
+
+class Notification {
+    +string id
+    +string type
+    +string notifiable_type
+    +string notifiable_id
+    +string data
+    +datetime read_at
+    +datetime created_at
+    +datetime updated_at
+}
+
+class Setting {
+    +int id
+    +string icon
+    +string logo
+    +string application_name
+    +string institution_name
+    +string institution_address
+    +string institution_phone
+    +datetime created_at
+    +datetime updated_at
+}
+
+' Relationships
+User --> Role : has role
+ItemAddition --> User : created by
+ItemAdditionDetail --> ItemAddition : belongs to
+ItemAdditionDetail --> Item : references
+Item --> Unit : has unit
+ItemRequest --> User : responder
+ItemRequestDetail --> ItemRequest : belongs to
+ItemRequestDetail --> Item : references
+
+@enduml

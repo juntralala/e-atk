@@ -1,0 +1,54 @@
+@startuml kelola barang
+title Activity Diagram - Mengelola Barang
+|actor1|Petugas/Bendahara
+|Sistem|Aplikasi
+start
+:Membuka halaman satuan;
+|Sistem
+:Menampilkan data satuan;
+|Sistem|
+|actor1|
+:Lihat data satuan;
+split
+    :Tambah;
+split again
+    :Ubah;
+split again
+    :Hapus;
+end split
+|Sistem|
+:Menyimpan;
+|actor1|
+:Membuka halaman barang;
+|Sistem|
+:Menampilkan data barang;
+|Sistem|
+|actor1|
+:Lihat data barang;
+split
+    :Tambah;
+split again
+    :Ubah;
+split again
+    :Hapus;
+end split
+|Sistem|
+:Menyimpan;
+|actor1|
+:Membuka halaman formulir penambahan barang;
+:Menginput penambahan barang;
+|Sistem|
+:Menyimpan penambahan barang dan memberbarui stok barang;
+|actor1|
+:Memilih laporan pada menu;
+split
+    :Pilih laporan barang;
+split again
+    :Pilih laporan penambahan barang;
+end split
+|Sistem|
+:Menampilkan laporan;
+|actor1|
+:Mengunduh laporan;
+stop
+@enduml

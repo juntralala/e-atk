@@ -1,17 +1,18 @@
-@startuml aasas
-actor pegawai as actor1
-participant Pengaturan as setting
+@startuml setting
+title Sequence Diagram - Pengaturan
+actor Administrator as actor1
+participant "Halaman Setting" as setting
 participant Sistem as sistem
-database "basis data" as db
+database "Database" as db
 
 activate actor1
-actor1 -> setting: perubahan setting
+actor1 -> setting: ubah setting
 activate setting
-setting -> sistem: perubahan
+setting -> sistem: perubahan setting
 activate sistem
 sistem -> db: menyimpan perubahan
 activate db
 return settingan diperbarui
-return tampilan setting terbaru
-return tampilan terbaru
+return tampilkan setting terbaru
+return tampilkan setting terbaru
 @enduml

@@ -1,92 +1,103 @@
 <?php
 
-use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ItemAdditionController;
 use App\Http\Controllers\ItemController;
-use App\Http\Controllers\MeasurementUnitController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ItemRequestController;
+use App\Http\Controllers\LoginController;
 use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\RecipientController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\UnitController;
 use App\Http\Controllers\SettingController;
-use App\Http\Controllers\SkuController;
-use App\Http\Controllers\StockController;
-use App\Http\Controllers\Transaction\InTransactionController;
-use App\Http\Controllers\Transaction\OutTransactionController;
-use App\Http\Controllers\Transaction\TransactionHistoryController;
 use App\Http\Controllers\UserController;
-use App\Notifications\InvalidLogin;
-use Illuminate\Http\Request;
+use App\Models\User;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
+
+Route::get('/', function () {
+    return Inertia::render('LandingPage');
+});
+
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [LoginController::class, 'loginPage'])->name('login');
+    Route::post('/login', [LoginController::class, 'login'])->name('login.post');
+});
 
 Route::middleware('auth')->group(function () {
-    Route::get('/notifications', [NotificationController::class, 'getCurrentUserNotifications'])->name('notifications');
-    Route::post('/notifications/{id}/read', function ($id) {
-        auth()->user()->notifications()->find($id)->markAsRead();
-    })->name('notifications.read');
-    Route::get('/notifications/unread/count', [NotificationController::class, 'countUnreadNotification'])->name('notifications.unread.count');
-    Route::get('/', [DashboardController::class, 'index'])->name('home');
-    Route::prefix('/api')->group(function () {
-        Route::get('/roles', [RoleController::class, 'getAll']);
-        Route::get('/users', [UserController::class, 'getUsers']);
-        Route::post('/users', [UserController::class, 'addUser']);
-        Route::put('/users/{id}', [UserController::class, 'editUser']);
-        Route::delete('/users/{id}', [UserController::class, 'deleteUser']);
+    Route::get('/home', [HomeController::class, 'redirector'])->name('home');
+    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+    Route::get('/dashboard', [DashboardController::class, 'dashboardPage'])->name('dashboards');
+
+    Route::prefix('/notifications')->name('notifications')->group(function () {
+        Route::get('/', [NotificationController::class, 'getCurrentUserNotifications']);
+        Route::post('/{id}/read', [NotificationController::class, 'markAsReadNotification'])->name('.read');
+        Route::get('/unread/exists', [NotificationController::class, 'isUnreadNotificationExists'])->name('.unread.exists');
     });
-    Route::get('/expenditures/items', [DashboardController::class, 'getExpendituresPerItem'])->name('expenditures.items');
-    Route::get('/expenditures/items/export/xlsx', [DashboardController::class, 'toXlsxExpendituresPerItem'])->name('expenditures.items.export.xlsx');
-    Route::get('/expenditures/skus', [DashboardController::class, 'getExpendituresPerSKU'])->name('expenditures.skus');
-    Route::get('/expenditures/skus/export/xlsx', [DashboardController::class, 'toXlsx'])->name('expenditures.skus.export.xlsx');
-    Route::get('/recipients', [RecipientController::class, 'page'])->name('recipients');
-    Route::post('/recipients', [RecipientController::class, 'store']);
-    Route::put('/recipients/{id}', [RecipientController::class, 'update']);
-    Route::delete('/recipients/{id}', [RecipientController::class, 'destroy']);
-    Route::get('/items', [ItemController::class, 'page'])->name('items');
-    Route::post('/items', [ItemController::class, 'store']);
-    Route::put('/items/{id}', [ItemController::class, 'update']);
-    Route::delete('/items/{id}', [ItemController::class, 'destroy']);
-    Route::get('/items/inbound', [InTransactionController::class, 'index'])->name('items.inbound');
-    Route::post('/items/inbound', [InTransactionController::class, 'store']);
-    Route::get('/items/outbound', [OutTransactionController::class, 'index'])->name('items.outbound');
-    Route::post('/items/outbound', [OutTransactionController::class, 'store']);
-    Route::get('/items/transactions/histories', [TransactionHistoryController::class, 'index'])->name('items.transactions.history');
-    Route::get('/items/transactions/histories/export/xlsx', [TransactionHistoryController::class, 'toXlsx'])->name('items.transactions.history.export.xlsx');
-    Route::get('/items/units', [MeasurementUnitController::class, 'page'])->name('items.units');
-    Route::post('/items/units', [MeasurementUnitController::class, 'store']);
-    Route::put('/items/units/{id}', [MeasurementUnitController::class, 'update']);
-    Route::delete('/items/units/{id}', [MeasurementUnitController::class, 'destroy']);
-    Route::get('/items/skus', [SkuController::class, 'page'])->name('items.skus');
-    Route::post('/items/skus', [SkuController::class, 'create'])->name('items.skus.create');
-    Route::put('/items/skus/{id}', [SkuController::class, 'update'])->name('items.skus.update');
-    Route::delete('/items/skus/{id}', [SkuController::class, 'delete'])->name('items.skus.delete');
-    Route::get('/items/skus/export/xlsx', [SkuController::class, 'toXlsx'])->name('items.skus.export.xlsx');
-    Route::get('/items/skus/units/{skuId}', [MeasurementUnitController::class, 'getSupportedMueasurementUnitsBySkuId'])->name('items.skus.units.by-sku-id');
-    Route::get('/items/stocks', [StockController::class, 'index'])->name('items.stocks');
-    Route::post('/items/stocks', [StockController::class, 'store']);
-    Route::put('/items/stocks/{id}', [StockController::class, 'update']);
-    Route::delete('/items/stocks/{id}', [StockController::class, 'destroy']);
-    Route::get('/items/stocks/export/xlsx', [StockController::class, 'toXlsx'])->name('items.stocks.export.xlsx');
-    Route::get('/profile', [ProfileController::class, 'page'])->name('account.profile');
-    Route::get('/settings', [SettingController::class, 'index'])->name('settings');
-    Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
-    Route::get('/users', [UserController::class, 'index'])->name('users');
+
+    Route::prefix('/users')->name('users')->group(function () {
+        Route::get("/", [UserController::class, 'showPage'])->name('');
+        Route::post("/", [UserController::class, 'create'])->name('.create')->can('create', User::class);
+        Route::put("/{user}", [UserController::class, 'update'])->name('.update')
+            ->middleware('can:update,user');
+        Route::delete("/{user}", [UserController::class, 'delete'])->name('.delete')
+            ->can('delete', 'user');
+    });
+
+    Route::get('/profile', [UserController::class, 'showProfile'])->name('profile');
+    Route::put('/profile', [UserController::class, 'updateProfile'])->name('profile.update');
+
+    Route::prefix('/units')->name('units')->group(function () {
+        Route::get('/', [UnitController::class, 'showPage']);
+        Route::post('/', [UnitController::class, 'createUnit'])->name('.create');
+        Route::put('/{id}', [UnitController::class, 'updateUnit'])->name('.update');
+        Route::delete('/{id}', [UnitController::class, 'deleteUnit'])->name('.delete');
+    });
+    
+    Route::prefix('/settings')->name('settings')->group(function () {
+        Route::get('/', [SettingController::class, 'showPage']);
+        Route::put('/', [SettingController::class, 'update'])->name('.update');
+    });
+
+    Route::prefix('/items')->name('items')->group(function () {
+        Route::get('/', [ItemController::class, 'showPage']);
+        Route::post('/', [ItemController::class, 'create'])->name('.create');
+        Route::put('/{id}', [ItemController::class, 'update'])->name('.update');
+        Route::delete('/{id}', [ItemController::class, 'delete'])->name('.delete');
+        Route::get('/exports/view', [ItemController::class, 'reportPage'])->name('.exports.view');
+        Route::get('/reports/xlsx', [ItemController::class, 'toXlsx'])->name('.exports.xlsx');
+        Route::get('/expenditures/exports/view', [ItemController::class, 'itemExpenditureReport'])->name('.expenditures.exports.view');
+        Route::get('/expenditures/exports/xlsx', [ItemController::class, 'toExpenditureXlsx'])->name('.expenditures.exports.xlsx');
+
+        Route::prefix('/additions')->name('.additions')->group(function () {
+            Route::get('/', [ItemAdditionController::class, 'showPage']);
+            Route::post('/', [ItemAdditionController::class, 'create'])->name('.create');
+            Route::get('/exports/xlsx', [ItemAdditionController::class, 'toXlsx'])->name('.exports.xlsx');
+            Route::get('/exports/view', [ItemAdditionController::class, 'reportPage'])->name('.exports.view');
+        });
+
+        Route::prefix('/requests')->name('.requests')->group(function() {
+            Route::get('/', [ItemRequestController::class, 'showPage']);
+            Route::post('/', [ItemRequestController::class, 'create'])->name('.create');
+            Route::put('/{itemRequest}', [ItemRequestController::class, 'update'])->name('.update');
+            Route::delete('/{itemRequest}', [ItemRequestController::class, 'delete'])->name('.delete');
+            Route::put('/{itemRequest}/accept', [ItemRequestController::class, 'accept'])->name('.accept');
+            Route::put('/{itemRequest}/reject', [ItemRequestController::class, 'reject'])->name('.reject');
+            Route::get('/form', [ItemRequestController::class, 'showItemRequestForm'])->name('.form');
+            Route::get('/exports/view', [ItemRequestController::class, 'reportPage'])->name('.exports.view');
+            Route::get('/exports/xlsx', [ItemRequestController::class, 'toXlsx'])->name('.exports.xlsx');
+        });
+    });
+
+    Route::inertia('/stakeholders', 'StakeHolder');
+    Route::inertia('/reports', 'Report')->name('reports');
+    Route::get('/expenditures/units/exports/view', [ItemRequestController::class, 'unitExpenditureReport'])->name('expenditures.units.exports.view');
+    Route::get('/expenditures/units/exports/xlsx', [ItemRequestController::class, 'toUnitExpenditureXlsx'])->name('expenditures.units.exports.xlsx');
+
+    Route::get('/roles', [RoleController::class, 'getRoles'])->name('roles');
 });
 
-Route::get("/inspect", function (Request $request) {
-    return response()->json([
-        'user' => $request->user(),
-        'session' => $request->session()->all()
-    ]);
-});
-
-Route::get('/set-session', function (Request $request) {
-    $key = $request->input('key');
-    $value = $request->input('value', 'not set');
-    $request->session()->put($key, $value);
-    return "$key : $value";
-});
-Route::get('/get-session', function (Request $request) {
-    return session()->all();
-});
-
-Route::inertia("/counter", "Counter");
-
+Route::get('/inspect', function () {
+    throw new AuthorizationException("Gak tau");
+})->can('create');

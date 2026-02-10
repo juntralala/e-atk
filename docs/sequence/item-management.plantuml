@@ -1,0 +1,207 @@
+@startuml Sequence Diagram Pengelolaan Barang
+title Sequence Diagram - Pengelolaan Barang
+
+actor "Bendahara/Pegawai" as actor1
+participant "Halaman\nSatuan" as satuan
+participant "Halaman\nBarang" as barang
+participant "Halaman\nPenambahan Barang" as penambahan
+participant "Laporan" as laporan
+participant "Sistem" as sistem
+database "Database" as db
+
+== Kelola Satuan ==
+actor1 -> satuan: Membuka halaman satuan
+activate satuan
+satuan -> sistem: Request data satuan
+activate sistem
+sistem -> db: Query data satuan
+activate db
+db --> sistem: Return data satuan
+deactivate db
+sistem --> satuan: Kirim data satuan
+deactivate sistem
+satuan --> actor1: Menampilkan data satuan
+deactivate satuan
+
+actor1 -> satuan: Lihat data satuan
+activate satuan
+
+alt Tambah Satuan
+    actor1 -> satuan: Input data satuan baru
+    satuan -> sistem: Request tambah satuan
+    activate sistem
+    sistem -> db: Insert data satuan
+    activate db
+    db --> sistem: Konfirmasi insert
+    deactivate db
+    sistem -> db: Query data satuan
+    activate db
+    db --> sistem: Return data satuan
+    deactivate db
+    sistem --> satuan: Kirim data satuan
+    deactivate sistem
+    satuan --> actor1: Menampilkan data satuan
+    
+else Ubah Satuan
+    actor1 -> satuan: Input perubahan data satuan
+    satuan -> sistem: Request update satuan
+    activate sistem
+    sistem -> db: Update data satuan
+    activate db
+    db --> sistem: Konfirmasi update
+    deactivate db
+    sistem -> db: Query data satuan
+    activate db
+    db --> sistem: Return data satuan
+    deactivate db
+    sistem --> satuan: Kirim data satuan
+    deactivate sistem
+    satuan --> actor1: Menampilkan data satuan
+    
+else Hapus Satuan
+    actor1 -> satuan: Pilih data untuk dihapus
+    satuan -> sistem: Request hapus satuan
+    activate sistem
+    sistem -> db: Delete data satuan
+    activate db
+    db --> sistem: Konfirmasi delete
+    deactivate db
+    sistem -> db: Query data satuan
+    activate db
+    db --> sistem: Return data satuan
+    deactivate db
+    sistem --> satuan: Kirim data satuan
+    deactivate sistem
+    satuan --> actor1: Menampilkan data satuan
+end
+deactivate satuan
+
+== Kelola Barang ==
+actor1 -> barang: Membuka halaman barang
+activate barang
+barang -> sistem: Request data barang
+activate sistem
+sistem -> db: Query data barang
+activate db
+db --> sistem: Return data barang
+deactivate db
+sistem --> barang: Kirim data barang
+deactivate sistem
+barang --> actor1: Menampilkan data barang
+deactivate barang
+
+actor1 -> barang: Lihat data barang
+activate barang
+
+alt Tambah Barang
+    actor1 -> barang: Input data barang baru
+    barang -> sistem: Request tambah barang
+    activate sistem
+    sistem -> db: Insert data barang
+    activate db
+    db --> sistem: Konfirmasi insert
+    deactivate db
+    sistem -> db: Query data barang
+    activate db
+    db --> sistem: Return data barang
+    deactivate db
+    sistem --> barang: Kirim data barang
+    deactivate sistem
+    barang --> actor1: Menampilkan data barang
+    
+else Ubah Barang
+    actor1 -> barang: Input perubahan data barang
+    barang -> sistem: Request update barang
+    activate sistem
+    sistem -> db: Update data barang
+    activate db
+    db --> sistem: Konfirmasi update
+    deactivate db
+    sistem -> db: Query data barang
+    activate db
+    db --> sistem: Return data barang
+    deactivate db
+    sistem --> barang: Kirim data barang
+    deactivate sistem
+    barang --> actor1: Menampilkan data barang
+    
+else Hapus Barang
+    actor1 -> barang: Pilih data untuk dihapus
+    barang -> sistem: Request hapus barang
+    activate sistem
+    sistem -> db: Delete data barang
+    activate db
+    db --> sistem: Konfirmasi delete
+    deactivate db
+    sistem -> db: Query data barang
+    activate db
+    db --> sistem: Return data barang
+    deactivate db
+    sistem --> barang: Kirim data barang
+    deactivate sistem
+    barang --> actor1: Menampilkan data barang
+end
+deactivate barang
+
+== Penambahan Barang ==
+actor1 -> penambahan: Membuka halaman formulir penambahan barang
+activate penambahan
+penambahan --> actor1: Menampilkan formulir
+
+actor1 -> penambahan: Menginput penambahan barang
+penambahan -> sistem: Request simpan penambahan barang
+activate sistem
+sistem -> db: Insert data penambahan
+activate db
+db --> sistem: Konfirmasi insert
+deactivate db
+sistem -> db: Update stok barang
+activate db
+db --> sistem: Konfirmasi update stok
+deactivate db
+sistem --> penambahan: Konfirmasi simpan
+deactivate sistem
+deactivate penambahan
+
+== Laporan ==
+actor1 -> laporan: Memilih laporan pada menu
+activate laporan
+
+alt Laporan Barang
+    actor1 -> laporan: Pilih laporan barang
+    laporan -> sistem: Request laporan barang
+    activate sistem
+    sistem -> db: Query data barang untuk laporan
+    activate db
+    db --> sistem: Return data barang
+    deactivate db
+    sistem --> laporan: Kirim data laporan
+    deactivate sistem
+    laporan --> actor1: Menampilkan laporan barang
+    
+else Laporan Penambahan Barang
+    actor1 -> laporan: Pilih laporan penambahan barang
+    laporan -> sistem: Request laporan penambahan
+    activate sistem
+    sistem -> db: Query data penambahan untuk laporan
+    activate db
+    db --> sistem: Return data penambahan
+    deactivate db
+    sistem --> laporan: Kirim data laporan
+    deactivate sistem
+    laporan --> actor1: Menampilkan laporan penambahan
+end
+
+actor1 -> laporan: Mengunduh laporan
+laporan -> sistem: Request generate file
+activate sistem
+sistem -> db: Query data untuk file laporan
+activate db
+db --> sistem: Return data
+deactivate db
+sistem --> laporan: File laporan
+deactivate sistem
+laporan --> actor1: Download file laporan
+deactivate laporan
+
+@enduml

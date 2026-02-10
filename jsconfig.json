@@ -1,10 +1,38 @@
 {
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["resources/js/*"]
-    }
-  },
-  "include": ["**/*.ts", "**/*.js", "**/*.vue"],
-  "exclude": ["node_modules", "dist", "vendor"]
+    "compilerOptions": {
+        "target": "ESNext",
+        "useDefineForClassFields": true,
+        "lib": ["ESNext", "DOM", "DOM.Iterable"],
+        "jsx": "preserve",
+        "jsxImportSource": "vue",
+        
+        /* Modules */
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "paths": {
+            "@/*": ["./resources/js/*"],
+            "ziggy-js": ["./vendor/tightenco/ziggy"]
+        },
+        "types": ["vite/client", "vue/jsx"],
+        "resolveJsonModule": true,
+        
+        /* JavaScript Support */
+        "allowJs": true,
+        "checkJs": false,
+        
+        /* Emit */
+        "sourceMap": true,
+        
+        /* Interop Constraints */
+        "isolatedModules": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        
+        /* Type Checking */
+        "strict": true,
+        "skipLibCheck": true,
+        "noEmit": true
+    },
+    "include": ["resources/js/**/*.js", "resources/js/**/*.jsx", "resources/js/**/*.ts", "resources/js/**/*.tsx", "resources/js/**/*.vue"],
+    "exclude": ["node_modules", "dist"]
 }

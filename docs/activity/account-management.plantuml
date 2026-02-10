@@ -1,0 +1,46 @@
+@startuml Account Management And Login
+title Activity Diagram - Kelola Pengguna
+|actor1|Bendahara
+|Sistem|Aplikasi
+|actor2|Pegawai/Unit
+
+|actor1|
+start
+:Membuka halaman pengguna;
+
+|Sistem|
+:Menampilkan daftar pengguna;
+
+|actor1|
+:Melihat daftar pengguna;
+split
+    :Tambah;
+split again
+    :Ubah;
+split again
+    :Hapus;
+end split
+
+|Sistem|
+:Menyimpan;
+
+|actor1|
+:Menyerahkan kredensial pengguna ke pegawai;
+
+|actor2|
+:Membuka halaman login;
+:Input kredensial pengguna;
+
+|Sistem|
+:Sistem verifikasi kredensial pengguna;
+if (kredensial valid?) then (tidak)
+|Sistem|
+:Akses tidak diberikan;
+kill
+
+else (ya)
+|actor2|
+:Dapat akses aplikasi;
+
+stop
+@enduml

@@ -1,0 +1,44 @@
+@startuml Sequence Diagram Permintaan Barang
+title Sequence Diagram - Meminta Barang
+actor "Unit" as Unit
+actor "Petugas" as Bendahara
+participant "Halaman\nMeminta\nBarang" as FormulirPermintaan
+participant "Halaman\nDaftar\nPermintaan Barang" as DaftarPermintaan
+participant "Aplikasi Server" as Sistem
+database "Database" as Database
+
+Unit -> FormulirPermintaan: Input permintaan barang barang
+activate FormulirPermintaan
+FormulirPermintaan -> Sistem: Data permintaan barang
+activate Sistem
+Sistem -> Database: Simpan data permintaan barang
+activate Database
+Database --> Sistem: Data permintaan barang
+deactivate Database
+Sistem -> Database: Simpan detail data permintaan barang
+activate Database
+Database --> Sistem: Data detail permintaan barang
+deactivate Database
+Sistem -> Bendahara: Kirim notifikasi permintaan baru ke petugas
+Sistem --> FormulirPermintaan: Redirect ke halaman daftar permintaan
+deactivate Sistem
+
+FormulirPermintaan -> DaftarPermintaan: Redirect
+deactivate FormulirPermintaan
+activate DaftarPermintaan
+DaftarPermintaan -> Sistem: Request data permintaan barang
+activate Sistem
+Sistem -> Database: Query permintaan barang \nmilik unit itu sendiri
+activate Database
+Database --> Sistem: Data permintaan barang
+deactivate Database
+Sistem --> DaftarPermintaan: Data permintaan barang
+deactivate Sistem
+DaftarPermintaan --> Unit: Tampilkan daftar permintaan barang
+
+Unit -> DaftarPermintaan: Pilih permintaan untuk dicetak
+DaftarPermintaan --> Unit: Generate PDF permintaan
+deactivate DaftarPermintaan
+deactivate FormulirPermintaan
+
+@enduml

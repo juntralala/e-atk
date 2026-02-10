@@ -1,0 +1,25 @@
+---
+title: Sistem Berjalan gudang ATK RSUD Haji Darlan Ismail
+config:
+  theme: default    
+---
+flowchart TD
+    START 
+    --> p1
+    %% --> p2 
+    --> io1
+    --> p3
+    --> p4
+    --> io2
+    %% --> p5
+    --> io3
+    --> END
+
+    START((Mulai))
+    p1[Melakukan pemesanan untuk pengadaan barang oada gudang]
+    io1[/Mencatat barang yang diterima pada gudang/]
+    p3[Unit kerja meminta barang]
+    p4[Petugas ATK menyerahkan barang ]
+    io2[/Pencatatan barang keluar/]
+    io3[/Pembuatan laporan/]
+    END((AKHIR))

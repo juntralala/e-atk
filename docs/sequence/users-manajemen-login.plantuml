@@ -1,0 +1,50 @@
+@startuml manajemen akun dan login
+title Sequence Diagram - Kelola pengguna
+
+actor "Administrator" as actor1
+actor "Pengguna" as actor2
+participant "Halaman\nKelola Pengguna" as accountManagement
+participant "Halaman\nLogin" as login
+participant "Aplikasi Server" as system
+database Database as users
+
+actor1 -> accountManagement: Membuka halaman kelola pengguna
+activate accountManagement
+accountManagement -> system: Permintaan daftar pengguna
+activate system
+system -> users: Mengambil data pengguna
+activate users
+return Data pengguna
+return Daftar pengguna
+return Melihat daftar pengguna
+
+actor1 -> accountManagement: Input data pengguna baru
+activate accountManagement
+accountManagement -> system: Pengguna baru
+activate system
+system -> users: Simpan pengguna baru
+activate users
+return Pengguna baru
+return Akun pengguna baru
+return Akun Pengguna baru
+
+actor1 -> actor2: Penyerahan akun pengguna
+activate actor2
+actor2 -> login: Input kredensial pengguna
+activate login
+login -> system: Kredensial pengguna
+activate system
+system -> users: Ambil data pengguna
+activate users
+return Data pengguna
+system -> system : Verifikasi pengguna
+alt Login gagal
+login <-- system: Pesan gagal
+actor2 <-- login: Pemberitahuan gagal
+else Login sukses
+return Redirect kedalam aplikasi
+return Redirect kedalam aplikasi
+return Redirect kedalam aplikasi
+end
+
+@enduml
