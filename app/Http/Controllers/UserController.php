@@ -16,10 +16,12 @@ class UserController extends Controller
 {
     public function showPage(Request $request)
     {
-        $users = User::paginate(
-            $request->input('per_page', 10),
-            page: $request->input('page', 1)
-        );
+        $showDeleted = $request->boolean('show_deleted');
+        $users = User::when($showDeleted, fn($q) => $q->withTrashed())
+            ->paginate(
+                $request->input('per_page', 10),
+                page: $request->input('page', 1)
+            );
 
         $users->through(function ($user, $key) use ($users) {
             return array_merge($user->toArray(), [
@@ -38,6 +40,7 @@ class UserController extends Controller
             'username' => $safe->username,
             'password' => $safe->password,
             'role_id' => $safe->role,
+            'telepon' => $safe->telepon ?? null,
         ]);
         return back();
     }
@@ -49,6 +52,7 @@ class UserController extends Controller
             'name' => $safe->name,
             'username' => $safe->username,
             'role_id' => $safe->role,
+            'telepon' => $safe->telepon ?? null,
         ]);
         if ($safe->password != null) {
             $user->update([
@@ -58,14 +62,26 @@ class UserController extends Controller
         return back();
     }
 
-    public function delete(User $user)
+    public function delete(?User $user)
     {
         if ($user == null) {
             return back()->withErrors([
-                'message' => 'User tidak ditemukan di database'
+                'message' => 'User tidak ditemukan'
             ]);
         }
         $user->delete();
+        return back();
+    }
+
+    public function restore(string $userId)
+    {
+        $user = User::withTrashed()->find($userId);
+        if ($user == null) {
+            return back()->withErrors([
+                'message' => 'User gagal dipulihkan, User tidak ditemukan'
+            ]);
+        }
+        $user->restore();
         return back();
     }
 
@@ -76,7 +92,7 @@ class UserController extends Controller
         ]);
     }
 
-      public function updateProfile(UpdateProfileRequest $request)
+    public function updateProfile(UpdateProfileRequest $request)
     {
         $user = Auth::user();
         $validated = $request->validated();

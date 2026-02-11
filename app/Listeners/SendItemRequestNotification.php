@@ -21,8 +21,9 @@ class SendItemRequestNotification
     public function handle(ItemRequestCreated|ItemRequestAccepted|ItemRequestRejected $event): void
     {
         if ($event instanceof ItemRequestCreated) {
+            /** @var \Illuminate\Database\Eloquent\Collection<User> */
             $users = User::whereHas('role', function ($q) {
-                $q->whereIn('name', ['bendahara', 'petugas', 'administrator']);
+                $q->whereIn('name', ['petugas', 'administrator']);
             })->get();
             foreach ($users as $user) {
                 $user->notify(new ItemRequestCreatedNotification($event->itemRequest));

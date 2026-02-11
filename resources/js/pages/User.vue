@@ -30,14 +30,15 @@ const itemsPerPage = computed(() => usersProp.per_page);
 const currentPage = computed(() => usersProp.current_page);
 
 const loading = ref(false);
+const showDeleted = ref(false);
 
 function loadItems({ page, itemsPerPage: perPage }) {
   loading.value = true;
-
   router.get(
     route('users'),
-    { page, per_page: perPage },
+    { page, per_page: perPage, show_deleted: showDeleted.value },
     {
+      replace: true,
       preserveState: true,
       preserveScroll: true,
       onFinish: () => {
@@ -48,7 +49,12 @@ function loadItems({ page, itemsPerPage: perPage }) {
 }
 
 async function deleteUser(id) {
-  router.delete(`/users/${id}`, {preserveScroll: true});
+  router.delete(route('users.delete', id), {preserveScroll: true});
+}
+
+async function restoreUser(id) {
+  // Implementasi restore user - kamu yang bikin
+  router.patch(route('users.restore', id), {}, {preserveScroll: true});
 }
 
 function isCurrentUser(userId) {
@@ -68,7 +74,7 @@ function isCurrentUser(userId) {
       </v-col>
     </v-row>
     <v-row>
-      <v-col>
+      <v-col class="flex justify-between items-center">
         <v-btn
           variant="tonal"
           color="blue-darken-2"
@@ -84,6 +90,14 @@ function isCurrentUser(userId) {
             activator="parent"
           />
         </v-btn>
+        
+        <v-switch
+          v-model="showDeleted"
+          color="blue-darken-2"
+          label="Tampilkan yang terhapus"
+          hide-details
+          @update:model-value="loadItems({ page: 1, itemsPerPage })"
+        />
       </v-col>
     </v-row>
 
@@ -96,6 +110,7 @@ function isCurrentUser(userId) {
             { title: 'Nama', key: 'name' },
             { title: 'Username', key: 'username' },
             { title: 'Role', key: 'role.name' },
+            ...(showDeleted ? [{ title: 'Dihapus Pada', key: 'deleted_at' }] : []),
             { title: 'More', key: 'more' },
           ]"
           :items="users"
@@ -112,96 +127,23 @@ function isCurrentUser(userId) {
               <th>Nama</th>
               <th>Username</th>
               <th>Role</th>
+              <th v-if="showDeleted">Dihapus Pada</th>
               <th class="w-1/12">Tindakan</th>
             </tr>
           </template>
-          <template #item.more="{ item }">
-            <v-btn
-              variant="text"
-              icon
-            >
-              <v-icon icon="mdi-dots-vertical" />
-              <v-menu activator="parent">
-                <v-list density="compact">
-                  <v-list-item
-                    value="edit"
-                    :disabled="isCurrentUser(item.id)"
-                  >
-                    <v-icon
-                      icon="mdi-pencil"
-                      class="mr-2"
-                    />
-                    Edit
-                    <CreateUpdateUserForm
-                      mode="edit"
-                      title="Edit pengguna"
-                      :url="route('users.update', item.id)"
-                      activator="parent"
-                      :initial-value="{
-                        name: item.name,
-                        username: item.username,
-                        password: '',
-                        role: item.role_id,
-                      }"
-                    />
-                  </v-list-item>
-                  <v-list-item
-                    value="delete"
-                    :disabled="isCurrentUser(item.id)"
-                  >
-                    <v-icon
-                      icon="mdi-delete"
-                      class="mr-2"
-                    />
-                    Hapus
-                    <v-dialog
-                      v-slot="{ isActive }"
-                      activator="parent"
-                      max-width="400"
-                    >
-                      <v-card>
-                        <v-card-title class="bg-blue-darken-2 text-center text-wrap">Konfirmasi!</v-card-title>
-                        <v-card-text>
-                          <div>
-                            Apakah yakin untuk menghapus pengguna dengan nama <span class="text-blue-600">{{ item.nama }}</span>
-                          </div>
-                        </v-card-text>
-                        <v-card-actions>
-                          <v-btn
-                            @click="
-                              deleteUser(item.id);
-                              isActive.value = false;
-                            "
-                            >Ya</v-btn
-                          >
-                          <v-btn @click="isActive.value = false">Batal</v-btn>
-                        </v-card-actions>
-                      </v-card>
-                    </v-dialog>
-                  </v-list-item>
-                </v-list>
-              </v-menu>
-            </v-btn>
-          </template>
-        </v-data-table-server>
-      </v-col>
-    </v-row>
-
-    <!-- Mobile Card View -->
-    <v-row class="md:hidden!">
-      <v-col>
-        <v-progress-circular
-          v-if="loading"
-          indeterminate
-          class="d-block mx-auto my-4"
-        />
-        <v-row
-          v-for="user in users"
-          :key="user.more"
-        >
-          <v-col>
-            <v-card>
-              <v-card-actions class="bg-blue-darken-2 flex justify-end">
+          <template #item="{ item }">
+            <tr :class="{ 'bg-red-lighten-4': item.deleted_at}">
+              <td>{{ item.no }}</td>
+              <td>{{ item.name }}</td>
+              <td>{{ item.username }}</td>
+              <td>{{ item.role?.name }}</td>
+              <td v-if="showDeleted">
+                <span v-if="item.deleted_at" class="text-medium!">
+                  {{ new Date(item.deleted_at).toLocaleString('id-ID').replaceAll('/', '-').replaceAll('.', ':').replace(',', '') }}
+                </span>
+                <span v-else>-</span>
+              </td>
+              <td>
                 <v-btn
                   variant="text"
                   icon
@@ -210,19 +152,32 @@ function isCurrentUser(userId) {
                   <v-menu activator="parent">
                     <v-list density="compact">
                       <v-list-item
+                        v-if="!item.deleted_at"
                         value="edit"
-                        :disabled="isCurrentUser(user.id) || hasAccess(user)"
-                        @click="openEditDialog(user)"
+                        :disabled="isCurrentUser(item.id)"
                       >
                         <v-icon
                           icon="mdi-pencil"
                           class="mr-2"
                         />
-                        Sunting
+                        Edit
+                        <CreateUpdateUserForm
+                          mode="edit"
+                          title="Edit pengguna"
+                          :url="route('users.update', item.id)"
+                          activator="parent"
+                          :initial-value="{
+                            name: item.name,
+                            username: item.username,
+                            password: '',
+                            role: item.role_id,
+                          }"
+                        />
                       </v-list-item>
                       <v-list-item
+                        v-if="!item.deleted_at"
                         value="delete"
-                        :disabled="isCurrentUser(user.id) || hasAccess(user)"
+                        :disabled="isCurrentUser(item.id)"
                       >
                         <v-icon
                           icon="mdi-delete"
@@ -238,13 +193,171 @@ function isCurrentUser(userId) {
                             <v-card-title class="bg-blue-darken-2 text-center text-wrap">Konfirmasi!</v-card-title>
                             <v-card-text>
                               <div>
-                                Apakah yakin untuk menghapus pengguna dengan nama <span class="text-blue-600">{{ user.nama }}</span>
+                                Apakah yakin untuk menghapus pengguna dengan nama <span class="text-blue-600">{{ item.name }}</span>
+                              </div>
+                            </v-card-text>
+                            <v-card-actions>
+                              <v-btn
+                                @click="
+                                  deleteUser(item.id);
+                                  isActive.value = false;
+                                "
+                                >Ya</v-btn
+                              >
+                              <v-btn @click="isActive.value = false">Batal</v-btn>
+                            </v-card-actions>
+                          </v-card>
+                        </v-dialog>
+                      </v-list-item>
+                      <v-list-item
+                        v-if="item.deleted_at"
+                        value="restore"
+                      >
+                        <v-icon
+                          icon="mdi-restore"
+                          class="mr-2"
+                        />
+                        Pulihkan
+                        <v-dialog
+                          v-slot="{ isActive }"
+                          activator="parent"
+                          max-width="400"
+                        >
+                          <v-card>
+                            <v-card-title class="bg-blue-darken-2 text-center text-wrap">Konfirmasi!</v-card-title>
+                            <v-card-text>
+                              <div>
+                                Apakah yakin untuk memulihkan pengguna dengan nama <span class="text-blue-600">{{ item.name }}</span>?
+                              </div>
+                            </v-card-text>
+                            <v-card-actions>
+                              <v-btn
+                                @click="
+                                  restoreUser(item.id);
+                                  isActive.value = false;
+                                "
+                                >Ya</v-btn
+                              >
+                              <v-btn @click="isActive.value = false">Batal</v-btn>
+                            </v-card-actions>
+                          </v-card>
+                        </v-dialog>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
+                </v-btn>
+              </td>
+            </tr>
+          </template>
+        </v-data-table-server>
+      </v-col>
+    </v-row>
+
+    <!-- Mobile Card View -->
+    <v-row class="md:hidden!">
+      <v-col>
+        <v-progress-circular
+          v-if="loading"
+          indeterminate
+          class="d-block mx-auto my-4"
+        />
+        <v-row
+          v-for="user in users"
+          :key="user.id"
+        >
+          <v-col>
+            <v-card :class="{ 'bg-red-accent-1': user.deleted_at }">
+              <v-card-actions class="bg-blue-darken-2 flex justify-end">
+                <v-btn
+                  variant="text"
+                  icon
+                >
+                  <v-icon icon="mdi-dots-vertical" />
+                  <v-menu activator="parent">
+                    <v-list density="compact">
+                      <v-list-item
+                        v-if="!user.deleted_at"
+                        value="edit"
+                        :disabled="isCurrentUser(user.id)"
+                      >
+                        <v-icon
+                          icon="mdi-pencil"
+                          class="mr-2"
+                        />
+                        Sunting
+                        <CreateUpdateUserForm
+                          mode="edit"
+                          title="Edit pengguna"
+                          :url="route('users.update', user.id)"
+                          activator="parent"
+                          :initial-value="{
+                            name: user.name,
+                            username: user.username,
+                            password: '',
+                            role: user.role_id,
+                          }"
+                        />
+                      </v-list-item>
+                      <v-list-item
+                        v-if="!user.deleted_at"
+                        value="delete"
+                        :disabled="isCurrentUser(user.id)"
+                      >
+                        <v-icon
+                          icon="mdi-delete"
+                          class="mr-2"
+                        />
+                        Hapus
+                        <v-dialog
+                          v-slot="{ isActive }"
+                          activator="parent"
+                          max-width="400"
+                        >
+                          <v-card>
+                            <v-card-title class="bg-blue-darken-2 text-center text-wrap">Konfirmasi!</v-card-title>
+                            <v-card-text>
+                              <div>
+                                Apakah yakin untuk menghapus pengguna dengan nama <span class="text-blue-600">{{ user.name }}</span>
                               </div>
                             </v-card-text>
                             <v-card-actions>
                               <v-btn
                                 @click="
                                   deleteUser(user.id);
+                                  isActive.value = false;
+                                "
+                                >Ya</v-btn
+                              >
+                              <v-btn @click="isActive.value = false">Batal</v-btn>
+                            </v-card-actions>
+                          </v-card>
+                        </v-dialog>
+                      </v-list-item>
+                      <v-list-item
+                        v-if="user.deleted_at"
+                        value="restore"
+                      >
+                        <v-icon
+                          icon="mdi-restore"
+                          class="mr-2"
+                        />
+                        Pulihkan
+                        <v-dialog
+                          v-slot="{ isActive }"
+                          activator="parent"
+                          max-width="400"
+                        >
+                          <v-card>
+                            <v-card-title class="bg-blue-darken-2 text-center text-wrap">Konfirmasi!</v-card-title>
+                            <v-card-text>
+                              <div>
+                                Apakah yakin untuk memulihkan pengguna dengan nama <span class="text-blue-600">{{ user.name }}</span>?
+                              </div>
+                            </v-card-text>
+                            <v-card-actions>
+                              <v-btn
+                                @click="
+                                  restoreUser(user.id);
                                   isActive.value = false;
                                 "
                                 >Ya</v-btn
@@ -261,7 +374,7 @@ function isCurrentUser(userId) {
               <v-card-text>
                 <v-row>
                   <v-col cols="5">Nama Lengkap</v-col>
-                  <v-col>{{ user.nama }}</v-col>
+                  <v-col>{{ user.name }}</v-col>
                 </v-row>
                 <v-row>
                   <v-col cols="5">Username</v-col>
@@ -269,7 +382,11 @@ function isCurrentUser(userId) {
                 </v-row>
                 <v-row>
                   <v-col cols="5">Role</v-col>
-                  <v-col>{{ user.role }}</v-col>
+                  <v-col>{{ user.role?.name }}</v-col>
+                </v-row>
+                <v-row v-if="showDeleted && user.deleted_at">
+                  <v-col cols="5">Terhapus Pada</v-col>
+                  <v-col>{{ new Date(user.deleted_at).toLocaleString('id-ID') }}</v-col>
                 </v-row>
               </v-card-text>
             </v-card>
@@ -291,4 +408,3 @@ function isCurrentUser(userId) {
     </v-row>
   </v-container>
 </template>
-

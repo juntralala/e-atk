@@ -229,7 +229,7 @@ class ItemAdditionController extends Controller
         $end->timezone('+8')->endOfDay();
 
         $itemAdditions = ItemAddition::with([
-            'user',
+            'user' => fn($q) => $q->withTrashed(),
             'itemAdditionDetails',
             'itemAdditionDetails.item',
             'itemAdditionDetails.item.unit',

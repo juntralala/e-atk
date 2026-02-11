@@ -5,7 +5,13 @@ import AlertDialog from '@/components/organisms/AlertDialog.vue';
 import Footer from '@/components/organisms/Footer.vue';
 import Notification from '@/components/organisms/Notification.vue';
 import {
+  canAccessItemAdditionReport,
+  canAccessItemExpenditureReport,
+  canAccessItemReport,
+  canAccessItemRequestReport,
+  canAccessUnitExpenditureReport,
   canAddItem,
+  canInItemListPage,
   canInItemRequestPage,
   canInUnitPage,
   canInUserPage,
@@ -163,9 +169,9 @@ onUpdated(function () {
         mandatory
       >
         <DrawerItem
-          v-if="user?.role?.name == 'unit'"
-          :href="'nothing'"
-          icon="mdi-package-variant-plus"
+          v-if="canInItemListPage(user)"
+          :href="route('items', {mode: 'view'})"
+          icon="mdi-package"
           >Daftar Barang</DrawerItem
         >
         <DrawerItem
@@ -198,26 +204,31 @@ onUpdated(function () {
             </v-list-item>
           </template>
           <DrawerItem
+            v-if="canAccessItemReport(user)"
             :href="route('items.exports.view')"
             icon="mdi-package-variant"
             >Barang</DrawerItem
-          >
-          <DrawerItem
+            >
+            <DrawerItem
+            v-if="canAccessItemAdditionReport(user)"
             :href="route('items.additions.exports.view')"
             icon="mdi-package-up"
             >Penambahan Barang</DrawerItem
-          >
-          <DrawerItem
+            >
+            <DrawerItem
+            v-if="canAccessItemRequestReport(user)"
             :href="route('items.requests.exports.view')"
             icon="mdi-file-document-edit"
             >Permintaan Barang</DrawerItem
-          >
-          <DrawerItem
+            >
+            <DrawerItem
+            v-if="canAccessItemExpenditureReport(user)"
             :href="route('items.expenditures.exports.view')"
             icon="mdi-receipt-text"
             >Pengeluaran Barang</DrawerItem
-          >
-          <DrawerItem
+            >
+            <DrawerItem
+            v-if="canAccessUnitExpenditureReport(user)"
             :href="route('expenditures.units.exports.view')"
             icon="mdi-wallet-outline"
             >Pengeluaran Unit</DrawerItem
@@ -260,7 +271,7 @@ onUpdated(function () {
         >Pengaturan</DrawerItem
         >
         <DrawerItem
-          href="/masih nggak ada"
+          :href="route('stakeholders')"
           icon="mdi-account-tie"
           >Pemangku Kepentingan</DrawerItem
         >

@@ -24,15 +24,16 @@ class ItemController extends Controller
 
     private function itemExpenditureQuery($start, $end)
     {
-        return Item::with([
-            'unit',
-            'itemRequestDetails' => function ($q) use ($start, $end) {
-                $q->whereHas('itemRequest', function ($qir) use ($start, $end) {
-                    $qir->where('status', 'accepted');
-                    $qir->whereBetween('response_date', [$start, $end]);
-                });
-            }
-        ])
+        return Item::withTrashed()
+            ->with([
+                'unit' => fn($q) => $q->withTrashed(),
+                'itemRequestDetails' => function ($q) use ($start, $end) {
+                    $q->whereHas('itemRequest', function ($qir) use ($start, $end) {
+                        $qir->where('status', 'accepted');
+                        $qir->whereBetween('response_date', [$start, $end]);
+                    });
+                }
+            ])
             ->withSum([
                 'itemRequestDetails as quantity_total' => function ($q) use ($start, $end) {
                     $q->whereHas('itemRequest', function ($qir) use ($start, $end) {
@@ -60,12 +61,13 @@ class ItemController extends Controller
             ->orderBy('name');
     }
 
-    public function showPage()
+    public function showPage(Request $request)
     {
+        // $perPage = $request->input('per_page');
+        $page = $request->input('page', 1);
         $items = Item::with('unit')
-            ->whereNull('deleted_at')
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate(page: $page, perPage: 10);
 
         $units = Unit::whereNull('deleted_at')
             ->orderBy('name', 'asc')
@@ -86,17 +88,6 @@ class ItemController extends Controller
                 'spesification_name' => 'required|string|max:255',
                 'stock' => 'nullable|integer|min:0',
                 'price' => 'nullable|numeric|min:0',
-            ], [
-                'name.required' => 'Nama barang wajib diisi',
-                'name.max' => 'Nama barang maksimal 255 karakter',
-                'unit_id.required' => 'Satuan wajib dipilih',
-                'unit_id.exists' => 'Satuan yang dipilih tidak valid',
-                'spesification_name.required' => 'Spesifikasi wajib diisi',
-                'spesification_name.max' => 'Spesifikasi maksimal 255 karakter',
-                'stock.integer' => 'Stok harus berupa angka',
-                'stock.min' => 'Stok tidak boleh kurang dari 0',
-                'price.numeric' => 'Harga harus berupa angka',
-                'price.min' => 'Harga tidak boleh kurang dari 0',
             ]);
 
             // Check if barang with same name and spesifikasi already exists
@@ -144,17 +135,6 @@ class ItemController extends Controller
                 'spesification_name' => 'required|string|max:255',
                 'stock' => 'nullable|integer|min:0',
                 'price' => 'nullable|numeric|min:0',
-            ], [
-                'name.required' => 'Nama barang wajib diisi',
-                'name.max' => 'Nama barang maksimal 255 karakter',
-                'unit_id.required' => 'Satuan wajib dipilih',
-                'unit_id.exists' => 'Satuan yang dipilih tidak valid',
-                'spesification_name.required' => 'Spesifikasi wajib diisi',
-                'spesification_name.max' => 'Spesifikasi maksimal 255 karakter',
-                'stock.integer' => 'Stok harus berupa angka',
-                'stock.min' => 'Stok tidak boleh kurang dari 0',
-                'price.numeric' => 'Harga harus berupa angka',
-                'price.min' => 'Harga tidak boleh kurang dari 0',
             ]);
 
             // Check if barang with same name and spesifikasi already exists (excluding current barang)

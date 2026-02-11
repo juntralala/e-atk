@@ -2,6 +2,7 @@
 import PageTitleHighlightPart from '@/components/atoms/PageTitleHighlightPart.vue';
 import AlertDialog from '@/components/organisms/AlertDialog.vue';
 import ApplicationLayout from '@/layouts/ApplicationLayout.vue';
+import { canActItem } from '@/lib/can';
 import { Head, router, useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 
@@ -11,8 +12,8 @@ defineOptions({
 
 const props = defineProps({
   items: {
-    type: [Array, null],
-    default: [],
+    type: Object,
+    required: true,
   },
   units: {
     type: [Array, null],
@@ -33,6 +34,27 @@ const form = useForm({
 const errorDialog = ref(false);
 const errorMessage = ref('');
 const errorTitle = ref('Gagal!');
+
+// Pagination
+const itemsData = computed(() => props.items.data || []);
+const totalItems = computed(() => props.items.total || 0);
+const itemsPerPage = computed(() => props.items.per_page || 10);
+const currentPage = computed(() => props.items.current_page || 1);
+const totalPages = computed(() => Math.ceil(totalItems.value / itemsPerPage.value));
+
+const changePage = (page) => {
+  router.get(
+    route('items'),
+    { page },
+    {
+      preserveState: true,
+      preserveScroll: true,
+    },
+  );
+};
+if (currentPage.value > props.items.last_page) {
+  changePage(1);
+}
 
 const openAddDialog = () => {
   editingId.value = null;
@@ -63,8 +85,8 @@ const submitForm = () => {
       onError: (errors) => {
         // Cek apakah ada error non-field
         const fieldErrors = ['name', 'unit_id', 'spesification_name', 'stock', 'price'];
-        const hasNonFieldError = Object.keys(errors).some(key => !fieldErrors.includes(key));
-        
+        const hasNonFieldError = Object.keys(errors).some((key) => !fieldErrors.includes(key));
+
         if (hasNonFieldError || errors.message) {
           errorTitle.value = 'Gagal Memperbarui!';
           errorMessage.value = errors.message || 'Terjadi kesalahan saat memperbarui barang.';
@@ -82,8 +104,8 @@ const submitForm = () => {
       onError: (errors) => {
         // Cek apakah ada error non-field
         const fieldErrors = ['name', 'unit_id', 'spesification_name', 'stock', 'price'];
-        const hasNonFieldError = Object.keys(errors).some(key => !fieldErrors.includes(key));
-        
+        const hasNonFieldError = Object.keys(errors).some((key) => !fieldErrors.includes(key));
+
         if (hasNonFieldError || errors.message) {
           errorTitle.value = 'Gagal Menyimpan!';
           errorMessage.value = errors.message || 'Terjadi kesalahan saat menyimpan barang.';
@@ -121,11 +143,17 @@ const formatRupiah = (value) => {
     minimumFractionDigits: 0,
   }).format(value);
 };
+
+// Get item number based on pagination
+const getItemNumber = (index) => {
+  return (currentPage.value - 1) * itemsPerPage.value + index + 1;
+};
 </script>
 
 <template>
   <Head>
-    <title>Data barang</title>
+    <title v-if="canActItem($page.props.auth.user)">Data barang</title>
+    <title v-else>Daftar barang</title>
   </Head>
   <v-container>
     <!-- Alert Dialog untuk error non-field -->
@@ -138,13 +166,13 @@ const formatRupiah = (value) => {
     <v-row>
       <v-col>
         <PageTitleHighlightPart
-          first-part-title="Data"
+          :first-part-title="canActItem($page.props.auth.user) ? 'Data' : 'Daftar'"
           second-part-title="Barang"
         />
       </v-col>
     </v-row>
 
-    <v-row>
+    <v-row v-if="canActItem($page.props.auth.user)">
       <v-col>
         <v-btn
           variant="tonal"
@@ -168,22 +196,32 @@ const formatRupiah = (value) => {
               <th class="text-left">Satuan</th>
               <th class="text-left">Spesifikasi</th>
               <th class="text-left">Stok</th>
-              <th class="text-left">Harga</th>
-              <th class="w-1/12 text-left">Tindakan</th>
+              <th
+                v-if="canActItem($page.props.auth.user)"
+                class="text-left"
+              >
+                Harga
+              </th>
+              <th
+                v-if="canActItem($page.props.auth.user)"
+                class="w-1/12 text-left"
+              >
+                Tindakan
+              </th>
             </tr>
           </thead>
           <tbody>
             <tr
-              v-for="(item, index) in items"
+              v-for="(item, index) in itemsData"
               :key="item.id"
             >
-              <td>{{ index + 1 }}</td>
+              <td>{{ getItemNumber(index) }}</td>
               <td>{{ item.name }}</td>
               <td>{{ item.unit.name }}</td>
               <td>{{ item.spesification_name }}</td>
               <td>{{ item.stock }}</td>
-              <td>{{ formatRupiah(item.price) }}</td>
-              <td>
+              <td v-if="canActItem($page.props.auth.user)">{{ formatRupiah(item.price) }}</td>
+              <td v-if="canActItem($page.props.auth.user)">
                 <v-btn
                   size="small"
                   icon="mdi-dots-vertical"
@@ -216,7 +254,8 @@ const formatRupiah = (value) => {
                           <v-card-title class="bg-blue-darken-2 text-center text-wrap">Konfirmasi!</v-card-title>
                           <v-card-text>
                             <div>
-                              Apakah Anda yakin ingin menghapus barang <span class="text-blue-600 font-weight-bold">{{ item.name }}</span>?
+                              Apakah Anda yakin ingin menghapus barang <span class="font-weight-bold text-blue-600">{{ item.name }}</span
+                              >?
                             </div>
                           </v-card-text>
                           <v-card-actions>
@@ -239,7 +278,7 @@ const formatRupiah = (value) => {
                 </v-menu>
               </td>
             </tr>
-            <tr v-if="!items || items.length === 0">
+            <tr v-if="!itemsData || itemsData.length === 0">
               <td
                 colspan="7"
                 class="text-grey text-center"
@@ -249,25 +288,58 @@ const formatRupiah = (value) => {
             </tr>
           </tbody>
         </v-table>
+
+        <!-- Desktop Pagination -->
+        <v-row v-if="itemsData && itemsData.length > 0">
+          <v-col class="d-flex justify-center">
+            <v-pagination
+              :model-value="currentPage"
+              :length="totalPages"
+              :total-visible="7"
+              @update:model-value="changePage"
+            />
+          </v-col>
+        </v-row>
       </v-col>
     </v-row>
 
-    <!-- Mobile Card View -->
+    <!-- Mobile List View -->
     <v-row class="md:hidden!">
       <v-col>
-        <v-row
-          v-for="item in items"
-          :key="item.id"
-        >
-          <v-col>
-            <v-card>
-              <v-card-actions class="bg-blue-darken-2 flex justify-end">
-                <v-btn
-                  variant="text"
-                  icon
-                >
-                  <v-icon icon="mdi-dots-vertical" />
-                  <v-menu activator="parent">
+        <v-list lines="three">
+          <template v-if="itemsData && itemsData.length > 0">
+            <v-list-item
+              v-for="(item, index) in itemsData"
+              :key="item.id"
+              class="py-3 my-1"
+            >
+              <div class="d-flex align-start justify-space-between w-100">
+                <div class="grow pr-2">
+                  <div class="d-flex align-center mb-1">
+                    <span class="text-caption text-grey mr-2">{{ getItemNumber(index) }}.</span>
+                    <span class="font-medium"
+                      >{{ item.name }} <span class="font-normal">- {{ item.spesification_name }}</span></span
+                    >
+                  </div>
+                  <div class="d-flex align-center text-body-2 gap-3">
+                    <div v-if="canActItem($page.props.auth.user)">
+                      <span class="text-grey">Harga:</span>
+                      <span class="font-medium ml-1">{{ formatRupiah(item.price) }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="d-flex flex-column align-end shrink-0">
+                  <div class="text-body-2 font-medium mb-2">{{ item.stock }} {{ item.unit.name }}</div>
+                  <v-btn
+                    v-if="canActItem($page.props.auth.user)"
+                    size="small"
+                    icon="mdi-dots-vertical"
+                    variant="text"
+                  >
+                  <v-menu
+                    v-if="canActItem($page.props.auth.user)"
+                    activator="parent"
+                  >
                     <v-list density="compact">
                       <v-list-item
                         value="edit"
@@ -294,7 +366,8 @@ const formatRupiah = (value) => {
                             <v-card-title class="bg-blue-darken-2 text-center text-wrap">Konfirmasi!</v-card-title>
                             <v-card-text>
                               <div>
-                                Apakah Anda yakin ingin menghapus barang <span class="text-blue-600 font-weight-bold">{{ item.name }}</span>?
+                                Apakah Anda yakin ingin menghapus barang <span class="font-weight-bold text-blue-600">{{ item.name }}</span
+                                >?
                               </div>
                             </v-card-text>
                             <v-card-actions>
@@ -316,40 +389,26 @@ const formatRupiah = (value) => {
                     </v-list>
                   </v-menu>
                 </v-btn>
-              </v-card-actions>
-              <v-card-text>
-                <v-row>
-                  <v-col cols="5">Nama Barang</v-col>
-                  <v-col>{{ item.name }}</v-col>
-                </v-row>
-                <v-row>
-                  <v-col cols="5">Satuan</v-col>
-                  <v-col>{{ item.unit.name }}</v-col>
-                </v-row>
-                <v-row>
-                  <v-col cols="5">Spesifikasi</v-col>
-                  <v-col>{{ item.spesification_name }}</v-col>
-                </v-row>
-                <v-row>
-                  <v-col cols="5">Stok</v-col>
-                  <v-col>{{ item.stock }}</v-col>
-                </v-row>
-                <v-row>
-                  <v-col cols="5">Harga</v-col>
-                  <v-col>{{ formatRupiah(item.price) }}</v-col>
-                </v-row>
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
+                </div>
+              </div>
+              <div class="mt-3 border-b"></div>
+            </v-list-item>
+          </template>
 
-        <v-row v-if="!items || items.length === 0">
+          <v-list-item v-else>
+            <v-list-item-title class="text-grey text-center"> Belum ada barang yang ditambahkan </v-list-item-title>
+          </v-list-item>
+        </v-list>
+
+        <!-- Mobile Pagination -->
+        <v-row v-if="itemsData && itemsData.length > 0">
           <v-col>
-            <v-card>
-              <v-card-text class="text-center text-grey">
-                Belum ada barang yang ditambahkan
-              </v-card-text>
-            </v-card>
+            <v-pagination
+              :model-value="currentPage"
+              :length="totalPages"
+              :total-visible="5"
+              @update:model-value="changePage"
+            />
           </v-col>
         </v-row>
       </v-col>
@@ -369,7 +428,10 @@ const formatRupiah = (value) => {
           <v-container>
             <v-form @submit.prevent="submitForm">
               <v-row>
-                <v-col cols="12" md="6">
+                <v-col
+                  cols="12"
+                  md="6"
+                >
                   <v-text-field
                     v-model="form.name"
                     label="Nama Barang *"
@@ -379,7 +441,10 @@ const formatRupiah = (value) => {
                     variant="outlined"
                   ></v-text-field>
                 </v-col>
-                <v-col cols="12" md="6">
+                <v-col
+                  cols="12"
+                  md="6"
+                >
                   <v-select
                     v-model="form.unit_id"
                     label="Satuan *"
@@ -407,7 +472,10 @@ const formatRupiah = (value) => {
                 </v-col>
               </v-row>
               <v-row>
-                <v-col cols="12" md="6">
+                <v-col
+                  cols="12"
+                  md="6"
+                >
                   <v-text-field
                     v-model.number="form.stock"
                     label="Stok"
@@ -418,7 +486,10 @@ const formatRupiah = (value) => {
                     variant="outlined"
                   ></v-text-field>
                 </v-col>
-                <v-col cols="12" md="6">
+                <v-col
+                  cols="12"
+                  md="6"
+                >
                   <v-text-field
                     v-model.number="form.price"
                     label="Harga"

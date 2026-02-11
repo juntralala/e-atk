@@ -26,15 +26,15 @@ use OpenSpout\Writer\XLSX\Writer;
 use Throwable;
 
 class ItemRequestController extends Controller
-{    
+{
 
     private function itemRequestReportQuery($start, $end, $status)
     {
-        return ItemRequest::with('requester')
-            ->with('responder')
+        return ItemRequest::with(['requester' => fn($q) => $q->withTrashed()])
+            ->with(['responder' => fn($q) => $q->withTrashed()])
             ->with('itemRequestDetails')
-            ->with('itemRequestDetails.item')
-            ->with('itemRequestDetails.item.unit')
+            ->with(['itemRequestDetails.item' => fn($q) => $q->withTrashed()])
+            ->with(['itemRequestDetails.item.unit' => fn($q) => $q->withTrashed()])
             ->when(!blank($status), fn($q) => $q->where('status', $status))
             ->whereBetween('created_at', [$start, $end])
             ->orderBy('created_at', 'desc');
@@ -42,7 +42,8 @@ class ItemRequestController extends Controller
 
     private function unitExpenditureQuery($start, $end)
     {
-        return User::whereHas('role', fn($q) => $q->where('name', 'unit'))
+        return User::withTrashed()
+            ->whereHas('role', fn($q) => $q->where('name', 'unit'))
             ->with([
                 'itemRequests' => function ($q) use ($start, $end) {
                     $q->where('status', 'accepted')
@@ -117,7 +118,7 @@ class ItemRequestController extends Controller
             foreach ($request->items as $item) {
                 $itemData = Item::findOrFail($item['item_id']);
 
-                if($itemData->stock < $item['requested_quantity']) {
+                if ($itemData->stock < $item['requested_quantity']) {
                     throw new Exception("Stok $itemData->name tidak mencukupi, tersedia: $itemData->stock");
                 }
 
@@ -400,7 +401,6 @@ class ItemRequestController extends Controller
                         return $detail->responded_quantity * $detail->price;
                     });
                 });
-
                 return $item;
             });
         $totalExpenditure = ItemRequestDetail::whereHas('itemRequest', fn($q) => $q->whereBetween('created_at', [$start, $end]))

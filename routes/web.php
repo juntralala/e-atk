@@ -5,6 +5,7 @@ use App\Http\Controllers\ItemAdditionController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ItemRequestController;
+use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\RoleController;
@@ -12,13 +13,9 @@ use App\Http\Controllers\UnitController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\UserController;
 use App\Models\User;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('LandingPage');
-});
+Route::get('/', [LandingPageController::class, 'showPage']);
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'loginPage'])->name('login');
@@ -43,6 +40,7 @@ Route::middleware('auth')->group(function () {
             ->middleware('can:update,user');
         Route::delete("/{user}", [UserController::class, 'delete'])->name('.delete')
             ->can('delete', 'user');
+        Route::patch("/{user}/restore", [UserController::class, 'restore'])->name('.restore');
     });
 
     Route::get('/profile', [UserController::class, 'showProfile'])->name('profile');
@@ -90,7 +88,7 @@ Route::middleware('auth')->group(function () {
         });
     });
 
-    Route::inertia('/stakeholders', 'StakeHolder');
+    Route::inertia('/stakeholders', 'StakeHolder')->name('stakeholders');
     Route::inertia('/reports', 'Report')->name('reports');
     Route::get('/expenditures/units/exports/view', [ItemRequestController::class, 'unitExpenditureReport'])->name('expenditures.units.exports.view');
     Route::get('/expenditures/units/exports/xlsx', [ItemRequestController::class, 'toUnitExpenditureXlsx'])->name('expenditures.units.exports.xlsx');
@@ -98,6 +96,5 @@ Route::middleware('auth')->group(function () {
     Route::get('/roles', [RoleController::class, 'getRoles'])->name('roles');
 });
 
-Route::get('/inspect', function () {
-    throw new AuthorizationException("Gak tau");
-})->can('create');
+
+Route::inertia('/counter', 'Counter');
