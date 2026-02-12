@@ -1,9 +1,10 @@
 <script setup>
 import PageTitleHighlightPart from '@/components/atoms/PageTitleHighlightPart.vue';
+import DatePicker from '@/components/molecules/DatePicker.vue';
 import AlertDialog from '@/components/organisms/AlertDialog.vue';
 import SuccessDialog from '@/components/organisms/SuccessDialog.vue';
 import ApplicationLayout from '@/layouts/ApplicationLayout.vue';
-import { Link, useForm } from '@inertiajs/vue3';
+import { useForm } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
 import { useDisplay } from 'vuetify/lib/composables/display';
 
@@ -18,7 +19,7 @@ const props = defineProps({
   },
 });
 
-const { xs } = useDisplay();
+const { xs, mdAndUp } = useDisplay();
 const successDialog = ref(false);
 const errorDialog = ref(false);
 const errorMessage = ref('');
@@ -115,10 +116,18 @@ watch(
   },
   { deep: true },
 );
+
+// Computed total
+const totalAmount = () => {
+  return form.items.reduce((sum, item) => sum + item.quantity * item.price, 0);
+};
 </script>
 
 <template>
-  <v-container fluid>
+  <v-container
+    fluid
+    class="pa-4 pa-md-6"
+  >
     <SuccessDialog
       v-model="successDialog"
       message="Penambahan barang berhasil disimpan."
@@ -128,8 +137,9 @@ watch(
       v-model="errorDialog"
       :message="errorMessage"
     />
-    
-    <v-row>
+
+    <!-- Header Section -->
+    <v-row class="mb-4">
       <v-col>
         <PageTitleHighlightPart
           first-part-title="Penambahan"
@@ -138,134 +148,147 @@ watch(
       </v-col>
     </v-row>
 
+    <!-- Main Form -->
     <v-row>
       <v-col>
         <form @submit.prevent="submitTransaction">
-          <!-- Header Transaction Fields -->
-          <v-row class="pt-4">
+          <!-- Date Field -->
+          <v-row class="mb-4">
             <v-col
               cols="12"
               md="6"
             >
-              <v-text-field
-                v-model="form.addition_date"
-                type="date"
-                density="comfortable"
+              <DatePicker
                 label="Tanggal Penambahan"
+                v-model="form.addition_date"
                 :error-messages="form.errors.addition_date"
+                density="comfortable"
+                variant="outlined"
+                color="blue"
               />
             </v-col>
           </v-row>
 
-          <v-divider class="my-6"></v-divider>
+          <v-divider class="mb-4"></v-divider>
 
           <!-- Transaction Items -->
-          <v-row
+          <div
             v-for="(item, index) in form.items"
             :key="index"
-            class="items-start! pt-5 odd:bg-gray-100!"
+            class="pa-4 mb-4 rounded-lg"
+            :class="index % 2 === 0 ? 'bg-grey-lighten-4' : 'bg-white'"
           >
-            <v-col
-              class="py-0"
-              cols="11"
-              md=""
-            >
-              <v-autocomplete
-                v-model="item.item_id"
-                density="comfortable"
-                :items="items"
-                item-title="name"
-                item-value="id"
-                label="Barang"
-                :error-messages="form.errors[`items.${index}.item_id`]"
+            <div class="d-flex align-center mb-3 gap-2">
+              <v-chip
+                size="small"
+                color="blue"
+                variant="flat"
               >
-                <template v-slot:item="{ props: itemProps, item: barangItem }">
-                  <v-list-item
-                    v-bind="itemProps"
-                    :subtitle="`${barangItem.raw.spesification_name} - Stok: ${barangItem.raw.stock} ${barangItem.raw.unit.name}`"
-                  />
-                </template>
-              </v-autocomplete>
-            </v-col>
-
-            <v-col
-              v-if="xs"
-              cols="1"
-              class="mt-1 ps-0"
-            >
+                {{ index + 1 }}
+              </v-chip>
+              <span class="text-body-2 text-grey-darken-2 font-weight-medium"> Barang {{ index + 1 }} </span>
+              <v-spacer></v-spacer>
               <v-btn
                 variant="text"
-                size="25"
-                rounded="full"
-                color="red"
-                icon
-                :disabled="form.items.length === 1"
-                @click="deleteItem(index)"
-              >
-                <v-icon
-                  icon="mdi-delete"
-                  size="24"
-                ></v-icon>
-              </v-btn>
-            </v-col>
-
-            <v-col
-              class="py-0!"
-              cols="6"
-              lg="2"
-            >
-              <v-number-input
-                v-model="item.quantity"
-                :min="1"
-                control-variant="split"
-                density="comfortable"
-                label="Jumlah"
-                :error-messages="form.errors[`items.${index}.quantity`]"
-              />
-            </v-col>
-
-            <v-col
-              class="py-0!"
-              cols="6"
-              lg="3"
-            >
-              <v-text-field
-                v-model.number="item.price"
-                type="number"
-                :min="0"
-                step="0.01"
-                density="comfortable"
-                label="Harga Satuan"
-                prefix="Rp"
-                :error-messages="form.errors[`items.${index}.price`]"
-              />
-            </v-col>
-
-            <v-col
-              cols="auto"
-              class="mt-1 py-0!"
-              v-if="!xs"
-            >
-              <v-btn
-                variant="text"
-                color="red"
+                color="red-darken-1"
                 icon
                 size="small"
                 :disabled="form.items.length === 1"
                 @click="deleteItem(index)"
               >
-                <v-icon size="28" icon="mdi-delete"></v-icon>
+                <v-icon size="20">mdi-close</v-icon>
               </v-btn>
-            </v-col>
-          </v-row>
+            </div>
 
-          <v-row class="mt-7 md:mt-2">
-            <v-col class="flex items-center! justify-end! pt-0">
+            <v-row>
+              <!-- Item Selection -->
+              <v-col
+                cols="12"
+                md="6"
+              >
+                <v-autocomplete
+                  v-model="item.item_id"
+                  density="comfortable"
+                  :items="items"
+                  item-title="name"
+                  item-value="id"
+                  label="Pilih Barang"
+                  placeholder="Ketik untuk mencari..."
+                  :error-messages="form.errors[`items.${index}.item_id`]"
+                  variant="outlined"
+                  color="blue"
+                  bg-color="white"
+                >
+                  <template v-slot:item="{ props: itemProps, item: barangItem }">
+                    <v-list-item
+                      v-bind="itemProps"
+                      :subtitle="`${barangItem.raw.spesification_name} - Stok: ${barangItem.raw.stock} ${barangItem.raw.unit.name}`"
+                    />
+                  </template>
+                </v-autocomplete>
+              </v-col>
+
+              <!-- Quantity -->
+              <v-col
+                cols="12"
+                sm="6"
+                md="3"
+              >
+                <v-number-input
+                  v-model="item.quantity"
+                  :min="1"
+                  control-variant="split"
+                  density="comfortable"
+                  label="Jumlah"
+                  :error-messages="form.errors[`items.${index}.quantity`]"
+                  variant="outlined"
+                  color="blue"
+                  bg-color="white"
+                />
+              </v-col>
+
+              <!-- Price -->
+              <v-col
+                cols="12"
+                sm="6"
+                md="3"
+              >
+                <v-text-field
+                  v-model.number="item.price"
+                  type="number"
+                  :min="0"
+                  step="0.01"
+                  density="comfortable"
+                  label="Harga Satuan"
+                  prefix="Rp"
+                  :error-messages="form.errors[`items.${index}.price`]"
+                  variant="outlined"
+                  color="blue"
+                  bg-color="white"
+                />
+              </v-col>
+            </v-row>
+
+            <!-- Subtotal per item -->
+            <div
+              v-if="item.item_id && item.quantity && item.price"
+              class="mt-2 text-right"
+            >
+              <span class="text-body-2 text-grey-darken-1">
+                Subtotal: <strong>{{ formatRupiah(item.quantity * item.price) }}</strong>
+              </span>
+            </div>
+          </div>
+
+          <!-- Add Item Button -->
+          <v-row class="mt-2">
+            <v-col>
               <v-btn
-                variant="tonal"
-                color="blue-accent-2"
+                variant="outlined"
+                color="blue"
                 :disabled="form.processing"
                 @click="addItem"
+                block
               >
                 <v-icon
                   icon="mdi-plus"
@@ -276,33 +299,38 @@ watch(
             </v-col>
           </v-row>
 
-          <v-divider class="my-4 md:my-6"></v-divider>
+          <v-divider class="my-6"></v-divider>
 
-          <!-- Summary -->
-          <v-row v-if="false && form.items.length > 0">
-            <v-col
-              cols="12"
-              class="text-right"
-            >
-              <div class="text-h6 font-weight-bold">
-                Total: {{ formatRupiah(form.items.reduce((sum, item) => sum + item.quantity * item.price, 0)) }}
+          <!-- Total Summary -->
+          <v-row v-if="form.items.some((item) => item.item_id && item.quantity && item.price)">
+            <v-col class="text-right">
+              <div class="d-inline-block pa-4 bg-blue-lighten-5 rounded-lg">
+                <span class="text-body-1 text-grey-darken-2 mr-3">Total Keseluruhan:</span>
+                <span class="text-h6 font-weight-bold text-blue-darken-2">
+                  {{ formatRupiah(totalAmount()) }}
+                </span>
               </div>
             </v-col>
           </v-row>
 
-          <v-row>
-            <v-col class="flex justify-end gap-4">
+          <!-- Action Buttons -->
+          <v-row class="mt-4">
+            <v-col class="d-flex justify-end gap-3">
               <v-btn
-                variant="tonal"
-                color="grey"
+                variant="outlined"
+                color="grey-darken-1"
                 :disabled="form.processing"
                 @click="cancel"
               >
+                <v-icon
+                  icon="mdi-close"
+                  start
+                ></v-icon>
                 Batal
               </v-btn>
               <v-btn
                 type="submit"
-                variant="tonal"
+                variant="flat"
                 color="blue"
                 :loading="form.processing"
                 :disabled="form.processing"

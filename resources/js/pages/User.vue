@@ -110,6 +110,7 @@ function isCurrentUser(userId) {
             { title: 'Nama', key: 'name' },
             { title: 'Username', key: 'username' },
             { title: 'Role', key: 'role.name' },
+            { title: 'No. Telepon', key: 'telepon' },
             ...(showDeleted ? [{ title: 'Dihapus Pada', key: 'deleted_at' }] : []),
             { title: 'More', key: 'more' },
           ]"
@@ -126,6 +127,7 @@ function isCurrentUser(userId) {
               <th class="w-1/16">No</th>
               <th>Nama</th>
               <th>Username</th>
+              <th>No. telepon</th>
               <th>Role</th>
               <th v-if="showDeleted">Dihapus Pada</th>
               <th class="w-1/12">Tindakan</th>
@@ -136,6 +138,7 @@ function isCurrentUser(userId) {
               <td>{{ item.no }}</td>
               <td>{{ item.name }}</td>
               <td>{{ item.username }}</td>
+              <td>{{ item.telepon || '-'}}</td>
               <td>{{ item.role?.name }}</td>
               <td v-if="showDeleted">
                 <span v-if="item.deleted_at" class="text-medium!">
@@ -171,6 +174,7 @@ function isCurrentUser(userId) {
                             username: item.username,
                             password: '',
                             role: item.role_id,
+                            telepon: item.telepon,
                           }"
                         />
                       </v-list-item>
@@ -295,6 +299,7 @@ function isCurrentUser(userId) {
                             username: user.username,
                             password: '',
                             role: user.role_id,
+                            telepon: user.telepon,
                           }"
                         />
                       </v-list-item>
@@ -379,6 +384,10 @@ function isCurrentUser(userId) {
                 <v-row>
                   <v-col cols="5">Username</v-col>
                   <v-col>{{ user.username }}</v-col>
+                </v-row>
+                <v-row>
+                  <v-col cols="5">No. Telepon</v-col>
+                  <v-col>{{ user.telepon || '-' }}</v-col>
                 </v-row>
                 <v-row>
                   <v-col cols="5">Role</v-col>

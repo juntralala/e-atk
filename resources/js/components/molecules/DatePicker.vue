@@ -43,7 +43,6 @@ const formattedDate = computed(() => formatDateIndonesia(pickedDate.value));
       activator="parent"
       :close-on-content-click="false"
       transition="scale-transition"
-      min-width="auto"
     >
       <v-date-picker
         v-model="pickedDate"
@@ -52,6 +51,7 @@ const formattedDate = computed(() => formatDateIndonesia(pickedDate.value));
         :min="min"
         :max="max"
         @update:model-value="isActive.value = false"
+        min-width="100%"
       />
     </v-menu>
   </v-text-field>

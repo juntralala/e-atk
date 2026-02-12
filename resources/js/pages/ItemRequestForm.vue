@@ -18,7 +18,7 @@ const props = defineProps({
   },
 });
 
-const { xs } = useDisplay();
+const { xs, mdAndUp } = useDisplay();
 const successDialog = ref(false);
 const errorDialog = ref(false);
 const errorMessage = ref('');
@@ -89,7 +89,7 @@ function cancel() {
 </script>
 
 <template>
-  <v-container fluid>
+  <v-container fluid class="pa-4 pa-md-6">
     <SuccessDialog
       v-model="successDialog"
       message="Permintaan barang berhasil disimpan."
@@ -100,7 +100,8 @@ function cancel() {
       :message="errorMessage"
     />
     
-    <v-row>
+    <!-- Header Section -->
+    <v-row class="mb-4">
       <v-col>
         <PageTitleHighlightPart
           first-part-title="Minta"
@@ -109,135 +110,124 @@ function cancel() {
       </v-col>
     </v-row>
 
+    <!-- Main Form -->
     <v-row>
       <v-col>
         <form @submit.prevent="submitRequest">
           <!-- Request Items -->
-          <v-row
+          <div
             v-for="(item, index) in form.items"
             :key="index"
-            class="items-start! pt-5 odd:bg-gray-100!"
+            class="mb-4 pa-4 rounded-lg"
+            :class="index % 2 === 0 ? 'bg-grey-lighten-4' : 'bg-white'"
           >
-            <v-col
-              class="py-0"
-              cols="11"
-              md=""
-            >
-              <v-autocomplete
-                v-model="item.item_id"
-                density="comfortable"
-                :items="items"
-                item-title="name"
-                item-value="id"
-                label="Barang"
-                :hint="item.item_id ? `${getItemFromProp(item.item_id)?.spesification_name} - Stok: ${getItemFromProp(item.item_id)?.stock} ${getItemFromProp(item.item_id)?.unit?.name}` : ''"
-                persistent-hint
-                :error-messages="form.errors[`items.${index}.item_id`]"
+            <div class="d-flex align-center gap-2 mb-3">
+              <v-chip
+                size="small"
+                color="blue"
+                variant="flat"
               >
-                <template v-slot:item="{ props: itemProps, item: barangItem }">
-                  <v-list-item
-                    v-bind="itemProps"
-                    :subtitle="`${barangItem.raw.spesification_name} - Stok: ${barangItem.raw.stock} ${barangItem.raw.unit.name}`"
-                  />
-                </template>
-              </v-autocomplete>
-            </v-col>
-
-            <v-col
-              v-if="xs"
-              cols="1"
-              class="mt-1 ps-0"
-            >
+                {{ index + 1 }}
+              </v-chip>
+              <span class="text-body-2 text-grey-darken-2 font-weight-medium">
+                Barang {{ index + 1 }}
+              </span>
+              <v-spacer></v-spacer>
               <v-btn
                 variant="text"
-                size="25"
-                rounded="full"
-                color="red"
-                icon
-                :disabled="form.items.length === 1"
-                @click="deleteItem(index)"
-              >
-                <v-icon
-                  icon="mdi-delete"
-                  size="24"
-                ></v-icon>
-              </v-btn>
-            </v-col>
-
-            <v-col
-              class="py-0!"
-              cols="6"
-              lg="2"
-            >
-              <v-number-input
-                v-model="item.requested_quantity"
-                :min="1"
-                control-variant="split"
-                density="comfortable"
-                label="Jumlah Diminta"
-                :error-messages="form.errors[`items.${index}.requested_quantity`]"
-              />
-            </v-col>
-
-            <v-col
-              cols="auto"
-              class="mt-1 py-0!"
-              v-if="!xs"
-            >
-              <v-btn
-                variant="text"
-                color="red"
+                color="red-darken-1"
                 icon
                 size="small"
                 :disabled="form.items.length === 1"
                 @click="deleteItem(index)"
               >
-                <v-icon size="28" icon="mdi-delete"></v-icon>
+                <v-icon size="20">mdi-close</v-icon>
               </v-btn>
-            </v-col>
-          </v-row>
+            </div>
 
-          <v-row class="mt-7 md:mt-2">
-            <v-col class="flex items-center! justify-end! pt-0">
+            <v-row>
+              <!-- Item Selection -->
+              <v-col cols="12" md="8">
+                <v-autocomplete
+                  v-model="item.item_id"
+                  density="comfortable"
+                  :items="items"
+                  item-title="name"
+                  item-value="id"
+                  label="Pilih Barang"
+                  placeholder="Ketik untuk mencari..."
+                  :hint="item.item_id ? `${getItemFromProp(item.item_id)?.spesification_name} - Stok: ${getItemFromProp(item.item_id)?.stock} ${getItemFromProp(item.item_id)?.unit?.name}` : ''"
+                  persistent-hint
+                  :error-messages="form.errors[`items.${index}.item_id`]"
+                  variant="outlined"
+                  color="blue"
+                  bg-color="white"
+                >
+                  <template v-slot:item="{ props: itemProps, item: barangItem }">
+                    <v-list-item
+                      v-bind="itemProps"
+                      :subtitle="`${barangItem.raw.spesification_name} - Stok: ${barangItem.raw.stock} ${barangItem.raw.unit.name}`"
+                    />
+                  </template>
+                </v-autocomplete>
+              </v-col>
+
+              <!-- Quantity -->
+              <v-col cols="12" md="4">
+                <v-number-input
+                  v-model="item.requested_quantity"
+                  :min="1"
+                  control-variant="split"
+                  density="comfortable"
+                  label="Jumlah Diminta"
+                  :error-messages="form.errors[`items.${index}.requested_quantity`]"
+                  variant="outlined"
+                  color="blue"
+                  bg-color="white"
+                />
+              </v-col>
+            </v-row>
+          </div>
+
+          <!-- Add Item Button -->
+          <v-row class="mt-2">
+            <v-col>
               <v-btn
-                variant="tonal"
-                color="blue-accent-2"
+                variant="outlined"
+                color="blue"
                 :disabled="form.processing"
                 @click="addItem"
+                block
               >
-                <v-icon
-                  icon="mdi-plus"
-                  start
-                ></v-icon>
+                <v-icon icon="mdi-plus" start></v-icon>
                 Tambah Barang
               </v-btn>
             </v-col>
           </v-row>
 
-          <v-divider class="my-4 md:my-6"></v-divider>
+          <v-divider class="my-6"></v-divider>
 
+          <!-- Action Buttons -->
           <v-row>
-            <v-col class="flex justify-end gap-4">
+            <v-col class="d-flex justify-end gap-3">
               <v-btn
-                variant="tonal"
-                color="grey"
+                variant="outlined"
+                color="grey-darken-1"
                 :disabled="form.processing"
                 @click="cancel"
               >
+                <v-icon icon="mdi-close" start></v-icon>
                 Batal
               </v-btn>
               <v-btn
                 type="submit"
-                variant="tonal"
+                variant="flat"
                 color="blue"
                 :loading="form.processing"
                 :disabled="form.processing"
               >
-                <v-icon
-                  icon="mdi-send"
-                  start
-                ></v-icon>
-                Kirim Permintaan
+                <v-icon icon="mdi-send" start></v-icon>
+                Kirim
               </v-btn>
             </v-col>
           </v-row>

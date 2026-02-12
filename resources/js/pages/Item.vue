@@ -330,12 +330,14 @@ const getItemNumber = (index) => {
                 </div>
                 <div class="d-flex flex-column align-end shrink-0">
                   <div class="text-body-2 font-medium mb-2">{{ item.stock }} {{ item.unit.name }}</div>
-                  <v-btn
-                    v-if="canActItem($page.props.auth.user)"
-                    size="small"
-                    icon="mdi-dots-vertical"
-                    variant="text"
-                  >
+                  <div>
+                    <v-btn
+                      v-if="canActItem($page.props.auth.user)"
+                      size="small"
+                      icon="mdi-dots-vertical"
+                      variant="text"
+                    >
+                  </v-btn>
                   <v-menu
                     v-if="canActItem($page.props.auth.user)"
                     activator="parent"
@@ -388,7 +390,7 @@ const getItemNumber = (index) => {
                       </v-list-item>
                     </v-list>
                   </v-menu>
-                </v-btn>
+                  </div>
                 </div>
               </div>
               <div class="mt-3 border-b"></div>

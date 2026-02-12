@@ -24,6 +24,7 @@
         password: '',
         username: '',
         role: '',
+        telepon: '',
       },
     },
     activator: {
@@ -38,6 +39,7 @@
     username: initialValue.username,
     password: initialValue.password,
     role: initialValue.role,
+    telepon: initialValue.telepon,
   });
   const formDialog = ref(false);
   const showPassword = ref(false);
@@ -166,6 +168,14 @@
             :rules="roleRules"
             :error-messages="form.errors.role"
             label="Role"
+          />
+
+          <v-text-field
+            v-model="form.telepon"
+            label="No. Telepon"
+            density="comfortable"
+            :rules="[]"
+            :error-messages="form.errors.telepon"
           />
         </v-form>
       </v-card-text>

@@ -347,7 +347,7 @@ defineProps({
                 <v-divider class="my-4"></v-divider>
 
                 <div class="text-left">
-                  <div class="mb-3 flex items-center justify-center">
+                  <div class="mb-3 flex items-center justify-center gap-2">
                     <v-btn
                       :href="`tel:${user.telepon}`"
                       color="blue-700"

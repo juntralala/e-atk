@@ -45,12 +45,10 @@ defineProps({
           first-part-title="Stakeholder"
           second-part-title="Aplikasi"
         />
-        <p class="text-grey-darken-1 mt-2 text-center animated-subtitle">
-          Pengguna utama yang terlibat dalam sistem
-        </p>
+        <p class="text-grey-darken-1 animated-subtitle mt-2 text-center">Pengguna utama yang terlibat dalam sistem</p>
       </v-col>
     </v-row>
-    
+
     <v-row class="mt-4">
       <v-col
         v-for="(stakeholder, index) in stakeholders"
@@ -60,14 +58,14 @@ defineProps({
         md="3"
       >
         <v-card
-          class="h-full text-center transition-all duration-300 overflow-hidden stakeholder-card"
+          class="stakeholder-card h-full overflow-hidden text-center transition-all duration-300"
           elevation="2"
           hover
           :style="`--animation-delay: ${index * 100}ms`"
         >
           <!-- Decorative top bar with wave animation -->
-          <div class="h-2 bg-linear-to-r from-blue-500 to-blue-700 wave-bar"></div>
-          
+          <div class="wave-bar h-2 bg-linear-to-r from-blue-500 to-blue-700"></div>
+
           <!-- Floating particles background -->
           <div class="particles">
             <span class="particle"></span>
@@ -76,47 +74,51 @@ defineProps({
             <span class="particle"></span>
             <span class="particle"></span>
           </div>
-          
+
           <v-card-text class="pa-8 relative z-10">
             <!-- Icon with multiple effects -->
-            <div class="relative inline-block mb-4 icon-container">
+            <div class="icon-container relative mb-4 inline-block">
               <!-- Pulsing glow -->
-              <div class="absolute inset-0 bg-blue-darken-2 rounded-full blur-xl opacity-30 pulse-glow"></div>
-              
+              <div class="bg-blue-darken-2 pulse-glow absolute inset-0 rounded-full opacity-30 blur-xl"></div>
+
               <!-- Rotating ring -->
               <div class="rotating-ring"></div>
-              
+
               <!-- Avatar -->
-              <v-avatar 
-                size="90" 
-                class="bg-blue-darken-2 relative z-10 shadow-lg icon-avatar"
+              <v-avatar
+                size="90"
+                class="bg-blue-darken-2 icon-avatar relative z-10 shadow-lg"
               >
-                <v-icon size="50" color="white" class="icon-bounce">
+                <v-icon
+                  size="50"
+                  color="white"
+                  class="icon-bounce"
+                >
                   {{ stakeholder.icon }}
                 </v-icon>
               </v-avatar>
-              
+
               <!-- Orbiting dots -->
               <span class="orbit-dot orbit-dot-1"></span>
               <span class="orbit-dot orbit-dot-2"></span>
               <span class="orbit-dot orbit-dot-3"></span>
             </div>
-            
+
             <!-- Title with gradient animation -->
-            <div class="text-xl font-bold mb-3 text-blue-darken-2 animated-title">
+            <div class="text-blue-darken-2 animated-title mb-3 text-xl font-bold">
               {{ stakeholder.nama }}
             </div>
-            
+
             <!-- Description with fade in -->
-            <div class="text-sm text-grey-darken-1 leading-relaxed animated-description">
+            <div class="text-grey-darken-1 animated-description text-sm leading-relaxed">
               {{ stakeholder.deskripsi }}
             </div>
           </v-card-text>
-          
+
           <!-- Multiple shine effects -->
           <div class="card-shine"></div>
           <div class="card-shine-2"></div>
-          
+
           <!-- Border glow on hover -->
           <div class="border-glow"></div>
         </v-card>
@@ -140,7 +142,8 @@ defineProps({
 
 /* Pulse animation */
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     opacity: 0.3;
   }
@@ -162,7 +165,8 @@ defineProps({
 
 /* Wave animation */
 @keyframes wave {
-  0%, 100% {
+  0%,
+  100% {
     background-position: 0% 50%;
   }
   50% {
@@ -172,7 +176,8 @@ defineProps({
 
 /* Bounce animation */
 @keyframes bounce {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -182,7 +187,8 @@ defineProps({
 
 /* Float animation */
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0) translateX(0);
   }
   33% {
@@ -196,14 +202,14 @@ defineProps({
 /* Particle animation */
 @keyframes particleFloat {
   0% {
-    transform: translateY(0) translateX(0) scale(0);
+    transform: translateY(0) translateX(0) scale(0.5);
     opacity: 0;
   }
   50% {
-    opacity: 0.5;
+    opacity: 1;
   }
   100% {
-    transform: translateY(-100px) translateX(var(--x-movement)) scale(1);
+    transform: translateY(-200px) translateX(var(--x-movement)) scale(1.3);
     opacity: 0;
   }
 }
@@ -230,7 +236,8 @@ defineProps({
 
 /* Border glow pulse */
 @keyframes borderGlow {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0;
     transform: scale(0.95);
   }
@@ -307,7 +314,7 @@ defineProps({
   position: absolute;
   width: 8px;
   height: 8px;
-  background: linear-gradient(135deg, #2196F3, #1976D2);
+  background: linear-gradient(135deg, #2196f3, #1976d2);
   border-radius: 50%;
   top: 50%;
   left: 50%;
@@ -347,6 +354,7 @@ defineProps({
 
 .particle {
   position: absolute;
+  opacity: 0;
   width: 4px;
   height: 4px;
   background: rgba(33, 150, 243, 0.6);
@@ -391,7 +399,7 @@ defineProps({
 
 /* Title animation */
 .animated-title {
-  background: linear-gradient(90deg, #1976D2, #2196F3, #1976D2);
+  background: linear-gradient(90deg, #1976d2, #2196f3, #1976d2);
   background-size: 200% 100%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -424,12 +432,7 @@ defineProps({
   left: -100%;
   width: 50%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.4),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
   transition: left 0.6s ease;
   pointer-events: none;
   z-index: 1;
@@ -445,12 +448,7 @@ defineProps({
   left: -100%;
   width: 30%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(33, 150, 243, 0.3),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(33, 150, 243, 0.3), transparent);
   transition: left 0.8s ease;
   pointer-events: none;
   z-index: 1;
@@ -469,7 +467,7 @@ defineProps({
   left: -2px;
   right: -2px;
   bottom: -2px;
-  background: linear-gradient(45deg, #2196F3, #1976D2, #2196F3);
+  background: linear-gradient(45deg, #2196f3, #1976d2, #2196f3);
   border-radius: inherit;
   z-index: -1;
   opacity: 0;

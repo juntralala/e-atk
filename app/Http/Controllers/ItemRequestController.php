@@ -43,6 +43,10 @@ class ItemRequestController extends Controller
     private function unitExpenditureQuery($start, $end)
     {
         return User::withTrashed()
+            ->where(function ($q) use ($start) {
+                $q->where('deleted_at', '>', $start);
+                $q->orWhere('deleted_at', null);
+            })
             ->whereHas('role', fn($q) => $q->where('name', 'unit'))
             ->with([
                 'itemRequests' => function ($q) use ($start, $end) {
@@ -341,7 +345,7 @@ class ItemRequestController extends Controller
                         if ($itemRequest->responded_at != null) {
                             $itemRequest->responded_at->timezone('+8');
                         }
-                        foreach ($itemRequest->itemRequestDetails as $detail) {
+                        foreach ($itemRequest->itemRequestDetails as $detail) { 
                             $writer->addRow(Row::fromValuesWithStyles([
                                 $line++,
                                 $itemRequest->created_at->format('d-m-Y'),

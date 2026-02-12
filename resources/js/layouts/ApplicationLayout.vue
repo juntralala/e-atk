@@ -124,12 +124,14 @@ onUpdated(function () {
           icon="mdi-menu"
           @click="toggleDrawer"
         />
-        <span class="ms-2">
-          <v-avatar variant="text">
-            <v-img :src="settings?.icon" />
-          </v-avatar>
-          <span class="ms-1">{{ settings?.applicationName }}</span>
-        </span>
+        <Link href="/">
+          <span class="ms-2">
+            <v-avatar variant="text">
+              <v-img :src="settings?.icon" />
+            </v-avatar>
+            <span class="ms-1">{{ settings?.applicationName }}</span>
+          </span>
+        </Link>
       </v-app-bar-title>
       <template #append>
         <Notification />
