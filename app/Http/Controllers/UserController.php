@@ -18,6 +18,8 @@ class UserController extends Controller
     {
         $showDeleted = $request->boolean('show_deleted');
         $users = User::when($showDeleted, fn($q) => $q->withTrashed())
+            ->orderBy('role_id')
+            ->orderBy('name')
             ->paginate(
                 $request->input('per_page', 10),
                 page: $request->input('page', 1)

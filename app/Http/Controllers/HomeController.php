@@ -9,7 +9,7 @@ class HomeController extends Controller
     private array $routes = [
         'unit' => 'items.requests.form',
         'petugas' => 'items.requests',
-        'bendahara' => 'items.requests',
+        'bendahara' => 'stakeholders',
         'administrator' => 'users',
     ];
 

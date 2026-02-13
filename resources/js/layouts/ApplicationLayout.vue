@@ -119,18 +119,20 @@ onUpdated(function () {
       color="blue-darken-2"
       class="pe-2"
     >
-      <v-app-bar-title>
-        <v-icon
-          icon="mdi-menu"
-          @click="toggleDrawer"
-        />
-        <span class="ms-2">
-          <v-avatar variant="text">
-            <v-img :src="settings?.icon" />
-          </v-avatar>
-          <span class="ms-1">{{ settings?.applicationName }}</span>
-        </span>
-      </v-app-bar-title>
+      <Link href="/">
+        <v-app-bar-title>
+          <v-icon
+            icon="mdi-menu"
+            @click="toggleDrawer"
+          />
+          <span class="ms-2">
+            <v-avatar variant="text">
+              <v-img :src="settings?.icon" />
+            </v-avatar>
+            <span class="ms-1">{{ settings?.applicationName }}</span>
+          </span>
+        </v-app-bar-title>
+      </Link>
       <template #append>
         <Notification />
         <ProfilePhoto
@@ -170,7 +172,7 @@ onUpdated(function () {
       >
         <DrawerItem
           v-if="canInItemListPage(user)"
-          :href="route('items', {mode: 'view'})"
+          :href="route('items', { mode: 'view' })"
           icon="mdi-package"
           >Daftar Barang</DrawerItem
         >
@@ -208,26 +210,26 @@ onUpdated(function () {
             :href="route('items.exports.view')"
             icon="mdi-package-variant"
             >Barang</DrawerItem
-            >
-            <DrawerItem
+          >
+          <DrawerItem
             v-if="canAccessItemAdditionReport(user)"
             :href="route('items.additions.exports.view')"
             icon="mdi-package-up"
             >Penambahan Barang</DrawerItem
-            >
-            <DrawerItem
+          >
+          <DrawerItem
             v-if="canAccessItemRequestReport(user)"
             :href="route('items.requests.exports.view')"
             icon="mdi-file-document-edit"
             >Permintaan Barang</DrawerItem
-            >
-            <DrawerItem
+          >
+          <DrawerItem
             v-if="canAccessItemExpenditureReport(user)"
             :href="route('items.expenditures.exports.view')"
             icon="mdi-receipt-text"
             >Pengeluaran Barang</DrawerItem
-            >
-            <DrawerItem
+          >
+          <DrawerItem
             v-if="canAccessUnitExpenditureReport(user)"
             :href="route('expenditures.units.exports.view')"
             icon="mdi-wallet-outline"
@@ -265,10 +267,10 @@ onUpdated(function () {
           >
         </v-list-group>
         <DrawerItem
-        v-if="canSetting(user)"
-        :href="route('settings')"
-        icon="mdi-cog"
-        >Pengaturan</DrawerItem
+          v-if="canSetting(user)"
+          :href="route('settings')"
+          icon="mdi-cog"
+          >Pengaturan</DrawerItem
         >
         <DrawerItem
           :href="route('stakeholders')"

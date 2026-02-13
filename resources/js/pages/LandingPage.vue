@@ -296,7 +296,7 @@ defineProps({
       </v-container>
     </section>
 
-    <section class="bg-white py-16">
+    <section class="bg-white py-16" v-if="false">
       <v-container>
         <v-row>
           <v-col
