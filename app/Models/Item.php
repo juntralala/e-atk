@@ -20,7 +20,7 @@ class Item extends Model
     
     // Untuk backward compatibility saat create/update
     public function fill(array $attributes)
-    {
+    { 
         if (isset($attributes['spesification_name'])) {
             $attributes['specification_name'] = $attributes['spesification_name'];
             unset($attributes['spesification_name']);

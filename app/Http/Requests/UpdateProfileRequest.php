@@ -29,6 +29,7 @@ class UpdateProfileRequest extends FormRequest
             ],
             'password' => ['nullable', 'string', 'min:4', 'max:60'],
             'profilePhoto' => ['nullable', 'image', ' mimes:jpeg,jpg,png,gif,webp', 'max:2048'],
+            'telepon' => ['nullable', 'min:10', 'max:20', 'regex:/^08[0-9]+$/'],
         ];
     }
 

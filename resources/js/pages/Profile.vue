@@ -1,22 +1,23 @@
 <script setup>
 import PageTitleHighlightPart from '@/components/atoms/PageTitleHighlightPart.vue';
 import ApplicationLayout from '@/layouts/ApplicationLayout.vue';
-import { usePage, router } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
+import { router, usePage } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
 
 defineOptions({
-  layout: ApplicationLayout
+  layout: ApplicationLayout,
 });
 
 const page = usePage();
-const { user } = page.props.auth
+const { user } = page.props.auth;
 
 const profile = ref({
   name: user.name,
   username: user.username,
   password: '********',
   role: user.role.name,
-  photo: user?.profile_photo_path
+  photo: user.profile_photo_path,
+  telepon: user.telepon,
 });
 
 const isEditing = ref(false);
@@ -33,7 +34,8 @@ const editForm = ref({
   password_confirmation: '',
   photo: null,
   photoFile: null,
-  photoPreview: null
+  photoPreview: null,
+  telepon: null,
 });
 
 // Validation rules
@@ -69,6 +71,16 @@ const validateForm = () => {
     }
   }
 
+  if(editForm.value.telepon?.length < 11) {
+    validationErrors.value.telepon = "Nomer telepon terlalu pendek";
+    isValid = false;
+
+  }
+  if(!validationErrors.value.telepon && !/^08[0-9]+$/.test(editForm.value.telepon)) {
+    validationErrors.value.telepon = "Format nomer telepon tidak valid";
+    isValid = false;
+  }
+
   // Photo validation
   if (editForm.value.photoFile) {
     const maxSize = 2 * 1024 * 1024; // 2MB
@@ -96,7 +108,8 @@ const startEdit = () => {
     password_confirmation: '',
     photo: profile.value.photo,
     photoFile: null,
-    photoPreview: null
+    photoPreview: null,
+    telepon: profile.value.telepon,
   };
   isEditing.value = true;
   errorMessage.value = '';
@@ -113,7 +126,8 @@ const cancelEdit = () => {
     password_confirmation: '',
     photo: '',
     photoFile: null,
-    photoPreview: null
+    photoPreview: '',
+    telepon: '',
   };
   errorMessage.value = '';
   successMessage.value = '';
@@ -121,7 +135,6 @@ const cancelEdit = () => {
 };
 
 const saveChanges = async () => {
-  // Validate form
   if (!validateForm()) {
     errorMessage.value = 'Mohon perbaiki kesalahan pada form';
     return;
@@ -132,11 +145,11 @@ const saveChanges = async () => {
   successMessage.value = '';
 
   try {
-    // Gunakan Inertia untuk POST dengan _method spoofing
     const formData = {
       _method: 'PUT',
       name: editForm.value.name.trim(),
       username: editForm.value.username.trim(),
+      telepon: editForm.value.telepon.trim(),
     };
 
     // Only include password if it's being changed
@@ -151,11 +164,9 @@ const saveChanges = async () => {
       console.log('Photo file:', {
         name: editForm.value.photoFile.name,
         type: editForm.value.photoFile.type,
-        size: editForm.value.photoFile.size
+        size: editForm.value.photoFile.size,
       });
     }
-
-    console.log('Sending formData:', formData);
 
     // Use Inertia's router.post with forceFormData
     router.post(route('profile.update', user.id), formData, {
@@ -167,6 +178,7 @@ const saveChanges = async () => {
         if (updatedUser) {
           profile.value.name = updatedUser.name;
           profile.value.username = updatedUser.username;
+          profile.value.telepon = updatedUser.telepon;
 
           if (updatedUser.profile_photo_path) {
             profile.value.photo = updatedUser.profile_photo_path;
@@ -180,7 +192,7 @@ const saveChanges = async () => {
         successMessage.value = 'Profil berhasil diperbarui';
         isEditing.value = false;
         validationErrors.value = {};
-        
+
         // Reset form
         editForm.value.photoFile = null;
         editForm.value.photoPreview = null;
@@ -202,9 +214,8 @@ const saveChanges = async () => {
       },
       onFinish: () => {
         processing.value = false;
-      }
+      },
     });
-
   } catch (error) {
     console.error('Error updating profile:', error);
     errorMessage.value = error.response?.data?.message || 'Terjadi kesalahan. Silakan coba lagi.';
@@ -239,7 +250,7 @@ const handleFileChange = (event) => {
 
   delete validationErrors.value.photo;
   editForm.value.photoFile = file;
-  
+
   const reader = new FileReader();
   reader.onload = (e) => {
     editForm.value.photoPreview = e.target.result;
@@ -272,39 +283,82 @@ const displayPhoto = computed(() => {
     <v-row>
       <v-col cols="12">
         <div class="mb-8">
-          <PageTitleHighlightPart first-part-title="Profil" second-part-title="Pengguna"/>
+          <PageTitleHighlightPart
+            first-part-title="Profil"
+            second-part-title="Pengguna"
+          />
           <div class="text-subtitle-1 text-grey">Kelola detail akunmu</div>
         </div>
 
         <!-- Alert Messages -->
-        <v-alert v-if="successMessage" type="success" class="mb-4" closable @click:close="successMessage = ''">
+        <v-alert
+          v-if="successMessage"
+          type="success"
+          class="mb-4"
+          closable
+          @click:close="successMessage = ''"
+        >
           {{ successMessage }}
         </v-alert>
 
-        <v-alert v-if="errorMessage" type="error" class="mb-4" closable @click:close="errorMessage = ''">
+        <v-alert
+          v-if="errorMessage"
+          type="error"
+          class="mb-4"
+          closable
+          @click:close="errorMessage = ''"
+        >
           {{ errorMessage }}
         </v-alert>
 
         <div>
           <div class="mb-8">
-            <v-avatar size="150" class="mb-4 bg-gray-200!" :style="isEditing ? 'cursor: pointer;' : ''"
-              @click="handlePhotoClick">
-              <v-img v-if="displayPhoto" :src="displayPhoto" alt="Profile Photo" cover />
-              <v-icon v-else size="100" class="text-grey-lighten-1">
+            <v-avatar
+              size="150"
+              class="mb-4 bg-gray-200!"
+              :style="isEditing ? 'cursor: pointer;' : ''"
+              @click="handlePhotoClick"
+            >
+              <v-img
+                v-if="displayPhoto"
+                :src="displayPhoto"
+                alt="Profile Photo"
+                cover
+              />
+              <v-icon
+                v-else
+                size="100"
+                class="text-grey-lighten-1"
+              >
                 mdi-account
               </v-icon>
             </v-avatar>
-            <input ref="fileInput" type="file" accept="image/jpeg,image/jpg,image/png,image/webp" style="display: none"
-              @change="handleFileChange" />
-            <div v-if="isEditing" class="mb-2">
-              <div class="text-caption text-grey mb-2">
-                <span class="font-semibold text-gray-500">Klik foto</span> untuk mengganti
-              </div>
-              <v-btn v-if="editForm.photoPreview" size="small" color="error" variant="text" @click="removePhoto">
+            <input
+              ref="fileInput"
+              type="file"
+              accept="image/jpeg,image/jpg,image/png,image/webp"
+              style="display: none"
+              @change="handleFileChange"
+            />
+            <div
+              v-if="isEditing"
+              class="mb-2"
+            >
+              <div class="text-caption text-grey mb-2"><span class="font-semibold text-gray-500">Klik foto</span> untuk mengganti</div>
+              <v-btn
+                v-if="editForm.photoPreview"
+                size="small"
+                color="error"
+                variant="text"
+                @click="removePhoto"
+              >
                 Hapus Foto Baru
               </v-btn>
             </div>
-            <div v-if="validationErrors.photo" class="text-error text-caption">
+            <div
+              v-if="validationErrors.photo"
+              class="text-error text-caption"
+            >
               {{ validationErrors.photo }}
             </div>
           </div>
@@ -332,10 +386,20 @@ const displayPhoto = computed(() => {
               </v-col>
             </v-row>
 
+            <v-row class="mb-4">
+              <v-col cols="12">
+                <div class="text-subtitle-2 text-grey mb-1">Nomer Telepon</div>
+                <div class="text-body-1">{{ profile.telepon || "-" }}</div>
+              </v-col>
+            </v-row>
+
             <v-row class="mb-6">
               <v-col cols="12">
                 <div class="text-subtitle-2 text-grey mb-1">Role</div>
-                <v-chip color="primary" size="small">
+                <v-chip
+                  color="primary"
+                  size="small"
+                >
                   {{ profile.role }}
                 </v-chip>
               </v-col>
@@ -345,28 +409,73 @@ const displayPhoto = computed(() => {
           <!-- Edit Mode -->
           <div v-else>
             <v-form @submit.prevent="saveChanges">
-              <v-text-field v-model="editForm.name" label="Nama *" variant="outlined" density="comfortable" class="mb-4"
-                :disabled="processing" :error-messages="validationErrors.name" />
+              <v-text-field
+                v-model="editForm.name"
+                label="Nama *"
+                variant="outlined"
+                density="comfortable"
+                class="mb-4"
+                :disabled="processing"
+                :error-messages="validationErrors.name"
+              />
 
-              <v-text-field v-model="editForm.username" label="Username *" variant="outlined" density="comfortable"
-                class="mb-4" :disabled="processing" :error-messages="validationErrors.username"
-                hint="Hanya huruf, angka, dan underscore (3-20 karakter)" persistent-hint />
+              <v-text-field
+                v-model="editForm.username"
+                label="Username *"
+                variant="outlined"
+                density="comfortable"
+                class="mb-4"
+                :disabled="processing"
+                :error-messages="validationErrors.username"
+                hint="Hanya huruf, angka, dan underscore (3-20 karakter)"
+                persistent-hint
+              />
 
-              <v-text-field v-model="editForm.password" label="Password Baru" :type="showPassword ? 'text' : 'password'"
-                variant="outlined" density="comfortable" class="mb-4"
-                hint="Minimal 8 karakter. Biarkan kosong jika tidak ingin mengubah password" persistent-hint
-                :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'" :disabled="processing"
-                :error-messages="validationErrors.password" @click:append-inner="showPassword = !showPassword" />
+              <v-text-field
+                v-model="editForm.password"
+                label="Password Baru"
+                :type="showPassword ? 'text' : 'password'"
+                variant="outlined"
+                density="comfortable"
+                class="mb-4"
+                hint="Minimal 8 karakter. Biarkan kosong jika tidak ingin mengubah password"
+                persistent-hint
+                :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
+                :disabled="processing"
+                :error-messages="validationErrors.password"
+                @click:append-inner="showPassword = !showPassword"
+              />
 
-              <v-text-field v-if="editForm.password" v-model="editForm.password_confirmation"
-                label="Konfirmasi Password Baru *" :type="showPassword ? 'text' : 'password'" variant="outlined"
-                density="comfortable" class="mb-4" :disabled="processing"
-                :error-messages="validationErrors.password_confirmation" />
+              <v-text-field
+                v-if="editForm.password"
+                v-model="editForm.password_confirmation"
+                label="Konfirmasi Password Baru *"
+                :type="showPassword ? 'text' : 'password'"
+                variant="outlined"
+                density="comfortable"
+                class="mb-4"
+                :disabled="processing"
+                :error-messages="validationErrors.password_confirmation"
+              />
+
+              <v-text-field
+                v-model="editForm.telepon"
+                label="Nomer Telepon"
+                variant="outlined"
+                density="comfortable"
+                class="mb-4"
+                :disabled="processing"
+                :error-messages="validationErrors.telepon"
+                persistent-hint
+              />
 
               <v-row class="mb-6">
                 <v-col cols="12">
                   <div class="text-subtitle-2 text-grey mb-1">Role</div>
-                  <v-chip color="primary" size="small">
+                  <v-chip
+                    color="primary"
+                    size="small"
+                  >
                     {{ profile.role }}
                   </v-chip>
                 </v-col>
@@ -376,17 +485,31 @@ const displayPhoto = computed(() => {
 
           <!-- Action Buttons -->
           <div class="d-flex ga-2">
-            <v-btn v-if="!isEditing" color="primary" variant="elevated" @click="startEdit">
+            <v-btn
+              v-if="!isEditing"
+              color="primary"
+              variant="elevated"
+              @click="startEdit"
+            >
               <v-icon start>mdi-pencil</v-icon>
               Edit
             </v-btn>
             <template v-else>
-              <v-btn variant="outlined" :disabled="processing" @click="cancelEdit">
+              <v-btn
+                variant="outlined"
+                :disabled="processing"
+                @click="cancelEdit"
+              >
                 <v-icon start>mdi-close</v-icon>
                 Batal
               </v-btn>
-              <v-btn color="primary" variant="elevated" :loading="processing" :disabled="processing"
-                @click="saveChanges">
+              <v-btn
+                color="primary"
+                variant="elevated"
+                :loading="processing"
+                :disabled="processing"
+                @click="saveChanges"
+              >
                 <v-icon start>mdi-content-save</v-icon>
                 Simpan
               </v-btn>

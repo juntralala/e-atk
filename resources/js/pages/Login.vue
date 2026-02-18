@@ -1,6 +1,7 @@
 <script setup>
 import PasswordInput from '@/components/atoms/PasswordInput.vue';
 import BubbleUpLayout from '@/layouts/BubbleUpLayout.vue';
+import { requestNotificationPermission } from '@/lib/notification';
 import { validators } from '@/validators/validators';
 import { useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
@@ -33,6 +34,7 @@ function login(e) {
       preserveScroll: true,
       onSuccess: () => {
         form.reset();
+        requestNotificationPermission();
       },
       onFinish: () => {
         form.password = '';

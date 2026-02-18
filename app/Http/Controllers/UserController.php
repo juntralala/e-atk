@@ -16,8 +16,10 @@ class UserController extends Controller
 {
     public function showPage(Request $request)
     {
+        $search = $request->input('search');
         $showDeleted = $request->boolean('show_deleted');
         $users = User::when($showDeleted, fn($q) => $q->withTrashed())
+            ->when($search != null, fn($q) => $q->whereAny(['name', 'username'], 'LIKE', "%$search%"))
             ->paginate(
                 $request->input('per_page', 10),
                 page: $request->input('page', 1)
@@ -115,9 +117,7 @@ class UserController extends Controller
             unset($validated['password']);
         }
 
-        // Update user
         $user->update($validated);
-
         return back()->with('success', 'Profile berhasil diperbarui');
     }
 }

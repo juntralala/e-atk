@@ -10,10 +10,13 @@ use Inertia\Inertia;
 
 class UnitController extends Controller
 {
-    public function showPage()
+    public function showPage(Request $request)
     {
+        $search = $request->input("search");
         return Inertia::render('Unit', [
-            'units' => Unit::get()
+            'units' => Unit::query()
+                ->when($search != null, fn($q) => $q->where('name', 'LIKE',"%$search%"))
+                ->get()
         ]);
     }
 

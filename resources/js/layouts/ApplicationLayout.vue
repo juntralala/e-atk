@@ -21,6 +21,7 @@ import {
   canSeeMasterData,
   canSetting,
 } from '@/lib/can';
+import { requestNotificationPermission } from '@/lib/notification';
 import { Head, Link } from '@inertiajs/vue3';
 import { onMounted, onUpdated, ref, watch } from 'vue';
 import { useDisplay } from 'vuetify/lib/composables/display.mjs';

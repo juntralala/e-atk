@@ -3,6 +3,7 @@ import PageTitleHighlightPart from '@/components/atoms/PageTitleHighlightPart.vu
 import AlertDialog from '@/components/organisms/AlertDialog.vue';
 import ApplicationLayout from '@/layouts/ApplicationLayout.vue';
 import { canActItem } from '@/lib/can';
+import { formatRp } from '@/lib/formatters';
 import { Head, router, useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 
@@ -21,6 +22,7 @@ const props = defineProps({
   },
 });
 
+const search = ref('');
 const dialog = ref(false);
 const editingId = ref(null);
 const form = useForm({
@@ -42,16 +44,16 @@ const itemsPerPage = computed(() => props.items.per_page || 10);
 const currentPage = computed(() => props.items.current_page || 1);
 const totalPages = computed(() => Math.ceil(totalItems.value / itemsPerPage.value));
 
-const changePage = (page) => {
+function changePage(page) {
   router.get(
     route('items'),
-    { page },
+    { page, search: search.value },
     {
       preserveState: true,
       preserveScroll: true,
     },
   );
-};
+}
 if (currentPage.value > props.items.last_page) {
   changePage(1);
 }
@@ -135,19 +137,23 @@ const closeDialog = () => {
   form.clearErrors();
 };
 
-// Format harga ke Rupiah
-const formatRupiah = (value) => {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-  }).format(value);
-};
-
 // Get item number based on pagination
 const getItemNumber = (index) => {
   return (currentPage.value - 1) * itemsPerPage.value + index + 1;
 };
+
+function handleSearchChange(e) {
+  const timeId = setTimeout(function () {
+    if (timeId != undefined) {
+      clearTimeout(timeId);
+    }
+    router.get(
+      route('items'),
+      { page: currentPage.value, search: search.value || undefined },
+      { preserveScroll: true, preserveState: true, replace: true },
+    );
+  }, 1_200);
+}
 </script>
 
 <template>
@@ -172,8 +178,8 @@ const getItemNumber = (index) => {
       </v-col>
     </v-row>
 
-    <v-row v-if="canActItem($page.props.auth.user)">
-      <v-col>
+    <v-row class="justify-between">
+      <v-col v-if="canActItem($page.props.auth.user)"  cols="12" md="6">
         <v-btn
           variant="tonal"
           color="primary"
@@ -182,6 +188,17 @@ const getItemNumber = (index) => {
         >
           Tambah Barang
         </v-btn>
+      </v-col>
+
+      <v-col cols="12" md="6">
+        <v-text-field
+          color="blue"
+          variant="outlined"
+          v-model="search"
+          @input="handleSearchChange"
+          placeholder="Cari nama dan spesifikasi"
+          density="compact"
+        />
       </v-col>
     </v-row>
 
@@ -220,7 +237,7 @@ const getItemNumber = (index) => {
               <td>{{ item.unit.name }}</td>
               <td>{{ item.spesification_name }}</td>
               <td>{{ item.stock }}</td>
-              <td v-if="canActItem($page.props.auth.user)">{{ formatRupiah(item.price) }}</td>
+              <td v-if="canActItem($page.props.auth.user)">{{ formatRp(item.price) }}</td>
               <td v-if="canActItem($page.props.auth.user)">
                 <v-btn
                   size="small"
@@ -283,7 +300,7 @@ const getItemNumber = (index) => {
                 colspan="7"
                 class="text-grey text-center"
               >
-                Belum ada barang yang ditambahkan
+                Barang tidak ditemukan
               </td>
             </tr>
           </tbody>
@@ -311,7 +328,7 @@ const getItemNumber = (index) => {
             <v-list-item
               v-for="(item, index) in itemsData"
               :key="item.id"
-              class="py-3 my-1"
+              class="my-1 py-3"
             >
               <div class="d-flex align-start justify-space-between w-100">
                 <div class="grow pr-2">
@@ -324,12 +341,12 @@ const getItemNumber = (index) => {
                   <div class="d-flex align-center text-body-2 gap-3">
                     <div v-if="canActItem($page.props.auth.user)">
                       <span class="text-grey">Harga:</span>
-                      <span class="font-medium ml-1">{{ formatRupiah(item.price) }}</span>
+                      <span class="ml-1 font-medium">{{ formatRp(item.price) }}</span>
                     </div>
                   </div>
                 </div>
                 <div class="d-flex flex-column align-end shrink-0">
-                  <div class="text-body-2 font-medium mb-2">{{ item.stock }} {{ item.unit.name }}</div>
+                  <div class="text-body-2 mb-2 font-medium">{{ item.stock }} {{ item.unit.name }}</div>
                   <div>
                     <v-btn
                       v-if="canActItem($page.props.auth.user)"
@@ -337,59 +354,59 @@ const getItemNumber = (index) => {
                       icon="mdi-dots-vertical"
                       variant="text"
                     >
-                  </v-btn>
-                  <v-menu
-                    v-if="canActItem($page.props.auth.user)"
-                    activator="parent"
-                  >
-                    <v-list density="compact">
-                      <v-list-item
-                        value="edit"
-                        @click="openEditDialog(item)"
-                      >
-                        <v-icon
-                          icon="mdi-pencil"
-                          class="mr-2"
-                        />
-                        Edit
-                      </v-list-item>
-                      <v-list-item value="delete">
-                        <v-icon
-                          icon="mdi-delete"
-                          class="mr-2"
-                        />
-                        Hapus
-                        <v-dialog
-                          v-slot="{ isActive }"
-                          activator="parent"
-                          max-width="400"
+                    </v-btn>
+                    <v-menu
+                      v-if="canActItem($page.props.auth.user)"
+                      activator="parent"
+                    >
+                      <v-list density="compact">
+                        <v-list-item
+                          value="edit"
+                          @click="openEditDialog(item)"
                         >
-                          <v-card>
-                            <v-card-title class="bg-blue-darken-2 text-center text-wrap">Konfirmasi!</v-card-title>
-                            <v-card-text>
-                              <div>
-                                Apakah Anda yakin ingin menghapus barang <span class="font-weight-bold text-blue-600">{{ item.name }}</span
-                                >?
-                              </div>
-                            </v-card-text>
-                            <v-card-actions>
-                              <v-spacer></v-spacer>
-                              <v-btn @click="isActive.value = false">Batal</v-btn>
-                              <v-btn
-                                color="error"
-                                @click="
-                                  deleteItem(item.id);
-                                  isActive.value = false;
-                                "
-                              >
-                                Hapus
-                              </v-btn>
-                            </v-card-actions>
-                          </v-card>
-                        </v-dialog>
-                      </v-list-item>
-                    </v-list>
-                  </v-menu>
+                          <v-icon
+                            icon="mdi-pencil"
+                            class="mr-2"
+                          />
+                          Edit
+                        </v-list-item>
+                        <v-list-item value="delete">
+                          <v-icon
+                            icon="mdi-delete"
+                            class="mr-2"
+                          />
+                          Hapus
+                          <v-dialog
+                            v-slot="{ isActive }"
+                            activator="parent"
+                            max-width="400"
+                          >
+                            <v-card>
+                              <v-card-title class="bg-blue-darken-2 text-center text-wrap">Konfirmasi!</v-card-title>
+                              <v-card-text>
+                                <div>
+                                  Apakah Anda yakin ingin menghapus barang <span class="font-weight-bold text-blue-600">{{ item.name }}</span
+                                  >?
+                                </div>
+                              </v-card-text>
+                              <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn @click="isActive.value = false">Batal</v-btn>
+                                <v-btn
+                                  color="error"
+                                  @click="
+                                    deleteItem(item.id);
+                                    isActive.value = false;
+                                  "
+                                >
+                                  Hapus
+                                </v-btn>
+                              </v-card-actions>
+                            </v-card>
+                          </v-dialog>
+                        </v-list-item>
+                      </v-list>
+                    </v-menu>
                   </div>
                 </div>
               </div>

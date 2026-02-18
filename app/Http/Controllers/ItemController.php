@@ -65,7 +65,9 @@ class ItemController extends Controller
     {
         // $perPage = $request->input('per_page');
         $page = $request->input('page', 1);
+        $search = $request->input('search');
         $items = Item::with('unit')
+            ->when($search != null, fn($q) => $q->whereAny(["name", "specification_name"], "LIKE", "%$search%"))
             ->orderBy('created_at', 'desc')
             ->paginate(page: $page, perPage: 10);
 

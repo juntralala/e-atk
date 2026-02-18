@@ -3,7 +3,6 @@ import PageTitleHighlightPart from '@/components/atoms/PageTitleHighlightPart.vu
 import CreateUpdateUserForm from '@/components/organisms/CreateUpdateUserForm.vue';
 import ApplicationLayout from '@/layouts/ApplicationLayout.vue';
 import { Head, router } from '@inertiajs/vue3';
-import axios from 'axios';
 import { computed, ref } from 'vue';
 
 defineOptions({
@@ -31,12 +30,13 @@ const currentPage = computed(() => usersProp.current_page);
 
 const loading = ref(false);
 const showDeleted = ref(false);
+const search = ref('');
 
 function loadItems({ page, itemsPerPage: perPage }) {
   loading.value = true;
   router.get(
     route('users'),
-    { page, per_page: perPage, show_deleted: showDeleted.value },
+    { page, per_page: perPage, show_deleted: showDeleted.value, search: search.value || undefined },
     {
       replace: true,
       preserveState: true,
@@ -48,13 +48,25 @@ function loadItems({ page, itemsPerPage: perPage }) {
   );
 }
 
+function handleSearchChange() {
+  const timeId = setTimeout(function () {
+    if (timeId != undefined) {
+      clearTimeout(timeId);
+    }
+    router.get(
+      route('users'),
+      { page: 1, show_deleted: showDeleted.value, search: search.value || undefined },
+      { preserveScroll: true, preserveState: true, replace: true },
+    );
+  }, 1_200);
+}
+
 async function deleteUser(id) {
-  router.delete(route('users.delete', id), {preserveScroll: true});
+  router.delete(route('users.delete', id), { preserveScroll: true });
 }
 
 async function restoreUser(id) {
-  // Implementasi restore user - kamu yang bikin
-  router.patch(route('users.restore', id), {}, {preserveScroll: true});
+  router.patch(route('users.restore', id), {}, { preserveScroll: true });
 }
 
 function isCurrentUser(userId) {
@@ -90,13 +102,26 @@ function isCurrentUser(userId) {
             activator="parent"
           />
         </v-btn>
-        
+
         <v-switch
           v-model="showDeleted"
           color="blue-darken-2"
           label="Tampilkan yang terhapus"
           hide-details
           @update:model-value="loadItems({ page: 1, itemsPerPage })"
+        />
+      </v-col>
+    </v-row>
+
+    <v-row>
+      <v-col>
+        <v-text-field
+          color="blue"
+          variant="outlined"
+          v-model="search"
+          @input="handleSearchChange"
+          placeholder="Cari nama atau username"
+          density="compact"
         />
       </v-col>
     </v-row>
@@ -120,7 +145,7 @@ function isCurrentUser(userId) {
           :items-per-page="itemsPerPage"
           :page="currentPage"
           class="hidden! md:block!"
-          @update:options="loadItems"
+          @update:items-per-page="(data) => loadItems({ itemsPerPage: data, currentPage })"
         >
           <template #headers="{ headers }">
             <tr class="bg-blue-darken-2">
@@ -134,15 +159,18 @@ function isCurrentUser(userId) {
             </tr>
           </template>
           <template #item="{ item }">
-            <tr :class="{ 'bg-red-lighten-4': item.deleted_at}">
+            <tr :class="{ 'bg-red-lighten-4': item.deleted_at }">
               <td>{{ item.no }}</td>
               <td>{{ item.name }}</td>
               <td>{{ item.username }}</td>
-              <td>{{ item.telepon || '-'}}</td>
+              <td>{{ item.telepon || '-' }}</td>
               <td>{{ item.role?.name }}</td>
               <td v-if="showDeleted">
-                <span v-if="item.deleted_at" class="text-medium!">
-                  {{ new Date(item.deleted_at).toLocaleString('id-ID').replaceAll('/', '-').replaceAll('.', ':').replace(',', '') }}
+                <span
+                  v-if="item.deleted_at"
+                  class="text-medium!"
+                >
+                  {{ new Date(item.deleted_at).toLocaleString('id-ID', { dateStyle: 'short' }).replaceAll('/', '-').replaceAll('.', ':').replace(',', '') }}
                 </span>
                 <span v-else>-</span>
               </td>
