@@ -154,12 +154,12 @@ const tableData = props.itemRequests.data.flatMap((request, requestIndex) => {
         </v-row>
         
         <!-- Filter Section -->
-        <v-row>
+        <v-row class="items-start">
             <v-col cols="12" md="3">
                 <DatePicker
                     v-model="startDate"
                     label="Tanggal Mulai"
-                    density="comfortable"
+                    density="compact"
                     :max="endDate"
                 />
             </v-col>
@@ -167,7 +167,7 @@ const tableData = props.itemRequests.data.flatMap((request, requestIndex) => {
                 <DatePicker
                     v-model="endDate"
                     label="Tanggal Akhir"
-                    density="comfortable"
+                    density="compact"
                     :min="startDate"
                 />
             </v-col>
@@ -178,7 +178,7 @@ const tableData = props.itemRequests.data.flatMap((request, requestIndex) => {
                     item-title="label"
                     item-value="value"
                     label="Status"
-                    density="comfortable"
+                    density="compact"
                     variant="outlined"
                     hide-details
                 />

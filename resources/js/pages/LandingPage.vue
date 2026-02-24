@@ -84,7 +84,7 @@ defineProps({
     <section class="hero-section">
       <div class="hero-background">
         <v-img
-          src="/storage/images/depan-igd-rsud-haji-darlan-ismail.jpeg"
+          src="/storage/images/depan-igd-rsud-haji-darlan-ismail.webp"
           cover
           class="hero-image"
         >
@@ -237,7 +237,7 @@ defineProps({
             >
               <v-card-text class="pa-0 md:p-4!">
                 <v-img
-                  src="/storage/images/struktur-organisasi-rsud-haji-darlan-ismail.jpeg"
+                  src="/storage/images/struktur-organisasi-rsud-haji-darlan-ismail.webp"
                   cover
                   class="rounded"
                   alt="Struktur Organisasi RSUD Haji Darlan Ismail"

@@ -212,19 +212,14 @@ class ItemRequestController extends Controller
             foreach ($validated['items'] as $item) {
                 $itemDetail = $itemRequest->itemRequestDetails()->find($item['id']);
                 if (!$itemDetail) {
-                    throw new \Exception('Item detail tidak ditemukan');
+                    throw new Exception('Item detail tidak ditemukan');
                 }
-                // Validasi apakah received_quantity tidak melebihi requested_quantity
-                // if ($item['received_quantity'] > $itemDetail->requested_quantity) {
-                //     throw new \Exception('Jumlah yang diterima untuk ' . $itemDetail->item->name . ' melebihi jumlah yang diminta');
-                // }
                 // Validasi apakah stok mencukupi
                 if ($item['received_quantity'] > $itemDetail->item->stock) {
-                    throw new \Exception('Stok ' . $itemDetail->item->name . ' tidak mencukupi. Stok tersedia: ' . $itemDetail->item->stock);
+                    throw new Exception('Stok ' . $itemDetail->item->name . ' tidak mencukupi. Stok tersedia: ' . $itemDetail->item->stock);
                 }
             }
 
-            // Update status item request menjadi accepted
             $itemRequest->status = 'accepted';
             $itemRequest->responder_notes = $validated['responder_notes'];
             $itemRequest->responder_id = auth()->id();

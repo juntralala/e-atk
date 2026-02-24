@@ -33,6 +33,13 @@
         "skipLibCheck": true,
         "noEmit": true
     },
-    "include": ["resources/js/**/*.js", "resources/js/**/*.jsx", "resources/js/**/*.ts", "resources/js/**/*.tsx", "resources/js/**/*.vue"],
+    "include": [
+        "resources/js/**/*.js",
+        "resources/js/**/*.jsx",
+        "resources/js/**/*.ts",
+        "resources/js/**/*.tsx",
+        "resources/js/**/*.vue",
+        "vite.config.js"
+    ],
     "exclude": ["node_modules", "dist"]
 }

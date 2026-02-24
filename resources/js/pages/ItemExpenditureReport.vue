@@ -97,7 +97,7 @@ const formatNumber = (value) => {
     </v-row>
 
     <!-- Filter Section -->
-    <v-row>
+    <v-row class="items-start">
       <v-col
         cols="12"
         md="4"
@@ -105,7 +105,7 @@ const formatNumber = (value) => {
         <DatePicker
           v-model="startDate"
           label="Tanggal Mulai"
-          density="comfortable"
+          density="compact"
           :max="endDate"
         />
       </v-col>
@@ -116,7 +116,7 @@ const formatNumber = (value) => {
         <DatePicker
           v-model="endDate"
           label="Tanggal Akhir"
-          density="comfortable"
+          density="compact"
           :min="startDate"
         />
       </v-col>

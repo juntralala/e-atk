@@ -68,7 +68,7 @@ class ItemController extends Controller
         $search = $request->input('search');
         $items = Item::with('unit')
             ->when($search != null, fn($q) => $q->whereAny(["name", "specification_name"], "LIKE", "%$search%"))
-            ->orderBy('created_at', 'desc')
+            ->orderBy('name')
             ->paginate(page: $page, perPage: 10);
 
         $units = Unit::whereNull('deleted_at')

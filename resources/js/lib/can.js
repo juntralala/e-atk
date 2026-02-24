@@ -12,6 +12,10 @@ function hasRole(user, roleSet) {
 }
 
 // Permissions
+export function canInDashboard(user) {
+  return hasRole(user, ROLES.PETUGAS_ADMIN);
+}
+
 export function canRequestItem(user) {
   return hasRole(user, ROLES.UNIT_ADMIN);
 }
@@ -62,10 +66,6 @@ export function canInUserPage(user) {
 
 export function canAddItem(user) {
   return hasRole(user, ROLES.PETUGAS_ADMIN);
-}
-
-export function canInDashboard(user) {
-  return hasRole(user, ROLES.BENDAHARA_PETUGAS_ADMIN);
 }
 
 export function canInItemRequestPage(user) {

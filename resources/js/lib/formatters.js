@@ -9,10 +9,10 @@ export function formatDateIndonesia(date) {
     }
     const options = {
         year: 'numeric',
-        month: 'numeric',
+        month: 'long',
         day: 'numeric',
     };
-    return date.toLocaleDateString('id-ID', {options});
+    return date.toLocaleDateString('id-ID', options);
 }
 
 export function formatRp(number) {

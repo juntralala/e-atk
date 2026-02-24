@@ -16,6 +16,7 @@ class UnitController extends Controller
         return Inertia::render('Unit', [
             'units' => Unit::query()
                 ->when($search != null, fn($q) => $q->where('name', 'LIKE',"%$search%"))
+                ->orderBy('name')
                 ->get()
         ]);
     }

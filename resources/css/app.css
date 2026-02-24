@@ -1,3 +1,12 @@
+@import '@fontsource/plus-jakarta-sans/400.css';
+@import '@fontsource/plus-jakarta-sans/500.css';
+@import '@fontsource/plus-jakarta-sans/600.css';
+@import '@fontsource/plus-jakarta-sans/700.css';
+
+@import '@fontsource/dm-sans/400.css';
+@import '@fontsource/dm-sans/500.css';
+@import '@fontsource/dm-sans/700.css';
+
 @import 'tailwindcss';
 @plugin 'tailwindcss-animate';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
@@ -177,15 +186,4 @@
         transform: translateY(-100dvh) rotate(720deg);
         opacity: 0;
     }
-}
-
-div.v-data-table-footer > div.v-data-table-footer__items-per-page > span {
-  color: rgba(0, 0, 0, 0);
-  font-size: 0;
-  
-  &::after {
-    font-size: 0.8rem;
-    color: black;
-    content: "Per halaman:" !important;
-  }
 }

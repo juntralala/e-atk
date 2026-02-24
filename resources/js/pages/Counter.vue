@@ -1,35 +1,38 @@
 <script setup>
-import { defineComponent, nextTick, onMounted, ref } from 'vue';
+import { ref } from 'vue';
 
 const counter = ref(0);
 
-const handleClick = (async function() {
+const handleClick = async function () {
   counter.value++;
   counter.value++;
-  await new Promise(function(resolve) {
-    setTimeout(function() {
+  await new Promise(function (resolve) {
+    setTimeout(function () {
       resolve(true);
     }, 3000);
   });
   counter.value++;
-});
-
+};
 
 const MyComp = {
   setup() {
     return {
-      name: "ujun"
-    }
+      name: 'ujun',
+    };
   },
   render(a) {
-    return a.name; 
-  }
+    return a.name;
+  },
 };
 
+defineOptions({
+  mounted: function () {
+    alert(window.isSecureContext);
+  },
+});
 </script>
 
 <template>
   <button @click="handleClick">Tombol</button>
-  <h1>{{counter}}</h1>
-  <MyComp/>
+  <MyComp />
 </template>

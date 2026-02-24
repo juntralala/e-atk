@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
-use function PHPUnit\Framework\returnArgument;
 
 class UserController extends Controller
 {
@@ -18,11 +17,14 @@ class UserController extends Controller
     {
         $search = $request->input('search');
         $showDeleted = $request->boolean('show_deleted');
-        $users = User::when($showDeleted, fn($q) => $q->withTrashed())
+        $users = User::when($showDeleted, function($q) {
+            $q->withTrashed();
+            $q->orderBy('deleted_at', 'desc');
+        })
             ->when($search != null, fn($q) => $q->whereAny(['name', 'username'], 'LIKE', "%$search%"))
             ->paginate(
-                $request->input('per_page', 10),
-                page: $request->input('page', 1)
+                $request->integer('per_page', 10),
+                page: $request->integer('page', 1)
             );
 
         $users->through(function ($user, $key) use ($users) {

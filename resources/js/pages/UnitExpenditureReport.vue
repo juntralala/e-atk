@@ -3,7 +3,7 @@ import PageTitleHighlightPart from '@/components/atoms/PageTitleHighlightPart.vu
 import DatePicker from '@/components/molecules/DatePicker.vue';
 import ApplicationLayout from '@/layouts/ApplicationLayout.vue';
 import { Head, router } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
+import { computed, ref } from 'vue';
 
 defineOptions({
   layout: ApplicationLayout,
@@ -30,17 +30,9 @@ const props = defineProps({
 // Ambil query params dari URL
 const urlParams = computed(() => new URLSearchParams(window.location.search));
 
-const startDate = ref(
-  urlParams.value.get('start')
-    ? new Date(urlParams.value.get('start'))
-    : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-);
+const startDate = ref(urlParams.value.get('start') ? new Date(urlParams.value.get('start')) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000));
 
-const endDate = ref(
-  urlParams.value.get('end')
-    ? new Date(urlParams.value.get('end'))
-    : new Date()
-);
+const endDate = ref(urlParams.value.get('end') ? new Date(urlParams.value.get('end')) : new Date());
 
 const applyFilter = () => {
   router.get(
@@ -101,7 +93,7 @@ const formatCurrency = (value) => {
     </v-row>
 
     <!-- Filter Section -->
-    <v-row>
+    <v-row class="items-start">
       <v-col
         cols="12"
         md="4"
@@ -109,7 +101,7 @@ const formatCurrency = (value) => {
         <DatePicker
           v-model="startDate"
           label="Tanggal Mulai"
-          density="comfortable"
+          density="compact"
           :max="endDate"
         />
       </v-col>
@@ -120,7 +112,7 @@ const formatCurrency = (value) => {
         <DatePicker
           v-model="endDate"
           label="Tanggal Akhir"
-          density="comfortable"
+          density="compact"
           :min="startDate"
         />
       </v-col>
@@ -214,9 +206,7 @@ const formatCurrency = (value) => {
         <v-row v-if="!unitExpenditures.data || unitExpenditures.data.length === 0">
           <v-col>
             <v-card>
-              <v-card-text class="text-grey pa-8 text-center">
-                Tidak ada data pengeluaran unit pada periode ini
-              </v-card-text>
+              <v-card-text class="text-grey pa-8 text-center"> Tidak ada data pengeluaran unit pada periode ini </v-card-text>
             </v-card>
           </v-col>
         </v-row>

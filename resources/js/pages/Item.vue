@@ -22,9 +22,11 @@ const props = defineProps({
   },
 });
 
+let timeId;
 const search = ref('');
 const dialog = ref(false);
 const editingId = ref(null);
+const loading = ref(false);
 const form = useForm({
   name: '',
   unit_id: '',
@@ -45,12 +47,21 @@ const currentPage = computed(() => props.items.current_page || 1);
 const totalPages = computed(() => Math.ceil(totalItems.value / itemsPerPage.value));
 
 function changePage(page) {
+  // tampil animasi loading, hanya jika perpindahan halaman agak instant
+  // (mencegah flickering pada perangkat dengan sinyal cepat dan performa kuat)
+  timeId = setTimeout(function() {
+    loading.value = true;
+  }, 200);
   router.get(
     route('items'),
     { page, search: search.value },
     {
       preserveState: true,
       preserveScroll: true,
+      onFinish() {
+        clearTimeout(timeId);
+        loading.value = false;
+      }
     },
   );
 }
@@ -143,16 +154,24 @@ const getItemNumber = (index) => {
 };
 
 function handleSearchChange(e) {
-  const timeId = setTimeout(function () {
-    if (timeId != undefined) {
-      clearTimeout(timeId);
-    }
+  loading.value = true;
+  if (timeId != undefined) {
+    clearTimeout(timeId);
+  }
+  timeId = setTimeout(function () {
     router.get(
       route('items'),
       { page: currentPage.value, search: search.value || undefined },
-      { preserveScroll: true, preserveState: true, replace: true },
+      {
+        preserveScroll: true,
+        preserveState: true,
+        replace: true,
+        onFinish() {
+          loading.value = false;
+        },
+      },
     );
-  }, 1_200);
+  }, 700);
 }
 </script>
 
@@ -179,7 +198,11 @@ function handleSearchChange(e) {
     </v-row>
 
     <v-row class="justify-between">
-      <v-col v-if="canActItem($page.props.auth.user)"  cols="12" md="6">
+      <v-col
+        v-if="canActItem($page.props.auth.user)"
+        cols="12"
+        md="6"
+      >
         <v-btn
           variant="tonal"
           color="primary"
@@ -190,7 +213,10 @@ function handleSearchChange(e) {
         </v-btn>
       </v-col>
 
-      <v-col cols="12" md="6">
+      <v-col
+        cols="12"
+        md="6"
+      >
         <v-text-field
           color="blue"
           variant="outlined"
@@ -227,7 +253,14 @@ function handleSearchChange(e) {
               </th>
             </tr>
           </thead>
-          <tbody>
+          <template v-if="loading">
+            <tr>
+              <td colspan="10">
+                <v-progress-linear indeterminate></v-progress-linear>
+              </td>
+            </tr>
+          </template>
+          <tbody v-else>
             <tr
               v-for="(item, index) in itemsData"
               :key="item.id"
@@ -325,7 +358,13 @@ function handleSearchChange(e) {
       <v-col>
         <v-list lines="three">
           <template v-if="itemsData && itemsData.length > 0">
+            <template v-if="loading">
+              <v-list-item class="d-flex justify-center">
+                <v-progress-circular indeterminate/>
+              </v-list-item>
+            </template>
             <v-list-item
+              v-else
               v-for="(item, index) in itemsData"
               :key="item.id"
               class="my-1 py-3"

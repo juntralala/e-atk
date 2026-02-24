@@ -120,76 +120,78 @@
 
 <template>
   <AlertDialog v-model="showAlert" title="Error" :message="errorMessage"/>
-  <v-dialog
-    v-slot="{ isActive }"
-    v-model="formDialog"
-    :activator="activator"
-    max-width="800"
-  >
-    <v-card>
-      <v-card-title class="text-center">{{ title }}</v-card-title>
-      <v-divider />
-      <v-card-text>
-        <v-form
-          ref="formRef"
-          v-model="isFormValid"
-          @submit.prevent="submit"
-        >
-          <v-text-field
-            v-model="form.name"
-            label="Nama"
-            density="comfortable"
-            :rules="nameRules"
-            :error-messages="form.errors.name"
-          />
-          <v-text-field
-            v-model="form.username"
-            label="Username"
-            density="comfortable"
-            :rules="usernameRules"
-            :error-messages="form.errors.username"
-          />
-          <v-text-field
-            v-model="form.password"
-            label="Password"
-            density="comfortable"
-            :rules="passwordRules"
-            :error-messages="form.errors.password"
-            :type="showPassword ? 'text' : 'password'"
-            :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-            @click:append-inner="showPassword = !showPassword"
-          />
-          <v-select
-            v-model="form.role"
-            :items="roles"
-            item-title="name"
-            item-value="id"
-            density="comfortable"
-            :rules="roleRules"
-            :error-messages="form.errors.role"
-            label="Role"
-          />
-
-          <v-text-field
-            v-model="form.telepon"
-            label="No. Telepon"
-            density="comfortable"
-            :rules="[]"
-            :error-messages="form.errors.telepon"
-          />
-        </v-form>
-      </v-card-text>
-      <v-card-actions>
-        <v-btn @click="isActive.value = false">Batal</v-btn>
-        <v-btn
-          color="blue-darken-4"
-          :disabled="form.processing || !isFormValid"
-          :loading="form.processing"
-          @click="submit"
-        >
-          Submit
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+  <v-expand-transition>
+    <v-dialog
+      v-slot="{ isActive }"
+      v-model="formDialog"
+      :activator="activator"
+      max-width="800"
+    >
+      <v-card>
+        <v-card-title class="text-center">{{ title }}</v-card-title>
+        <v-divider />
+        <v-card-text>
+          <v-form
+            ref="formRef"
+            v-model="isFormValid"
+            @submit.prevent="submit"
+          >
+            <v-text-field
+              v-model="form.name"
+              label="Nama"
+              density="comfortable"
+              :rules="nameRules"
+              :error-messages="form.errors.name"
+            />
+            <v-text-field
+              v-model="form.username"
+              label="Username"
+              density="comfortable"
+              :rules="usernameRules"
+              :error-messages="form.errors.username"
+            />
+            <v-text-field
+              v-model="form.password"
+              label="Password"
+              density="comfortable"
+              :rules="passwordRules"
+              :error-messages="form.errors.password"
+              :type="showPassword ? 'text' : 'password'"
+              :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+              @click:append-inner="showPassword = !showPassword"
+            />
+            <v-select
+              v-model="form.role"
+              :items="roles"
+              item-title="name"
+              item-value="id"
+              density="comfortable"
+              :rules="roleRules"
+              :error-messages="form.errors.role"
+              label="Role"
+            />
+  
+            <v-text-field
+              v-model="form.telepon"
+              label="No. Telepon"
+              density="comfortable"
+              :rules="[]"
+              :error-messages="form.errors.telepon"
+            />
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn @click="isActive.value = false">Batal</v-btn>
+          <v-btn
+            color="blue-darken-4"
+            :disabled="form.processing || !isFormValid"
+            :loading="form.processing"
+            @click="submit"
+          >
+            Submit
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </v-expand-transition>
 </template>

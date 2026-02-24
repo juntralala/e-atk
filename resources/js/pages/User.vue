@@ -22,7 +22,7 @@ const { auth, users: usersProp } = defineProps({
 
 const currentUser = auth?.user;
 
-// Ambil data dari prop users (Laravel pagination object)
+// Ambil data dari prop users
 const users = computed(() => usersProp.data);
 const totalItems = computed(() => usersProp.total);
 const itemsPerPage = computed(() => usersProp.per_page);
@@ -86,7 +86,7 @@ function isCurrentUser(userId) {
       </v-col>
     </v-row>
     <v-row>
-      <v-col class="flex justify-between items-center">
+      <v-col class="flex items-center justify-between">
         <v-btn
           variant="tonal"
           color="blue-darken-2"
@@ -103,13 +103,15 @@ function isCurrentUser(userId) {
           />
         </v-btn>
 
-        <v-switch
-          v-model="showDeleted"
-          color="blue-darken-2"
-          label="Tampilkan yang terhapus"
-          hide-details
-          @update:model-value="loadItems({ page: 1, itemsPerPage })"
-        />
+        <div class="d-flex items-center gap-2">
+          <v-switch
+            v-model="showDeleted"
+            color="blue-darken-2"
+            hide-details
+            @update:model-value="loadItems({ page: 1, itemsPerPage })"
+          />
+          <v-icon size="x-large">mdi-account-reactivate</v-icon>
+        </div>
       </v-col>
     </v-row>
 
@@ -170,7 +172,13 @@ function isCurrentUser(userId) {
                   v-if="item.deleted_at"
                   class="text-medium!"
                 >
-                  {{ new Date(item.deleted_at).toLocaleString('id-ID', { dateStyle: 'short' }).replaceAll('/', '-').replaceAll('.', ':').replace(',', '') }}
+                  {{
+                    new Date(item.deleted_at)
+                      .toLocaleString('id-ID', { dateStyle: 'short' })
+                      .replaceAll('/', '-')
+                      .replaceAll('.', ':')
+                      .replace(',', '')
+                  }}
                 </span>
                 <span v-else>-</span>
               </td>
@@ -259,7 +267,8 @@ function isCurrentUser(userId) {
                             <v-card-title class="bg-blue-darken-2 text-center text-wrap">Konfirmasi!</v-card-title>
                             <v-card-text>
                               <div>
-                                Apakah yakin untuk memulihkan pengguna dengan nama <span class="text-blue-600">{{ item.name }}</span>?
+                                Apakah yakin untuk memulihkan pengguna dengan nama <span class="text-blue-600">{{ item.name }}</span
+                                >?
                               </div>
                             </v-card-text>
                             <v-card-actions>
@@ -384,7 +393,8 @@ function isCurrentUser(userId) {
                             <v-card-title class="bg-blue-darken-2 text-center text-wrap">Konfirmasi!</v-card-title>
                             <v-card-text>
                               <div>
-                                Apakah yakin untuk memulihkan pengguna dengan nama <span class="text-blue-600">{{ user.name }}</span>?
+                                Apakah yakin untuk memulihkan pengguna dengan nama <span class="text-blue-600">{{ user.name }}</span
+                                >?
                               </div>
                             </v-card-text>
                             <v-card-actions>

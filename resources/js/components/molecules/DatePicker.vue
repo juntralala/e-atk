@@ -47,6 +47,7 @@ const formattedDate = computed(() => formatDateIndonesia(pickedDate.value));
       <v-date-picker
         v-model="pickedDate"
         header="Pilih Tanggal"
+        :first-day-of-week="1"
         hide-header
         :min="min"
         :max="max"

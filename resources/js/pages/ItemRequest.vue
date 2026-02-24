@@ -2,6 +2,7 @@
 import PageTitleHighlightPart from '@/components/atoms/PageTitleHighlightPart.vue';
 import ApplicationLayout from '@/layouts/ApplicationLayout.vue';
 import { canAcceptItemRequest, canDeleteItemRequest, canPrintItemRequest, canRejectItemRequest } from '@/lib/can';
+import { formatDateIndonesia as formatDate, formatRp } from '@/lib/formatters';
 import { Head, router } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 
@@ -441,23 +442,6 @@ function getStatusText(status) {
     rejected: 'Ditolak',
   };
   return texts[status] || status;
-}
-
-function formatDate(date) {
-  if (!date) return '-';
-  return new Date(date).toLocaleDateString('id-ID', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-  });
-}
-
-function formatRupiah(value) {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-  }).format(value);
 }
 
 function getTotalItems(request) {
@@ -1018,8 +1002,8 @@ function canApproveOrReject(request) {
                 >
                   {{ detail.received_quantity }} {{ detail.item?.unit?.name }}
                 </td>
-                <td class="text-right">{{ formatRupiah(detail.price) }}</td>
-                <td class="text-right">{{ formatRupiah(detail.requested_quantity * detail.price) }}</td>
+                <td class="text-right">{{ formatRp(detail.price) }}</td>
+                <td class="text-right">{{ formatRp(detail.requested_quantity * detail.price) }}</td>
               </tr>
             </tbody>
             <tfoot>
@@ -1030,7 +1014,7 @@ function canApproveOrReject(request) {
                 >
                   Total
                 </td>
-                <td class="text-right">{{ formatRupiah(getTotalValue(selectedRequest)) }}</td>
+                <td class="text-right">{{ formatRp(getTotalValue(selectedRequest)) }}</td>
               </tr>
             </tfoot>
           </v-table>

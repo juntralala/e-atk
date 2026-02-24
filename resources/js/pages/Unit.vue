@@ -21,6 +21,7 @@ const search = ref('');
 const form = useForm({ name: '' });
 const errorDialog = ref(false);
 const errorMessage = ref('');
+const loading = ref(false);
 
 const openAddDialog = () => {
   editingId.value = null;
@@ -106,11 +107,13 @@ const closeErrorDialog = () => {
   errorMessage.value = '';
 };
 
+let timeoutId;
 function handleSearchChange() {
-  const timeId = setTimeout(function () {
-    if (timeId != undefined) {
-      clearTimeout(timeId);
-    }
+  if (timeoutId != undefined) {
+    clearTimeout(timeoutId);
+  }
+  loading.value = true;
+  timeoutId = setTimeout(function () {
     router.get(
       route('units'),
       {
@@ -120,9 +123,13 @@ function handleSearchChange() {
         preserveScroll: true,
         preserveState: true,
         replace: true,
+        onFinish() {
+          clearTimeout(timeoutId);
+          loading.value = false;
+        },
       },
     );
-  }, 1_200);
+  }, 400);
 }
 </script>
 
@@ -206,6 +213,13 @@ function handleSearchChange() {
               <th class="w-1/12 text-left">Tindakan</th>
             </tr>
           </thead>
+          <template v-if="loading">
+            <tr>
+              <td colspan="10">
+                <v-progress-linear indeterminate />
+              </td>
+            </tr>
+          </template>
           <tbody>
             <tr
               v-for="(unit, index) in units"
@@ -285,7 +299,12 @@ function handleSearchChange() {
     <v-row class="md:hidden!">
       <v-col>
         <v-list lines="two">
-          <template v-if="units && units.length > 0">
+          <template v-if="loading">
+            <v-list-item class="d-flex justify-center">
+              <v-progress-circular indeterminate />
+            </v-list-item>
+          </template>
+          <template v-else-if="units && units.length > 0">
             <v-list-item
               v-for="(unit, index) in units"
               :key="unit.id"

@@ -5,12 +5,13 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createApp, h } from 'vue';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 import { createVuetify } from 'vuetify';
+import { id, en } from 'vuetify/locale';
 import 'vuetify/styles';
 import '@mdi/font/css/materialdesignicons.css';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
-const vuetify = createVuetify();
-    
+const vuetify = createVuetify({ locale: { locale: 'id', messages: { id, en } } });
+
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
     resolve: (name) => resolvePageComponent(`./pages/${name}.vue`, import.meta.glob('./pages/**/*.vue')),

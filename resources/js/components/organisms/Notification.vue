@@ -105,7 +105,7 @@ function formatRelativeTime(dateString) {
 }
 
 let interval = null;
-onMounted(() => (interval = setInterval(isUnreadNotificationExists, 2_000)));
+onMounted(() => (interval = setInterval(isUnreadNotificationExists, 12_000)));
 onUnmounted(() => clearInterval(interval));
 </script>
 

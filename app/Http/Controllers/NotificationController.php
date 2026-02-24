@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\NotificationResource;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 /*
 notification diambil secara rest api karna aplikasi dideploy pakai apache2,
@@ -28,7 +29,11 @@ class NotificationController extends Controller
     public function isUnreadNotificationExists()
     {
         return response()->json([
-            'data' => auth()->user()->unreadNotifications()->exists()
+            'data' => DB::table('notifications')
+                ->where('notifiable_type', auth()->user()::class)
+                ->where('notifiable_id', auth()->user()->id)
+                ->whereNull('created_at')
+                ->exists()
         ]);
     }
 

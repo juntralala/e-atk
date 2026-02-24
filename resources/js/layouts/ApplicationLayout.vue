@@ -11,6 +11,7 @@ import {
   canAccessItemRequestReport,
   canAccessUnitExpenditureReport,
   canAddItem,
+  canInDashboard,
   canInItemListPage,
   canInItemRequestPage,
   canInUnitPage,
@@ -21,8 +22,7 @@ import {
   canSeeMasterData,
   canSetting,
 } from '@/lib/can';
-import { requestNotificationPermission } from '@/lib/notification';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import { onMounted, onUpdated, ref, watch } from 'vue';
 import { useDisplay } from 'vuetify/lib/composables/display.mjs';
 
@@ -65,9 +65,9 @@ watch(
 // penangkap error global END
 
 const { user } = auth;
-const { mdAndUp } = useDisplay();
+const { xs, xlAndUp } = useDisplay();
 
-const showDrawer = ref(mdAndUp);
+const showDrawer = ref(xlAndUp.value);
 const selectedMenu = ref([]);
 const expandedGroups = ref([]);
 
@@ -125,14 +125,14 @@ onUpdated(function () {
           icon="mdi-menu"
           @click="toggleDrawer"
         />
-        <Link href="/">
-          <span class="ms-2">
+        <span class="ms-2">
+          <Link href="/">
             <v-avatar variant="text">
               <v-img :src="settings?.icon" />
             </v-avatar>
             <span class="ms-1">{{ settings?.applicationName }}</span>
-          </span>
-        </Link>
+          </Link>
+        </span>
       </v-app-bar-title>
       <template #append>
         <Notification />
@@ -172,8 +172,14 @@ onUpdated(function () {
         mandatory
       >
         <DrawerItem
+          v-if="canInDashboard(user)"
+          :href="route('dashboards')"
+          icon="mdi-view-dashboard"
+          >Dashboard</DrawerItem
+        >
+        <DrawerItem
           v-if="canInItemListPage(user)"
-          :href="route('items', {mode: 'view'})"
+          :href="route('items', { mode: 'view' })"
           icon="mdi-package"
           >Daftar Barang</DrawerItem
         >
@@ -211,26 +217,26 @@ onUpdated(function () {
             :href="route('items.exports.view')"
             icon="mdi-package-variant"
             >Barang</DrawerItem
-            >
-            <DrawerItem
+          >
+          <DrawerItem
             v-if="canAccessItemAdditionReport(user)"
             :href="route('items.additions.exports.view')"
             icon="mdi-package-up"
             >Penambahan Barang</DrawerItem
-            >
-            <DrawerItem
+          >
+          <DrawerItem
             v-if="canAccessItemRequestReport(user)"
             :href="route('items.requests.exports.view')"
             icon="mdi-file-document-edit"
             >Permintaan Barang</DrawerItem
-            >
-            <DrawerItem
+          >
+          <DrawerItem
             v-if="canAccessItemExpenditureReport(user)"
             :href="route('items.expenditures.exports.view')"
             icon="mdi-receipt-text"
             >Pengeluaran Barang</DrawerItem
-            >
-            <DrawerItem
+          >
+          <DrawerItem
             v-if="canAccessUnitExpenditureReport(user)"
             :href="route('expenditures.units.exports.view')"
             icon="mdi-wallet-outline"
@@ -268,10 +274,10 @@ onUpdated(function () {
           >
         </v-list-group>
         <DrawerItem
-        v-if="canSetting(user)"
-        :href="route('settings')"
-        icon="mdi-cog"
-        >Pengaturan</DrawerItem
+          v-if="canSetting(user)"
+          :href="route('settings')"
+          icon="mdi-cog"
+          >Pengaturan</DrawerItem
         >
         <DrawerItem
           :href="route('stakeholders')"
@@ -290,8 +296,23 @@ onUpdated(function () {
     />
 
     <Footer
+      v-if="!(xs && user?.role?.name == 'unit')"
       :namaInstansi="settings?.institutionName"
       :alamatInstansi="settings?.institutionAddress"
     ></Footer>
+    <v-bottom-navigation v-else>
+      <v-btn value="history" @click="router.visit(route('items'), {preserveState: true, preserveScroll: true})">
+        <v-icon>mdi-package</v-icon>
+        <span>Daftar Barang</span>
+      </v-btn>
+      <v-btn value="request" @click="router.get(route('items.requests.form'), {preserveState: true, preserveScroll: true})">
+        <v-icon>mdi-clipboard-list</v-icon>
+        <span>Minta Barang</span>
+      </v-btn>
+      <v-btn value="history" @click="router.get(route('items.requests'), {preserveState: true, preserveScroll: true})">
+        <v-icon>mdi-clipboard-text-clock</v-icon>
+        <span>Permintaan</span>
+      </v-btn>
+    </v-bottom-navigation>
   </v-app>
 </template>

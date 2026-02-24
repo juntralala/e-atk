@@ -128,7 +128,7 @@ const tableData = props.itemAdditions.data.flatMap((addition, additionIndex) => 
     </v-row>
 
     <!-- Filter Section -->
-    <v-row>
+    <v-row class="items-start">
       <v-col
         cols="12"
         md="4"
@@ -136,7 +136,7 @@ const tableData = props.itemAdditions.data.flatMap((addition, additionIndex) => 
         <DatePicker
           v-model="startDate"
           label="Tanggal Mulai"
-          density="comfortable"
+          density="compact"
           :max="endDate"
         />
       </v-col>
@@ -147,7 +147,7 @@ const tableData = props.itemAdditions.data.flatMap((addition, additionIndex) => 
         <DatePicker
           v-model="endDate"
           label="Tanggal Akhir"
-          density="comfortable"
+          density="compact"
           :min="startDate"
         />
       </v-col>
