@@ -37,7 +37,7 @@ class DashboardController extends Controller
 
         $data = DB::table('item_requests as ir')
             ->select([
-                DB::raw('MONTH(ir.created_at) as month'),
+                DB::raw('MONTH(ir.responded_at) as month'),
                 DB::raw('SUM(ird.price * ird.responded_quantity) as totalPrice'),
                 // DB::raw('SUM(ird.responded_quantity)'),
             ])
