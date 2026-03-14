@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Item;
 use App\Models\ItemRequestDetail;
 use App\Models\Unit;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -21,42 +22,57 @@ use OpenSpout\Writer\XLSX\Writer;
 
 class ItemController extends Controller
 {
-
-    private function itemExpenditureQuery($start, $end)
+    private function itemExpenditureQuery($start, $end, $unit)
     {
         return Item::withTrashed()
             ->with([
-                'unit' => fn($q) => $q->withTrashed(),
-                'itemRequestDetails' => function ($q) use ($start, $end) {
-                    $q->whereHas('itemRequest', function ($qir) use ($start, $end) {
-                        $qir->where('status', 'accepted');
-                        $qir->whereBetween('response_date', [$start, $end]);
-                    });
-                }
+                'unit' => fn ($q) => $q->withTrashed(),
             ])
+            ->whereHas('itemRequestDetails', function ($q) use ($start, $end, $unit) {
+                $q->whereHas('itemRequest', function ($qir) use ($start, $end, $unit) {
+                    $qir->where('status', 'accepted');
+                    $qir->whereBetween('response_date', [$start, $end]);
+                    $qir->when(
+                        ! blank($unit),
+                        fn ($query) => $query->where('requester_id', $unit)
+                    );
+                });
+            })
             ->withSum([
-                'itemRequestDetails as quantity_total' => function ($q) use ($start, $end) {
-                    $q->whereHas('itemRequest', function ($qir) use ($start, $end) {
+                'itemRequestDetails as quantity_total' => function ($q) use ($start, $end, $unit) {
+                    $q->whereHas('itemRequest', function ($qir) use ($start, $end, $unit) {
                         $qir->where('status', 'accepted');
                         $qir->whereBetween('response_date', [$start, $end]);
+                        $qir->when(
+                            ! blank($unit),
+                            fn ($query) => $query->where('requester_id', $unit)
+                        );
                     });
-                }
+                },
             ], 'responded_quantity')
             ->withSum([
-                'itemRequestDetails as expenditure' => function ($q) use ($start, $end) {
-                    $q->whereHas('itemRequest', function ($qir) use ($start, $end) {
+                'itemRequestDetails as expenditure' => function ($q) use ($start, $end, $unit) {
+                    $q->whereHas('itemRequest', function ($qir) use ($start, $end, $unit) {
                         $qir->where('status', 'accepted');
                         $qir->whereBetween('response_date', [$start, $end]);
+                        $qir->when(
+                            ! blank($unit),
+                            fn ($query) => $query->where('requester_id', $unit)
+                        );
                     });
-                }
-            ], DB::raw("responded_quantity * price"))
+                },
+            ], DB::raw('responded_quantity * price'))
             ->withAvg([
                 'itemRequestDetails as avg_price' => function ($q) use ($start, $end) {
                     $q->whereHas('itemRequest', function ($qir) use ($start, $end) {
                         $qir->where('status', 'accepted');
                         $qir->whereBetween('response_date', [$start, $end]);
+                        // $qir->when(
+                        //     !blank($unit),
+                        //     fn($query) => $query->where('requester_id', $unit)
+                        // );
                     });
-                }
+                },
             ], 'price')
             ->orderBy('name');
     }
@@ -67,7 +83,7 @@ class ItemController extends Controller
         $page = $request->input('page', 1);
         $search = $request->input('search');
         $items = Item::with('unit')
-            ->when($search != null, fn($q) => $q->whereAny(["name", "specification_name"], "LIKE", "%$search%"))
+            ->when($search != null, fn ($q) => $q->whereAny(['name', 'specification_name'], 'LIKE', "%$search%"))
             ->orderBy('name')
             ->paginate(page: $page, perPage: 10);
 
@@ -104,7 +120,7 @@ class ItemController extends Controller
                 ]);
             }
 
-            $item = new Item();
+            $item = new Item;
             $item->id = Str::uuid()->toString();
             $item->name = $validated['name'];
             $item->unit_id = $validated['unit_id'];
@@ -118,7 +134,7 @@ class ItemController extends Controller
             throw $e;
         } catch (\Exception $e) {
             throw ValidationException::withMessages([
-                'message' => 'Terjadi kesalahan saat menyimpan barang: ' . $e->getMessage(),
+                'message' => 'Terjadi kesalahan saat menyimpan barang: '.$e->getMessage(),
             ]);
         }
     }
@@ -164,7 +180,7 @@ class ItemController extends Controller
             throw $e;
         } catch (\Exception $e) {
             throw ValidationException::withMessages([
-                'message' => 'Terjadi kesalahan saat memperbarui barang: ' . $e->getMessage(),
+                'message' => 'Terjadi kesalahan saat memperbarui barang: '.$e->getMessage(),
             ]);
         }
     }
@@ -183,12 +199,13 @@ class ItemController extends Controller
             // }
 
             $item->delete();
+
             return redirect()->back()->with('success', 'Barang berhasil dihapus');
         } catch (ValidationException $e) {
             throw $e;
         } catch (\Exception $e) {
             throw ValidationException::withMessages([
-                'message' => 'Terjadi kesalahan saat menghapus barang: ' . $e->getMessage(),
+                'message' => 'Terjadi kesalahan saat menghapus barang: '.$e->getMessage(),
             ]);
         }
     }
@@ -196,7 +213,7 @@ class ItemController extends Controller
     public function toXlsx()
     {
         $callback = function () {
-            $writer = new Writer();
+            $writer = new Writer;
             $writer->openToFile('php://output');
             $sheet = $writer->getCurrentSheet();
             $sheet->setName('Laporan-Barang');
@@ -215,14 +232,14 @@ class ItemController extends Controller
                 new BorderPart(BorderName::RIGHT, '000000', BorderWidth::THIN),
             );
 
-            $style = (new Style())
+            $style = (new Style)
                 ->withFontBold(true)
                 ->withBackgroundColor('00B054')
                 ->withCellAlignment(CellAlignment::CENTER)
                 ->withBorder($border);
-            $cellStyle = (new Style())
+            $cellStyle = (new Style)
                 ->withBorder($border);
-            $rpStyle = (new Style())
+            $rpStyle = (new Style)
                 ->withFormat('"Rp " #,##0')
                 ->withBorder($border);
 
@@ -234,7 +251,7 @@ class ItemController extends Controller
                     'Harga Satuan',
                     'Stok',
                     'Ukuran Satuan',
-                    'Terakhir Diperbarui'
+                    'Terakhir Diperbarui',
                 ],
                 $style
             ));
@@ -260,27 +277,29 @@ class ItemController extends Controller
                             $rpStyle,
                             $cellStyle,
                             $cellStyle,
-                            $cellStyle
+                            $cellStyle,
                         ]));
                     }
                 });
             $writer->close();
         };
+
         return response()
             ->streamDownload(
                 $callback,
-                'laporan-stok-' . now()->format('d-m-Y') . '.xlsx'
+                'laporan-stok-'.now()->format('d-m-Y').'.xlsx'
             );
     }
 
     public function reportPage(Request $request)
     {
-        $perPage = $request->integer('per_page' . 100);
+        $perPage = $request->integer('per_page'. 100);
         $page = $request->integer('page', 1);
+
         return inertia('ItemReport', [
             'items' => Item::with('unit')
                 ->orderBy('name')
-                ->paginate(perPage: $perPage, page: $page)
+                ->paginate(perPage: $perPage, page: $page),
         ]);
     }
 
@@ -288,20 +307,26 @@ class ItemController extends Controller
     {
         $start = $request->date('start') ?? now()->subMonth();
         $end = $request->date('end') ?? now();
-        $perPage = $request->integer('per_page' . 100);
+        $unit = $request->input('unit');
+        $perPage = $request->integer('per_page', 100);
         $page = $request->integer('page', 1);
 
         $start->timezone('+8')->startOfDay();
         $end->timezone('+8')->endOfDay();
 
-        $itemExpenditures = $this->itemExpenditureQuery($start, $end)
+        $itemExpenditures = $this->itemExpenditureQuery($start, $end, $unit)
             ->paginate(perPage: $perPage, page: $page)
             ->withQueryString();
-        $total = ItemRequestDetail::whereHas('itemRequest', fn($q) => $q->whereBetween('created_at', [$start, $end]))
+        $total = ItemRequestDetail::whereHas('itemRequest', function ($q) use ($start, $end, $unit) {
+            $q->whereBetween('responded_at', [$start, $end]);
+            $q->when(! blank($unit), fn ($query) => $query->where('requester_id', $unit));
+        })
             ->sum(DB::raw('responded_quantity * price'));
+
         return inertia('ItemExpenditureReport', [
             'itemExpenditures' => $itemExpenditures,
-            'total' => (float) $total
+            'total' => (float) $total,
+            'units' => User::whereHas('role', fn ($q) => $q->where('name', 'unit'))->get(),
         ]);
     }
 
@@ -309,12 +334,13 @@ class ItemController extends Controller
     {
         $start = $request->date('start') ?? now()->subMonth();
         $end = $request->date('end') ?? now();
+        $unit = $request->input('unit');
 
         $start->timezone('+8')->startOfDay();
         $end->timezone('+8')->endOfDay();
 
-        $callback = function () use ($start, $end) {
-            $writer = new Writer();
+        $callback = function () use ($start, $end, $unit) {
+            $writer = new Writer;
             $writer->openToFile('php://output');
             $writer->getCurrentSheet()->setName('Laporan-Pengeluaran-Barang');
             $sheet = $writer->getCurrentSheet();
@@ -330,22 +356,22 @@ class ItemController extends Controller
                 new BorderPart(BorderName::LEFT, '000000', BorderWidth::THIN),
                 new BorderPart(BorderName::RIGHT, '000000', BorderWidth::THIN),
             );
-            $headerStyle = (new Style())
+            $headerStyle = (new Style)
                 ->withFontBold(true)
                 ->withBackgroundColor('00B054')
                 ->withCellAlignment(CellAlignment::CENTER)
                 ->withBorder($border);
-            $cellStyle = (new Style())
+            $cellStyle = (new Style)
                 ->withBorder($border);
-            $rpStyle = (new Style())
+            $rpStyle = (new Style)
                 ->withFormat('"Rp " #,##0')
                 ->withBorder($border);
-            $totalStyle = (new Style())
+            $totalStyle = (new Style)
                 ->withFontBold(true)
                 ->withBackgroundColor('FFD966')
                 ->withCellAlignment(CellAlignment::RIGHT)
                 ->withBorder($border);
-            $totalRpStyle = (new Style())
+            $totalRpStyle = (new Style)
                 ->withFontBold(true)
                 ->withBackgroundColor('FFD966')
                 ->withFormat('"Rp " #,##0')
@@ -365,7 +391,7 @@ class ItemController extends Controller
             // Variable untuk menyimpan total
             $grandTotal = 0;
 
-            $this->itemExpenditureQuery($start, $end)
+            $this->itemExpenditureQuery($start, $end, $unit)
                 ->chunk(100, function ($items) use ($writer, $cellStyle, $rpStyle, &$grandTotal) {
                     foreach ($items as $item) {
                         // Akumulasi total
@@ -411,10 +437,22 @@ class ItemController extends Controller
         $format = 'd-m-Y';
         $start->timezone('+8');
         $end->timezone('+8');
+
+        $startFormatted = $start->format($format);
+        $endFormatted = $end->format($format);
+        $fileName = '_.xlsx';
+
+        if (! blank($unit) && $namaUnit = User::find($unit)->name) {
+            $namaUnit = mb_strtolower($namaUnit);
+            $fileName = "laporan-pengeluaran-barang-$namaUnit-$startFormatted-$endFormatted.xlsx";
+        } else {
+            $fileName = "laporan-pengeluaran-barang-$startFormatted-$endFormatted.xlsx";
+        }
+
         return response()
             ->streamDownload(
                 $callback,
-                'laporan-pengeluaran-barang-' . $start->format($format) . '-' . $end->format($format) . '.xlsx'
+                $fileName
             );
     }
 }

@@ -11,7 +11,7 @@ class UserPolicy
     {
         $this->permittedRoles = collect([
             'administrator',
-            'bendahara'
+            'bendahara',
         ]);
     }
 
@@ -30,7 +30,8 @@ class UserPolicy
     public function create(User $user): Response
     {
         $isCan = false;
-        $isCan = $this->permittedRoles->some(fn($role) => $user->role->name == $role);
+        $isCan = $this->permittedRoles->some(fn ($role) => $user->role->name == $role);
+
         return $isCan
             ? Response::allow()
             : Response::deny('Anda tidak memiliki akses untuk membuat user.');
@@ -38,7 +39,7 @@ class UserPolicy
 
     public function update(User $user, User $model): Response
     {
-        $canUpdate = $user->id == $model->id || $this->permittedRoles->some(fn($role) => $user->role->name == $role);
+        $canUpdate = $user->id == $model->id || $this->permittedRoles->some(fn ($role) => $user->role->name == $role);
 
         return $canUpdate
             ? Response::allow()
@@ -47,7 +48,8 @@ class UserPolicy
 
     public function delete(User $user, User $model): Response
     {
-        $canDelete = $user->id == $model->id || $this->permittedRoles->some(fn($role) => $user->role->name == $role);
+        $canDelete = $user->id == $model->id || $this->permittedRoles->some(fn ($role) => $user->role->name == $role);
+
         return $canDelete
             ? Response::allow()
             : Response::deny('Anda tidak memiliki akses untuk menghapus user ini.');
@@ -55,14 +57,14 @@ class UserPolicy
 
     public function restore(User $user, User $model): Response
     {
-        return $this->permittedRoles->some(fn($role) => $user->role->name == $role)
+        return $this->permittedRoles->some(fn ($role) => $user->role->name == $role)
             ? Response::allow()
             : Response::deny('Anda tidak memiliki akses untuk mengembalikan user ini.');
     }
 
     public function forceDelete(User $user, User $model): Response
     {
-        return $this->permittedRoles->some(fn($role) => $user->role->name == $role)
+        return $this->permittedRoles->some(fn ($role) => $user->role->name == $role)
             ? Response::allow()
             : Response::deny('Anda tidak memiliki akses untuk menghapus permanen user ini.');
     }

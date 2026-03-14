@@ -9,14 +9,10 @@ use App\Models\User;
 use App\Notifications\ItemRequestAcceptedNotification;
 use App\Notifications\ItemRequestCreatedNotification;
 use App\Notifications\ItemRequestRejectedNotification;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 
 class SendItemRequestNotification
 {
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     public function handle(ItemRequestCreated|ItemRequestAccepted|ItemRequestRejected $event): void
     {
@@ -28,11 +24,11 @@ class SendItemRequestNotification
             foreach ($users as $user) {
                 $user->notify(new ItemRequestCreatedNotification($event->itemRequest));
             }
-        } else if ($event instanceof ItemRequestAccepted) {
+        } elseif ($event instanceof ItemRequestAccepted) {
             $event->itemRequest
                 ->requester
                 ->notify(new ItemRequestAcceptedNotification($event->itemRequest));
-        } else if ($event instanceof ItemRequestRejected) {
+        } elseif ($event instanceof ItemRequestRejected) {
             $event->itemRequest
                 ->requester
                 ->notify(new ItemRequestRejectedNotification($event->itemRequest));

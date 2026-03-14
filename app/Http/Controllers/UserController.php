@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateProfileRequest;
-use App\Http\Requests\UserUpdateRequest;
 use App\Http\Requests\UserCreateRequest;
+use App\Http\Requests\UserUpdateRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,11 +17,11 @@ class UserController extends Controller
     {
         $search = $request->input('search');
         $showDeleted = $request->boolean('show_deleted');
-        $users = User::when($showDeleted, function($q) {
+        $users = User::when($showDeleted, function ($q) {
             $q->withTrashed();
             $q->orderBy('deleted_at', 'desc');
         })
-            ->when($search != null, fn($q) => $q->whereAny(['name', 'username'], 'LIKE', "%$search%"))
+            ->when($search != null, fn ($q) => $q->whereAny(['name', 'username'], 'LIKE', "%$search%"))
             ->paginate(
                 $request->integer('per_page', 10),
                 page: $request->integer('page', 1)
@@ -29,7 +29,7 @@ class UserController extends Controller
 
         $users->through(function ($user, $key) use ($users) {
             return array_merge($user->toArray(), [
-                'no' => $users->firstItem() + $key
+                'no' => $users->firstItem() + $key,
             ]);
         });
 
@@ -46,6 +46,7 @@ class UserController extends Controller
             'role_id' => $safe->role,
             'telepon' => $safe->telepon ?? null,
         ]);
+
         return back();
     }
 
@@ -63,6 +64,7 @@ class UserController extends Controller
                 'password' => $safe->password,
             ]);
         }
+
         return back();
     }
 
@@ -70,10 +72,11 @@ class UserController extends Controller
     {
         if ($user == null) {
             return back()->withErrors([
-                'message' => 'User tidak ditemukan'
+                'message' => 'User tidak ditemukan',
             ]);
         }
         $user->delete();
+
         return back();
     }
 
@@ -82,17 +85,18 @@ class UserController extends Controller
         $user = User::withTrashed()->find($userId);
         if ($user == null) {
             return back()->withErrors([
-                'message' => 'User gagal dipulihkan, User tidak ditemukan'
+                'message' => 'User gagal dipulihkan, User tidak ditemukan',
             ]);
         }
         $user->restore();
+
         return back();
     }
 
     public function showProfile()
     {
         return Inertia::render('Profile', [
-            'user' => auth()->user()
+            'user' => auth()->user(),
         ]);
     }
 
@@ -104,7 +108,7 @@ class UserController extends Controller
         // Handle profile photo upload
         if ($request->hasFile('profilePhoto')) {
             // Delete old photo if exists
-            if (str_replace('/storage', '', $user->profile_photo_path, )) {
+            if (str_replace('/storage', '', $user->profile_photo_path)) {
                 Storage::disk('public')->delete($user->profile_photo_path);
             }
 
@@ -120,6 +124,7 @@ class UserController extends Controller
         }
 
         $user->update($validated);
+
         return back()->with('success', 'Profile berhasil diperbarui');
     }
 }

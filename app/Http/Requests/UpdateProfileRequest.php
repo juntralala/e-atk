@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -25,7 +26,7 @@ class UpdateProfileRequest extends FormRequest
                 'max:255',
                 'regex:/^[A-Za-z0-9_.]+$/',
                 'not_regex:/^[0-9._]/',
-                Rule::unique('users', 'username')->ignore(auth()->user()->id)
+                Rule::unique('users', 'username')->ignore(auth()->user()->id),
             ],
             'password' => ['nullable', 'string', 'min:4', 'max:60'],
             'profilePhoto' => ['nullable', 'image', ' mimes:jpeg,jpg,png,gif,webp', 'max:2048'],

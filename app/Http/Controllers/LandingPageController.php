@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use Illuminate\Http\Request;
 
 class LandingPageController extends Controller
 {
@@ -15,13 +14,14 @@ class LandingPageController extends Controller
 
         /** @param User */
         $users = $users->map(function ($user) {
-            $user =  $user->toArray();
+            $user = $user->toArray();
             $user['role'] = $user['role']['name'];
+
             return $user;
         });
-        
+
         return inertia('LandingPage', [
-            'petugasUsers' => $users
+            'petugasUsers' => $users,
         ]);
     }
 }

@@ -5,19 +5,19 @@ namespace App\Http\Controllers;
 use App\Models\Unit;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Unique;
 use Inertia\Inertia;
 
 class UnitController extends Controller
 {
     public function showPage(Request $request)
     {
-        $search = $request->input("search");
+        $search = $request->input('search');
+
         return Inertia::render('Unit', [
             'units' => Unit::query()
-                ->when($search != null, fn($q) => $q->where('name', 'LIKE',"%$search%"))
+                ->when($search != null, fn ($q) => $q->where('name', 'LIKE', "%$search%"))
                 ->orderBy('name')
-                ->get()
+                ->get(),
         ]);
     }
 
@@ -27,6 +27,7 @@ class UnitController extends Controller
             'name' => ['required', 'string', 'max:255', Rule::unique('units', 'name')->whereNull('deleted_at')],
         ]);
         Unit::create($validated);
+
         return back();
     }
 
@@ -37,6 +38,7 @@ class UnitController extends Controller
         ]);
         Unit::findOrFail($id)
             ->update($validated);
+
         return back();
     }
 
@@ -48,6 +50,7 @@ class UnitController extends Controller
         } else {
             $unit->delete();
         }
+
         return back();
     }
 }

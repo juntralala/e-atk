@@ -9,7 +9,7 @@ class LoginRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return !Auth::hasUser();
+        return ! Auth::hasUser();
     }
 
     /**

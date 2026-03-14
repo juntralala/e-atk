@@ -108,6 +108,9 @@ defineProps({
             <div class="text-shadow mb-4 text-5xl font-bold text-white">
               {{ settings.institutionName }}
             </div>
+            <div v-if="settings.applicationFullName" class="text-shadow mb-4 text-3xl font-semibold text-blue-200">
+  {{ settings.applicationFullName }}
+</div>
             <div class="text-shadow text-2xl font-light text-white italic">"{{ settings.moto }}"</div>
           </v-col>
         </v-row>

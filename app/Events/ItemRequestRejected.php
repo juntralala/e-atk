@@ -15,8 +15,7 @@ class ItemRequestRejected
     public function __construct(
         public ItemRequest $itemRequest
 
-    ) {
-    }
+    ) {}
 
     public function broadcastOn(): array
     {

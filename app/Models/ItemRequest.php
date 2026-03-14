@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-
 class ItemRequest extends Model
 {
     use HasUuids;
@@ -23,7 +22,7 @@ class ItemRequest extends Model
         'request_date',
         'responder_id',
         'responder_notes',
-        'responded_at'
+        'responded_at',
     ];
 
     public function casts()
@@ -47,5 +46,4 @@ class ItemRequest extends Model
     {
         return $this->hasMany(ItemRequestDetail::class);
     }
-
 }

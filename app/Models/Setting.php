@@ -10,7 +10,9 @@ class Setting extends Model
     use HasUuids;
 
     protected $keyType = 'string';
+
     public $timestamps = true;
+
     public $incrementing = false;
 
     protected $fillable = [
@@ -19,6 +21,6 @@ class Setting extends Model
         'application_name',
         'institution_name',
         'institution_address',
-        'institution_phone'
+        'institution_phone',
     ];
 }

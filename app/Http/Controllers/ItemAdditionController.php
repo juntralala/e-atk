@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Item;
@@ -18,11 +19,10 @@ use OpenSpout\Writer\XLSX\Writer;
 
 class ItemAdditionController extends Controller
 {
-
     public function showPage()
     {
         return Inertia::render('ItemAddition', [
-            'items' => Item::with('unit')->get()
+            'items' => Item::with('unit')->get(),
         ]);
     }
 
@@ -68,11 +68,13 @@ class ItemAdditionController extends Controller
                 }
             }
             DB::commit();
+
             return redirect()->back()->with('success', 'Penambahan barang berhasil disimpan');
         } catch (\Exception $e) {
             DB::rollBack();
+
             return redirect()->back()->withErrors([
-                'error' => 'Terjadi kesalahan: ' . $e->getMessage()
+                'error' => 'Terjadi kesalahan: '.$e->getMessage(),
             ]);
         }
     }
@@ -86,7 +88,7 @@ class ItemAdditionController extends Controller
         $end->timezone('+8')->endOfDay();
 
         $callback = function () use ($start, $end) {
-            $writer = new Writer();
+            $writer = new Writer;
             $writer->openToFile('php://output');
             $sheet = $writer->getCurrentSheet();
             $sheet->setName('Laporan-Penambahan-Barang');
@@ -106,22 +108,22 @@ class ItemAdditionController extends Controller
                 new BorderPart(BorderName::RIGHT, '000000', BorderWidth::THIN),
             );
 
-            $headerStyle = (new Style())
+            $headerStyle = (new Style)
                 ->withFontBold(true)
                 ->withBackgroundColor('00B054')
                 ->withCellAlignment(CellAlignment::CENTER)
                 ->withBorder($border);
-            $cellStyle = (new Style())
+            $cellStyle = (new Style)
                 ->withBorder($border);
-            $rpStyle = (new Style())
+            $rpStyle = (new Style)
                 ->withFormat('"Rp " #,##0')
                 ->withBorder($border);
-            $totalStyle = (new Style())
+            $totalStyle = (new Style)
                 ->withFontBold(true)
                 ->withBackgroundColor('FFD966')
                 ->withCellAlignment(CellAlignment::RIGHT)
                 ->withBorder($border);
-            $totalRpStyle = (new Style())
+            $totalRpStyle = (new Style)
                 ->withFontBold(true)
                 ->withBackgroundColor('FFD966')
                 ->withFormat('"Rp " #,##0')
@@ -137,7 +139,7 @@ class ItemAdditionController extends Controller
                     'Jumlah',
                     'Ukuran Satuan',
                     'Harga Satuan',
-                    'Subtotal'
+                    'Subtotal',
                 ],
                 $headerStyle
             ));
@@ -209,12 +211,13 @@ class ItemAdditionController extends Controller
         };
 
         $format = 'd-m-Y';
-        $start->timezone("+8");
-        $end->timezone("+8");
+        $start->timezone('+8');
+        $end->timezone('+8');
+
         return response()
             ->streamDownload(
                 $callback,
-                'laporan-penambahan-barang-' . $start->format($format) . '-' . $end->format($format) . '.xlsx'
+                'laporan-penambahan-barang-'.$start->format($format).'-'.$end->format($format).'.xlsx'
             );
     }
 
@@ -229,7 +232,7 @@ class ItemAdditionController extends Controller
         $end->timezone('+8')->endOfDay();
 
         $itemAdditions = ItemAddition::with([
-            'user' => fn($q) => $q->withTrashed(),
+            'user' => fn ($q) => $q->withTrashed(),
             'itemAdditionDetails',
             'itemAdditionDetails.item',
             'itemAdditionDetails.item.unit',
@@ -238,11 +241,12 @@ class ItemAdditionController extends Controller
             ->paginate(perPage: $perPage, page: $page)
             ->withQueryString();
         $priceTotal = ItemAdditionDetail::query()
-            ->whereHas('itemAddition', fn($q) => $q->whereBetween('addition_date', [$start, $end]))
+            ->whereHas('itemAddition', fn ($q) => $q->whereBetween('addition_date', [$start, $end]))
             ->sum(DB::raw('price * quantity'));
+
         return inertia('ItemAdditionReport', [
             'itemAdditions' => $itemAdditions,
-            'priceTotal' => (float) $priceTotal
+            'priceTotal' => (float) $priceTotal,
         ]);
     }
 }

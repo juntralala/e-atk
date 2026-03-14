@@ -38,13 +38,14 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         $settings = new SettingResource(Setting::first());
+
         return array_merge(parent::share($request), [
             ...parent::share($request),
             'name' => config('app.name'),
             'auth' => [
                 'user' => $request->user(),
             ],
-            'settings' => $settings->toArray(request())
+            'settings' => $settings->toArray(request()),
         ]);
     }
 }

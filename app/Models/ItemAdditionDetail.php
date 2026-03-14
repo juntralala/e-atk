@@ -13,15 +13,18 @@ class ItemAdditionDetail extends Model
     use HasUuids;
 
     protected $table = 'item_addition_details';
+
     protected $keyType = 'string';
+
     public $incrementing = false;
+
     public $timestamps = false;
 
     protected $fillable = [
         'item_addition_id',
         'item_id',
         'quantity',
-        'price'
+        'price',
     ];
 
     protected static function booted()
@@ -34,7 +37,7 @@ class ItemAdditionDetail extends Model
     protected function casts(): array
     {
         return [
-            'created_at' => 'datetime'
+            'created_at' => 'datetime',
         ];
     }
 

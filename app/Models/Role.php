@@ -10,16 +10,21 @@ class Role extends Model
     use HasUuids;
 
     protected $table = 'roles';
+
     protected $primaryKey = 'id';
+
     protected $keyType = 'string';
+
     public $timestamps = false;
+
     public $incrementing = false;
 
     protected $fillable = [
-        'name'
+        'name',
     ];
 
-    public function users() {
+    public function users()
+    {
         return $this->hasMany(User::class);
     }
 }

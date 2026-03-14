@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Item;
 use App\Models\ItemAddition;
 use App\Models\ItemRequest;
-use App\Models\User;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -25,13 +23,13 @@ class DashboardController extends Controller
             'totalItems' => (int) Item::sum('stock'),
             'totalRequests' => ItemRequest::count(),
             'pendingRequests' => ItemRequest::where('status', 'pending')->count(),
-            'totalAdditions' => (int) ItemAddition::withSum('itemAdditionDetails as total', 'quantity')->first()->total
+            'totalAdditions' => (int) ItemAddition::withSum('itemAdditionDetails as total', 'quantity')->first()->total,
         ]);
     }
 
     public function monthlyExpenditures()
     {
-        DB::listen(fn($q) => Log::info($q->sql));
+        DB::listen(fn ($q) => Log::info($q->sql));
         $endDate = Date::now()->timezone('+8')->endOfMonth();
         $startDate = Date::now()->timezone('+8')->subMonths(11)->startOfMonth();
 
@@ -46,7 +44,7 @@ class DashboardController extends Controller
             ->leftJoin('item_request_details as ird', 'ir.id', '=', 'ird.item_request_id')
             ->groupBy('month')
             ->get()
-            ->keyBy(fn($item) => $item->month);
+            ->keyBy(fn ($item) => $item->month);
 
         $monthly = [];
         for ($i = 11; $i >= 0; $i--) {
@@ -57,6 +55,7 @@ class DashboardController extends Controller
                 'totalValue' => isset($data[$key]) ? (float) $data[$key]->totalPrice : 0,
             ];
         }
+
         return response()->json(['data' => $monthly]);
     }
 
@@ -77,17 +76,16 @@ class DashboardController extends Controller
             ->whereBetween('responded_at', [$start, $end])
             ->get();
         $expenditures = $result->map(
-            fn($item) => [
+            fn ($item) => [
                 'name' => $item->item_title,
                 'totalPrice' => $item->total_price,
             ]
         );
 
         return response()->json([
-            'data' => $expenditures
+            'data' => $expenditures,
         ]);
     }
-
 
     public function expenditurePerUnit()
     {
@@ -100,7 +98,7 @@ class DashboardController extends Controller
             ->leftJoin('item_request_details as ird', 'ir.id', '=', 'ird.item_request_id')
             ->select([
                 DB::raw('u.name'),
-                DB::raw('SUM(ird.responded_quantity * ird.price) as totalPrice')
+                DB::raw('SUM(ird.responded_quantity * ird.price) as totalPrice'),
             ])
             ->where('roles.name', 'unit')
             ->whereBetween('responded_at', [$start, $end])
@@ -108,8 +106,9 @@ class DashboardController extends Controller
             ->orderBy('u.name')
             ->groupBy('u.name')
             ->get();
+
         return response()->json([
-            'data' => $result
+            'data' => $result,
         ]);
     }
 
@@ -123,7 +122,7 @@ class DashboardController extends Controller
             ->join('item_requests as ir', 'ird.item_request_id', '=', 'ir.id')
             ->select([
                 'i.name',
-                DB::raw('SUM(ird.responded_quantity) as quantity')
+                DB::raw('SUM(ird.responded_quantity) as quantity'),
             ])
             ->whereBetween('ir.responded_at', [$start, $end])
             ->where('status', 'accepted')
@@ -131,8 +130,9 @@ class DashboardController extends Controller
             ->groupBy('i.name')
             ->limit($request->integer('length', 5))
             ->get();
+
         return response()->json([
-            'data' => $result
+            'data' => $result,
         ]);
     }
 
@@ -147,19 +147,20 @@ class DashboardController extends Controller
             ->limit(5)
             ->orderBy('created_at')
             ->get();
-        $itemRequests = $itemRequests->map(fn($itemRequest) => [
+        $itemRequests = $itemRequests->map(fn ($itemRequest) => [
             'id' => $itemRequest->id,
             'requester' => $itemRequest->requester->name,
             'status' => $itemRequest->status,
             'date' => $itemRequest->created_at->isoFormat('DD-MM-YYYY'),
-            'items' => $itemRequest->itemRequestDetails->map(fn($detail) => [
+            'items' => $itemRequest->itemRequestDetails->map(fn ($detail) => [
                 'name' => $detail->item->name,
                 'unit' => $detail->item->unit->name,
-                'quantity' => (!!$detail->responded_quantity) ? $detail->responded_quantity : $detail->requested_quantity,
-            ])
+                'quantity' => ((bool) $detail->responded_quantity) ? $detail->responded_quantity : $detail->requested_quantity,
+            ]),
         ]);
+
         return response()->json([
-            'data' => $itemRequests
+            'data' => $itemRequests,
         ]);
     }
 
@@ -174,10 +175,10 @@ class DashboardController extends Controller
             ->get();
 
         return response()->json([
-            'data' => $result->map(fn($item) => [
+            'data' => $result->map(fn ($item) => [
                 'status' => __($item->status),
-                'count' => $item->count
-            ])
+                'count' => $item->count,
+            ]),
         ]);
     }
 }

@@ -14,6 +14,10 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  units: {
+    type: Array,
+    default: () => [],
+  },
   total: {
     type: Number,
     default: 0,
@@ -23,16 +27,33 @@ const props = defineProps({
     default: () => ({
       start: null,
       end: null,
+      unit: null,
     }),
   },
 });
 
-// Ambil query params dari URL
 const urlParams = computed(() => new URLSearchParams(window.location.search));
 
-const startDate = ref(urlParams.value.get('start') ? new Date(urlParams.value.get('start')) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000));
+const startDate = ref(
+  urlParams.value.get('start')
+    ? new Date(urlParams.value.get('start'))
+    : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+);
 
-const endDate = ref(urlParams.value.get('end') ? new Date(urlParams.value.get('end')) : new Date());
+const endDate = ref(
+  urlParams.value.get('end') ? new Date(urlParams.value.get('end')) : new Date(),
+);
+
+const selectedUnit = ref(urlParams.value.get('unit') || null);
+
+// Unit options: null = Semua, plus units from props
+const unitOptions = computed(() => [
+  { title: 'Semua Unit', value: null },
+  ...props.units.map((u) => ({
+    title: typeof u === 'object' ? u.name : u,
+    value: typeof u === 'object' ? u.id ?? u.name : u,
+  })),
+]);
 
 const applyFilter = () => {
   router.get(
@@ -40,6 +61,7 @@ const applyFilter = () => {
     {
       start: startDate.value.toISOString(),
       end: endDate.value.toISOString(),
+      unit: selectedUnit.value,
       page: 1,
     },
     {
@@ -50,10 +72,12 @@ const applyFilter = () => {
 };
 
 const downloadSpreadsheet = () => {
-  window.location.href = route('items.expenditures.exports.xlsx', {
+  const params = new URLSearchParams({
     start: startDate.value.toISOString(),
     end: endDate.value.toISOString(),
   });
+  if (selectedUnit.value) params.set('unit', selectedUnit.value);
+  window.location.href = route('items.expenditures.exports.xlsx') + '?' + params.toString();
 };
 
 const handlePageChange = (page) => {
@@ -62,6 +86,7 @@ const handlePageChange = (page) => {
     {
       start: startDate.value.toISOString(),
       end: endDate.value.toISOString(),
+      unit: selectedUnit.value,
       page,
     },
     {
@@ -100,7 +125,7 @@ const formatNumber = (value) => {
     <v-row class="items-start">
       <v-col
         cols="12"
-        md="4"
+        md="3"
       >
         <DatePicker
           v-model="startDate"
@@ -111,7 +136,7 @@ const formatNumber = (value) => {
       </v-col>
       <v-col
         cols="12"
-        md="4"
+        md="3"
       >
         <DatePicker
           v-model="endDate"
@@ -122,7 +147,24 @@ const formatNumber = (value) => {
       </v-col>
       <v-col
         cols="12"
-        md="4"
+        md="3"
+      >
+        <v-select
+          v-model="selectedUnit"
+          :items="unitOptions"
+          item-title="title"
+          item-value="value"
+          label="Unit"
+          density="compact"
+          variant="outlined"
+          clearable
+          clear-icon="mdi-close-circle"
+          prepend-inner-icon="mdi-office-building-outline"
+        />
+      </v-col>
+      <v-col
+        cols="12"
+        md="3"
         class="flex items-center gap-2"
       >
         <v-btn
@@ -223,7 +265,9 @@ const formatNumber = (value) => {
         <v-row v-if="!itemExpenditures.data || itemExpenditures.data.length === 0">
           <v-col>
             <v-card>
-              <v-card-text class="text-grey pa-8 text-center"> Tidak ada data pengeluaran barang pada periode ini </v-card-text>
+              <v-card-text class="text-grey pa-8 text-center">
+                Tidak ada data pengeluaran barang pada periode ini
+              </v-card-text>
             </v-card>
           </v-col>
         </v-row>

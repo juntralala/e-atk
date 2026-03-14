@@ -16,6 +16,7 @@ class NotificationController extends Controller
     {
         $page = $request->integer('page', 1);
         $notifications = auth()->user()->notifications()->paginate(page: $page, perPage: 5);
+
         return NotificationResource::collection($notifications)
             ->additional([
                 'currentPage' => $notifications->currentPage(),
@@ -23,7 +24,7 @@ class NotificationController extends Controller
                 'perPage' => $notifications->perPage(),
                 'total' => $notifications->total(),
             ]);
-        ;
+
     }
 
     public function isUnreadNotificationExists()
@@ -33,17 +34,18 @@ class NotificationController extends Controller
                 ->where('notifiable_type', auth()->user()::class)
                 ->where('notifiable_id', auth()->user()->id)
                 ->whereNull('created_at')
-                ->exists()
+                ->exists(),
         ]);
     }
 
     public function markAsReadNotification($id)
     {
         $notification = auth()->user()->notifications()->find($id);
-        if (!$notification) {
+        if (! $notification) {
             return response()->json(['message' => 'Notification not found'], 404);
         }
         $notification->markAsRead();
+
         return response()->json(['message' => 'Notification marked as read']);
     }
 }

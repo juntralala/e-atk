@@ -13,9 +13,11 @@ class HomeController extends Controller
         'administrator' => 'users',
     ];
 
-    public function redirector(Request $request) {
+    public function redirector(Request $request)
+    {
         $role = $request->user()->role->name;
         $url = route($this->routes[$role] ?? 'dashboard');
+
         return redirect($url);
     }
 }

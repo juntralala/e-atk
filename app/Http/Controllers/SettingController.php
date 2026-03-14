@@ -38,11 +38,11 @@ class SettingController extends Controller
 
         // Ambil atau buat setting pertama kali
         $setting = Setting::first();
-        
-        if (!$setting) {
-            $setting = new Setting();
+
+        if (! $setting) {
+            $setting = new Setting;
         }
-        
+
         $data = [
             'application_name' => $validated['applicationName'],
             'institution_name' => $validated['institutionName'],
@@ -59,7 +59,7 @@ class SettingController extends Controller
                     Storage::disk('public')->delete($oldIconPath);
                 }
             }
-            
+
             $iconPath = $request->file('icon')->store('settings/icons', 'public');
             $data['icon'] = "/storage/$iconPath";
         }
@@ -73,7 +73,7 @@ class SettingController extends Controller
                     Storage::disk('public')->delete($oldLogoPath);
                 }
             }
-            
+
             $logoPath = $request->file('logo')->store('settings/logos', 'public');
             $data['logo'] = "/storage/$logoPath";
         }

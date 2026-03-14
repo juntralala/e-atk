@@ -1,16 +1,16 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ItemAdditionController;
 use App\Http\Controllers\ItemController;
-use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ItemRequestController;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\RoleController;
-use App\Http\Controllers\UnitController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\UnitController;
 use App\Http\Controllers\UserController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
@@ -44,15 +44,15 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::prefix('/users')->name('users')->group(function () {
-        Route::get("/", [UserController::class, 'showPage'])->name('')
+        Route::get('/', [UserController::class, 'showPage'])->name('')
             ->can('viewAny', User::class);
-        Route::post("/", [UserController::class, 'create'])->name('.create')
+        Route::post('/', [UserController::class, 'create'])->name('.create')
             ->can('create', User::class);
-        Route::put("/{user}", [UserController::class, 'update'])->name('.update')
+        Route::put('/{user}', [UserController::class, 'update'])->name('.update')
             ->middleware('can:update,user');
-        Route::delete("/{user}", [UserController::class, 'delete'])->name('.delete')
+        Route::delete('/{user}', [UserController::class, 'delete'])->name('.delete')
             ->can('delete', 'user');
-        Route::patch("/{user}/restore", [UserController::class, 'restore'])->name('.restore');
+        Route::patch('/{user}/restore', [UserController::class, 'restore'])->name('.restore');
     });
 
     Route::get('/profile', [UserController::class, 'showProfile'])->name('profile');

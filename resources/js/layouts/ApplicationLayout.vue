@@ -65,9 +65,9 @@ watch(
 // penangkap error global END
 
 const { user } = auth;
-const { xs, xlAndUp } = useDisplay();
+const { xs, mdAndUp } = useDisplay();
 
-const showDrawer = ref(xlAndUp.value);
+const showDrawer = ref(mdAndUp.value);
 const selectedMenu = ref([]);
 const expandedGroups = ref([]);
 
@@ -242,6 +242,12 @@ onUpdated(function () {
             icon="mdi-wallet-outline"
             >Pengeluaran Unit</DrawerItem
           >
+          <!-- <DrawerItem
+            v-if="canAccessItemExpenditureReport(user)"
+            :href="route('items.expenditures.exports.view')"
+            icon="mdi-receipt-text"
+            >Pengeluaran Barang Per Unit</DrawerItem
+          > -->
         </v-list-group>
         <v-list-group
           v-if="canSeeMasterData(user)"

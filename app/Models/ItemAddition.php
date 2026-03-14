@@ -13,14 +13,17 @@ class ItemAddition extends Model
     use HasUuids;
 
     protected $table = 'item_additions';
+
     protected $keyType = 'string';
+
     public $incrementing = false;
+
     public $timestamps = false;
 
     protected $fillable = [
         'nama',
         'user_id',
-        'addition_date'
+        'addition_date',
     ];
 
     public function casts(): array
@@ -32,7 +35,6 @@ class ItemAddition extends Model
 
     }
 
-
     protected static function booted()
     {
         static::creating(function ($model) {
@@ -40,13 +42,13 @@ class ItemAddition extends Model
         });
     }
 
-
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
-    public function itemAdditionDetails() {
+    public function itemAdditionDetails()
+    {
         return $this->hasMany(ItemAdditionDetail::class);
     }
 }

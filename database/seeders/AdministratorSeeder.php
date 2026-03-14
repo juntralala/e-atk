@@ -16,7 +16,7 @@ class AdministratorSeeder extends Seeder
             'name' => 'Muhammad Junaidi',
             'username' => 'junaidi',
             'role_id' => $role->id,
-            'password' => '1234'
+            'password' => '1234',
         ]);
     }
 }

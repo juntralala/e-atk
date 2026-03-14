@@ -12,7 +12,7 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasUuids, SoftDeletes;
+    use HasFactory, HasUuids, Notifiable, SoftDeletes;
 
     /**
      * @var list<string>
@@ -47,15 +47,18 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class);
     }
 
-    public function itemAdditions(){
+    public function itemAdditions()
+    {
         return $this->hasMany(ItemAddition::class);
     }
 
-    public function itemRequests() {
+    public function itemRequests()
+    {
         return $this->hasMany(ItemRequest::class, 'requester_id', 'id');
     }
 
-    public function respondedItemRequests() {
+    public function respondedItemRequests()
+    {
         return $this->hasMany(ItemRequest::class, 'responder_id', 'id');
     }
 }

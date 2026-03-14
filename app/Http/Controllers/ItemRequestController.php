@@ -27,15 +27,14 @@ use Throwable;
 
 class ItemRequestController extends Controller
 {
-
     private function itemRequestReportQuery($start, $end, $status)
     {
-        return ItemRequest::with(['requester' => fn($q) => $q->withTrashed()])
-            ->with(['responder' => fn($q) => $q->withTrashed()])
+        return ItemRequest::with(['requester' => fn ($q) => $q->withTrashed()])
+            ->with(['responder' => fn ($q) => $q->withTrashed()])
             ->with('itemRequestDetails')
-            ->with(['itemRequestDetails.item' => fn($q) => $q->withTrashed()])
-            ->with(['itemRequestDetails.item.unit' => fn($q) => $q->withTrashed()])
-            ->when(!blank($status), fn($q) => $q->where('status', $status))
+            ->with(['itemRequestDetails.item' => fn ($q) => $q->withTrashed()])
+            ->with(['itemRequestDetails.item.unit' => fn ($q) => $q->withTrashed()])
+            ->when(! blank($status), fn ($q) => $q->where('status', $status))
             ->whereBetween('created_at', [$start, $end])
             ->orderBy('created_at', 'desc');
     }
@@ -47,13 +46,13 @@ class ItemRequestController extends Controller
                 $q->where('deleted_at', '>', $start);
                 $q->orWhere('deleted_at', null);
             })
-            ->whereHas('role', fn($q) => $q->where('name', 'unit'))
+            ->whereHas('role', fn ($q) => $q->where('name', 'unit'))
             ->with([
                 'itemRequests' => function ($q) use ($start, $end) {
                     $q->where('status', 'accepted')
                         ->whereBetween('response_date', [$start, $end])
                         ->with('itemRequestDetails');
-                }
+                },
             ])
             ->orderBy('name');
     }
@@ -61,7 +60,7 @@ class ItemRequestController extends Controller
     public function showItemRequestForm()
     {
         return Inertia::render('ItemRequestForm', [
-            'items' => Item::with('unit')->get()
+            'items' => Item::with('unit')->get(),
         ]);
     }
 
@@ -148,13 +147,13 @@ class ItemRequestController extends Controller
             return redirect()
                 ->back()
                 ->withInput()
-                ->withErrors(['error' => 'Gagal membuat permintaan barang: ' . $e->getMessage()]);
+                ->withErrors(['error' => 'Gagal membuat permintaan barang: '.$e->getMessage()]);
         }
     }
 
     public function delete(ItemRequest $itemRequest, Request $request)
     {
-        if (!$itemRequest) {
+        if (! $itemRequest) {
             return back()->withErrors([
                 'message' => 'Permintaan barang yang ingin dihapus tidak ditemukan',
             ]);
@@ -170,6 +169,7 @@ class ItemRequestController extends Controller
             ]);
         }
         $itemRequest->delete();
+
         return back();
     }
 
@@ -180,7 +180,7 @@ class ItemRequestController extends Controller
         }
 
         $validated = $request->validate([
-            'responder_notes' => 'required|string|min:1'
+            'responder_notes' => 'required|string|min:1',
         ]);
 
         $itemRequest->status = 'rejected';
@@ -191,6 +191,7 @@ class ItemRequestController extends Controller
         $itemRequest->save();
 
         ItemRequestRejected::dispatch($itemRequest);
+
         return back()->with(['message' => 'Permintaan barang berhasil ditolak']);
     }
 
@@ -211,12 +212,12 @@ class ItemRequestController extends Controller
             DB::beginTransaction();
             foreach ($validated['items'] as $item) {
                 $itemDetail = $itemRequest->itemRequestDetails()->find($item['id']);
-                if (!$itemDetail) {
+                if (! $itemDetail) {
                     throw new Exception('Item detail tidak ditemukan');
                 }
                 // Validasi apakah stok mencukupi
                 if ($item['received_quantity'] > $itemDetail->item->stock) {
-                    throw new Exception('Stok ' . $itemDetail->item->name . ' tidak mencukupi. Stok tersedia: ' . $itemDetail->item->stock);
+                    throw new Exception('Stok '.$itemDetail->item->name.' tidak mencukupi. Stok tersedia: '.$itemDetail->item->stock);
                 }
             }
 
@@ -240,9 +241,11 @@ class ItemRequestController extends Controller
             }
             DB::commit();
             ItemRequestAccepted::dispatch($itemRequest);
+
             return back()->with(['success' => 'Permintaan barang berhasil diterima']);
         } catch (Throwable $e) {
             DB::rollBack();
+
             return back()->withErrors(['error' => $e->getMessage()]);
         }
     }
@@ -262,13 +265,14 @@ class ItemRequestController extends Controller
         $itemRequests = $this->itemRequestReportQuery($start, $end, $status)
             ->paginate($perPage, page: $page)
             ->withQueryString();
-        $total = (!empty($status) && $status != 'accepted') ? 0 : ItemRequestDetail::whereHas('itemRequest', function ($q) use ($start, $end) {
+        $total = (! empty($status) && $status != 'accepted') ? 0 : ItemRequestDetail::whereHas('itemRequest', function ($q) use ($start, $end) {
             $q->whereBetween('created_at', [$start, $end]);
             $q->where('status', 'accepted');
         })->sum(DB::raw('price * responded_quantity'));
+
         return inertia('ItemRequestReport', [
             'itemRequests' => $itemRequests,
-            'total' => (float) $total
+            'total' => (float) $total,
         ]);
     }
 
@@ -282,7 +286,7 @@ class ItemRequestController extends Controller
         $end->timezone('+8')->endOfDay();
 
         $callback = function () use ($start, $end, $status) {
-            $writer = new Writer();
+            $writer = new Writer;
             $writer->openToFile('php://output');
             $sheet = $writer->getCurrentSheet();
             $sheet->setName('Laporan-Permintaan-Barang');
@@ -304,17 +308,17 @@ class ItemRequestController extends Controller
                 new BorderPart(BorderName::LEFT, '000000', BorderWidth::THIN),
                 new BorderPart(BorderName::RIGHT, '000000', BorderWidth::THIN),
             );
-            $headerStyle = (new Style())
+            $headerStyle = (new Style)
                 ->withFontBold(true)
                 ->withBackgroundColor('00B054')
                 ->withCellAlignment(CellAlignment::CENTER)
                 ->withBorder($border);
-            $cellStyle = (new Style())
+            $cellStyle = (new Style)
                 ->withBorder($border);
-            $numberStyle = (new Style())
+            $numberStyle = (new Style)
                 ->withFormat('#,##0')
                 ->withBorder($border);
-            $rpStyle = (new Style())
+            $rpStyle = (new Style)
                 ->withFormat('"Rp " #,##0')
                 ->withBorder($border);
             $writer->addRow(Row::fromValuesWithStyle([
@@ -340,7 +344,7 @@ class ItemRequestController extends Controller
                         if ($itemRequest->responded_at != null) {
                             $itemRequest->responded_at->timezone('+8');
                         }
-                        foreach ($itemRequest->itemRequestDetails as $detail) { 
+                        foreach ($itemRequest->itemRequestDetails as $detail) {
                             $writer->addRow(Row::fromValuesWithStyles([
                                 $line++,
                                 $itemRequest->created_at->format('d-m-Y'),
@@ -377,7 +381,8 @@ class ItemRequestController extends Controller
         $start->timezone('+8');
         $end->timezone('+8');
         $format = 'd-m-Y';
-        $filename = 'laporan-permintaan-barang-' . $start->format($format) . '-' . $end->format($format) . '.xlsx';
+        $filename = 'laporan-permintaan-barang-'.$start->format($format).'-'.$end->format($format).'.xlsx';
+
         return response()->streamDownload($callback, $filename);
     }
 
@@ -400,13 +405,15 @@ class ItemRequestController extends Controller
                         return $detail->responded_quantity * $detail->price;
                     });
                 });
+
                 return $item;
             });
-        $totalExpenditure = ItemRequestDetail::whereHas('itemRequest', fn($q) => $q->whereBetween('created_at', [$start, $end]))
+        $totalExpenditure = ItemRequestDetail::whereHas('itemRequest', fn ($q) => $q->whereBetween('created_at', [$start, $end]))
             ->sum(DB::raw('responded_quantity * price'));
+
         return inertia('UnitExpenditureReport', [
             'unitExpenditures' => $paginator,
-            'total' => (float) $totalExpenditure
+            'total' => (float) $totalExpenditure,
         ]);
     }
 
@@ -419,7 +426,7 @@ class ItemRequestController extends Controller
         $end->timezone('+8')->endOfDay();
 
         $callback = function () use ($start, $end) {
-            $writer = new Writer();
+            $writer = new Writer;
             $writer->openToFile('php://output');
             $sheet = $writer->getCurrentSheet();
             $sheet->setName('Laporan-Permintaan-Barang');
@@ -433,26 +440,26 @@ class ItemRequestController extends Controller
                 new BorderPart(BorderName::RIGHT, '000000', BorderWidth::THIN),
             );
 
-            $headerStyle = (new Style())
+            $headerStyle = (new Style)
                 ->withFontBold(true)
                 ->withBackgroundColor('00B054')
                 ->withCellAlignment(CellAlignment::CENTER)
                 ->withBorder($border);
 
-            $cellStyle = (new Style())
+            $cellStyle = (new Style)
                 ->withBorder($border);
 
-            $rpStyle = (new Style())
+            $rpStyle = (new Style)
                 ->withFormat('"Rp " #,##0')
                 ->withBorder($border);
 
-            $totalStyle = (new Style())
+            $totalStyle = (new Style)
                 ->withFontBold(true)
                 ->withBackgroundColor('FFD966')
                 ->withCellAlignment(CellAlignment::RIGHT)
                 ->withBorder($border);
 
-            $totalRpStyle = (new Style())
+            $totalRpStyle = (new Style)
                 ->withFontBold(true)
                 ->withBackgroundColor('FFD966')
                 ->withFormat('"Rp " #,##0')
@@ -461,7 +468,7 @@ class ItemRequestController extends Controller
             $writer->addRow(Row::fromValuesWithStyle(
                 [
                     'Nama Unit',
-                    'Pengeluaran'
+                    'Pengeluaran',
                 ],
                 $headerStyle
             ));
@@ -504,10 +511,11 @@ class ItemRequestController extends Controller
         $format = 'd-m-Y';
         $start->timezone('+8');
         $end->timezone('+8');
+
         return response()
             ->streamDownload(
                 $callback,
-                'laporan-pengeluaran-unit-' . $start->format($format) . '-' . $end->format($format) . '.xlsx'
+                'laporan-pengeluaran-unit-'.$start->format($format).'-'.$end->format($format).'.xlsx'
             );
     }
 }
