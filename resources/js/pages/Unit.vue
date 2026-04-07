@@ -8,10 +8,10 @@ defineOptions({
   layout: ApplicationLayout,
 });
 
-const props = defineProps({
+defineProps({
   units: {
     type: [Array, null],
-    default: [],
+    default() {return [];},
   },
 });
 

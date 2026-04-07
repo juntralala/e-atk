@@ -1,9 +1,9 @@
-@startuml
+@startuml Menerima Permintaan Barang
 title Sequence Diagram - Menerima Permintaan Barang
 actor "Petugas" as Bendahara
 actor "Unit" as Unit
 participant "Halaman\nPermintaan" as DaftarPermintaan
-participant "Aplikasi Server" as Sistem
+participant "Server" as Sistem
 database "Database" as DB
 Bendahara -> DaftarPermintaan: Membuka halaman permintaan barang
 activate DaftarPermintaan

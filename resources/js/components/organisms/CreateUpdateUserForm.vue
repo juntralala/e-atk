@@ -19,13 +19,13 @@
     },
     initialValue: {
       type: Object,
-      default: {
+      default: () => ({
         name: '',
         password: '',
         username: '',
         role: '',
         telepon: '',
-      },
+      }),
     },
     activator: {
       type: [String, Object],

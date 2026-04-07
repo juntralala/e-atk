@@ -149,7 +149,7 @@ function isCurrentUser(userId) {
           class="hidden! md:block!"
           @update:items-per-page="(data) => loadItems({ itemsPerPage: data, currentPage })"
         >
-          <template #headers="{ headers }">
+          <template #headers>
             <tr class="bg-blue-darken-2">
               <th class="w-1/16">No</th>
               <th>Nama</th>

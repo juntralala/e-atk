@@ -6,7 +6,7 @@ participant "Halaman\nSatuan" as satuan
 participant "Halaman\nBarang" as barang
 participant "Halaman\nPenambahan Barang" as penambahan
 participant "Laporan" as laporan
-participant "Sistem" as sistem
+participant "Server" as sistem
 database "Database" as db
 
 == Kelola Satuan ==

@@ -264,9 +264,6 @@ function printRequest(request) {
 }
 
 function generatePrintContent(request) {
-  const totalValue = getTotalValue(request);
-  const totalItems = getTotalItems(request);
-
   return `
     <!DOCTYPE html>
     <html>
@@ -459,12 +456,6 @@ function disableDeleteButton(request) {
 function canEdit(request) {
   return request.status === 'pending' && request.requester_id === currentUser?.id;
 }
-
-function canApproveOrReject(request) {
-  // Sesuaikan dengan logic authorization Anda
-  // Misal: hanya admin/gudang yang bisa approve/reject
-  return request.status === 'pending' && currentUser?.role?.name !== 'ruangan';
-}
 </script>
 
 <template>
@@ -554,7 +545,7 @@ function canApproveOrReject(request) {
           class="hidden! md:block!"
           @update:options="loadItems"
         >
-          <template #headers="{ headers }">
+          <template #headers>
             <tr class="bg-blue-darken-2">
               <th class="w-1/16">No</th>
               <th>Tanggal Permintaan</th>

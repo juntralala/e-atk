@@ -4,7 +4,7 @@ actor "Unit" as Unit
 actor "Petugas" as Bendahara
 participant "Halaman\nMeminta\nBarang" as FormulirPermintaan
 participant "Halaman\nDaftar\nPermintaan Barang" as DaftarPermintaan
-participant "Aplikasi Server" as Sistem
+participant "Server" as Sistem
 database "Database" as Database
 
 Unit -> FormulirPermintaan: Input permintaan barang barang

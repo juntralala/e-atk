@@ -1,6 +1,5 @@
 <script setup>
 import ApplicationLayout from '@/layouts/ApplicationLayout.vue';
-import { ref } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import PageTitleHighlightPart from '@/components/atoms/PageTitleHighlightPart.vue';
 
@@ -8,7 +7,7 @@ defineOptions({
     layout: ApplicationLayout
 });
 
-const props = defineProps({
+defineProps({
     items: {
         type: Object,
         required: true

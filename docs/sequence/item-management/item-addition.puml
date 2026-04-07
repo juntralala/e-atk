@@ -1,9 +1,9 @@
-@startuml
+@startuml Penambahan Barang
 title Sequence Diagram - Penambahan Barang
 
 actor "Petugas" as actor1
 participant "Halaman\nPenambahan Barang" as penambahan
-participant "Aplikasi Server" as sistem
+participant "Server" as sistem
 database "Database" as db
 
 actor1 -> penambahan: Menginput penambahan barang

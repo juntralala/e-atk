@@ -3,7 +3,7 @@ title Sequence Diagram - Kelola Satuan
 
 actor "Bendahara/Pegawai" as actor1
 participant "Halaman\nSatuan" as satuan
-participant "Aplikasi Server" as sistem
+participant "Server" as sistem
 database "Database" as db
 
 actor1 -> satuan: Membuka halaman satuan

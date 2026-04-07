@@ -1,9 +1,9 @@
-@startuml
+@startuml Kelola Barang
 title Sequence Diagram - Kelola Barang
 
 actor "Petugas" as actor1
 participant "Halaman\nBarang" as barang
-participant "Aplikasi Server" as sistem
+participant "Server" as sistem
 database "Database" as db
 
 actor1 -> barang: Membuka halaman barang

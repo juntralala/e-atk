@@ -84,11 +84,6 @@ const submitForm = () => {
     },
   });
 };
-
-const closeErrorDialog = () => {
-  errorDialog.value = false;
-  errorMessage.value = '';
-};
 </script>
 
 <template>

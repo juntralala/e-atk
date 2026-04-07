@@ -5,7 +5,7 @@ actor "Administrator" as actor1
 actor "Pengguna" as actor2
 participant "Halaman\nKelola Pengguna" as accountManagement
 participant "Halaman\nLogin" as login
-participant "Aplikasi Server" as system
+participant "Server" as system
 database Database as users
 
 actor1 -> accountManagement: Membuka halaman kelola pengguna

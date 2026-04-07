@@ -29,7 +29,7 @@ const validations = {
 };
 
 function login(e) {
-  if (isFormValid) {
+  if (isFormValid.value) {
     form.post('/login', {
       preserveScroll: true,
       onSuccess: () => {

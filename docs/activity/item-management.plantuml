@@ -1,10 +1,11 @@
 @startuml kelola barang
 title Activity Diagram - Mengelola Barang
-|actor1|Petugas/Bendahara
-|Sistem|Aplikasi
+|actor1|Petugas
+|Sistem|
 start
+|actor1|
 :Membuka halaman satuan;
-|Sistem
+|Sistem|
 :Menampilkan data satuan;
 |Sistem|
 |actor1|

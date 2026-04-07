@@ -26,6 +26,13 @@ import BubbleUp from '@/components/atoms/BubbleUp.vue';
                 <BubbleUp></BubbleUp>
                 <BubbleUp></BubbleUp>
                 <BubbleUp></BubbleUp>
+                <BubbleUp></BubbleUp>
+                <BubbleUp></BubbleUp>
+                <BubbleUp></BubbleUp>
+                <BubbleUp></BubbleUp>
+                <BubbleUp></BubbleUp>
+                <BubbleUp></BubbleUp>
+                <BubbleUp></BubbleUp>
             </div>
         </v-main>
     </v-app>

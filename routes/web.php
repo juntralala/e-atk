@@ -8,6 +8,7 @@ use App\Http\Controllers\ItemRequestController;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\UnitController;
@@ -16,6 +17,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [LandingPageController::class, 'showPage']);
+Route::get("/vs", [ReportController::class,"itemInOutComparisonPage"]);
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'loginPage'])->name('login');
@@ -113,6 +115,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/expenditures/exports/xlsx', [ItemController::class, 'toExpenditureXlsx'])->name('items.expenditures.exports.xlsx');
         Route::get('/expenditures/units/exports/view', [ItemRequestController::class, 'unitExpenditureReport'])->name('expenditures.units.exports.view');
         Route::get('/expenditures/units/exports/xlsx', [ItemRequestController::class, 'toUnitExpenditureXlsx'])->name('expenditures.units.exports.xlsx');
+        Route::get('/items/in-out-comparison', [ReportController::class, 'itemInOutComparisonPage'])->name('items.inout-comparisons');
     });
 
     Route::inertia('/stakeholders', 'StakeHolder')->name('stakeholders');

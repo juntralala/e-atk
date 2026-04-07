@@ -23,7 +23,7 @@ class DashboardController extends Controller
             'totalItems' => (int) Item::sum('stock'),
             'totalRequests' => ItemRequest::count(),
             'pendingRequests' => ItemRequest::where('status', 'pending')->count(),
-            'totalAdditions' => (int) ItemAddition::withSum('itemAdditionDetails as total', 'quantity')->first()->total,
+            'totalAdditions' => (int) ItemAddition::withSum('itemAdditionDetails as total', 'quantity')->first()?->total,
         ]);
     }
 

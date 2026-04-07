@@ -1,4 +1,4 @@
-@startuml usecase
+@startuml
 left to right direction
 skinparam linetype polyline
 
@@ -6,8 +6,9 @@ actor "Administrator" as admin
 actor "Bendahara" as bendahara
 actor "Petugas" as petugas
 actor "Unit" as unit
+actor "Direktur" as direktur
 
-rectangle "Aplikasi Manajemen ATK" {
+rectangle "Sistem Informasi Inventaris" {
     usecase "Mengelola Pengguna" as UC1
     usecase "Mengelola Satuan" as UC7
     usecase "Mengelola Barang" as UC3
@@ -16,6 +17,7 @@ rectangle "Aplikasi Manajemen ATK" {
     usecase "Laporan" as UC4
     usecase "Laporan Pengeluaran" as UC4_1
     usecase "Pengaturan Aplikasi" as UC5
+    usecase "Dashboard" as UC8
 }
 
 ' UC1 <-- admin
@@ -26,6 +28,11 @@ petugas --> UC7
 petugas --> UC3
 petugas --> UC6
 petugas --> UC4
+petugas --> UC8
 UC4_1 <-- bendahara
+UC4 <-- direktur
+UC8 <-- direktur
+
+UC4 <|-- UC4_1
 
 @enduml

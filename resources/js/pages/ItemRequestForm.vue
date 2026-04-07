@@ -3,9 +3,8 @@ import PageTitleHighlightPart from '@/components/atoms/PageTitleHighlightPart.vu
 import AlertDialog from '@/components/organisms/AlertDialog.vue';
 import SuccessDialog from '@/components/organisms/SuccessDialog.vue';
 import ApplicationLayout from '@/layouts/ApplicationLayout.vue';
-import { Link, useForm } from '@inertiajs/vue3';
-import { ref, watch } from 'vue';
-import { useDisplay } from 'vuetify/lib/composables/display';
+import { useForm } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 defineOptions({
   layout: ApplicationLayout,
@@ -18,7 +17,6 @@ const props = defineProps({
   },
 });
 
-const { xs, mdAndUp } = useDisplay();
 const successDialog = ref(false);
 const errorDialog = ref(false);
 const errorMessage = ref('');

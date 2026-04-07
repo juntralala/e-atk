@@ -9,7 +9,7 @@ defineOptions({
   layout: ApplicationLayout,
 });
 
-const props = defineProps({
+defineProps({
   unitExpenditures: {
     type: Object,
     required: true,

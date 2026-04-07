@@ -106,7 +106,7 @@ onUpdated(function () {
 </script>
 
 <template>
-  <Head v-slot="props">
+  <Head>
     <link
       rel="shortcut icon"
       :href="settings?.icon || 'favicon.ico'"
@@ -206,7 +206,7 @@ onUpdated(function () {
           value="report"
         >
           <template #activator="{ props }">
-            <v-list-item :="props">
+            <v-list-item v-bind="props">
               <v-list-item-title>
                 <div class="flex items-baseline gap-1"><v-icon icon="mdi-file-chart" />Laporan</div>
               </v-list-item-title>
@@ -242,19 +242,19 @@ onUpdated(function () {
             icon="mdi-wallet-outline"
             >Pengeluaran Unit</DrawerItem
           >
-          <!-- <DrawerItem
+          <DrawerItem
             v-if="canAccessItemExpenditureReport(user)"
-            :href="route('items.expenditures.exports.view')"
-            icon="mdi-receipt-text"
-            >Pengeluaran Barang Per Unit</DrawerItem
-          > -->
+            :href="route('items.inout-comparisons')"
+            icon="mdi-compare-horizontal"
+            >Keluar VS Masuk</DrawerItem
+          >
         </v-list-group>
         <v-list-group
           v-if="canSeeMasterData(user)"
           value="master"
         >
           <template #activator="{ props }">
-            <v-list-item :="props">
+            <v-list-item v-bind="props">
               <v-list-item-title>
                 <div class="flex items-baseline gap-1"><v-icon icon="mdi-database" />Master</div>
               </v-list-item-title>

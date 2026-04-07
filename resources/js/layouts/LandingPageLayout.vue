@@ -1,7 +1,5 @@
 <script setup>
-import ProfilePhoto from '@/components/atoms/ProfilePhoto.vue';
 import Footer from '@/components/organisms/Footer.vue';
-import Notification from '@/components/organisms/Notification.vue';
 import { Head, Link } from '@inertiajs/vue3';
 
 defineProps({
@@ -13,7 +11,7 @@ defineProps({
 </script>
 
 <template>
-  <Head v-slot="props">
+  <Head>
     <link
       rel="shortcut icon"
       :href="settings?.icon || 'favicon.ico'"

@@ -1,8 +1,9 @@
-@startuml Activity Diagram - Pengaturan Aplikasi
-title Activity Diagram - Pengaturan Aplikasi
+@startuml Activity Diagram - Pengaturan
+title Activity Diagram - Pengaturan
 |actor1|Administrator
-|Sistem|Aplikasi
+|Sistem|
 start
+|actor1|
 :Membuka halaman pengaturan;
 :Mengubah pengaturan;
 :Tekan simpan;

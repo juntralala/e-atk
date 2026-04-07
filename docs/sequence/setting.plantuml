@@ -1,8 +1,8 @@
 @startuml setting
 title Sequence Diagram - Pengaturan
 actor Administrator as actor1
-participant "Halaman Setting" as setting
-participant Sistem as sistem
+participant "Halaman Pengaturan" as setting
+participant Server as sistem
 database "Database" as db
 
 activate actor1

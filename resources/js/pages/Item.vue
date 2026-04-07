@@ -18,7 +18,7 @@ const props = defineProps({
   },
   units: {
     type: [Array, null],
-    default: [],
+    default() {return [];},
   },
 });
 
@@ -153,7 +153,7 @@ const getItemNumber = (index) => {
   return (currentPage.value - 1) * itemsPerPage.value + index + 1;
 };
 
-function handleSearchChange(e) {
+function handleSearchChange() {
   loading.value = true;
   if (timeId != undefined) {
     clearTimeout(timeId);

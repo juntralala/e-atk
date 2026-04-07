@@ -6,7 +6,6 @@ import SuccessDialog from '@/components/organisms/SuccessDialog.vue';
 import ApplicationLayout from '@/layouts/ApplicationLayout.vue';
 import { useForm } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
-import { useDisplay } from 'vuetify/lib/composables/display';
 
 defineOptions({
   layout: ApplicationLayout,
@@ -19,7 +18,6 @@ const props = defineProps({
   },
 });
 
-const { xs, mdAndUp } = useDisplay();
 const successDialog = ref(false);
 const errorDialog = ref(false);
 const errorMessage = ref('');

@@ -1,6 +1,6 @@
 @startuml Class Diagram
 
-title Class Diagram - Sistem Manajemen Alat Tulis Kantor
+title Class Diagram - Sistem Informasi Inventaris
 
 class Role  {
     +int id
