@@ -6,14 +6,14 @@ config:
 ---
 erDiagram
     roles ||--o{ users : "assigned to"
-    barang ||--o{ permintaan_barang_detail : "recorded in"
-    barang ||--|| satuan : "measured by"
-    users ||--o{ permintaan_barang : "creates request"
-    users ||--o{ permintaan_barang : "responds to request"
-    users ||--o{ penambahan_barang : "performs addition"
-    permintaan_barang ||--o{ permintaan_barang_detail : "has details"
-    penambahan_barang ||--o{ penambahan_barang_detail : "has details"
-    barang ||--o{ penambahan_barang_detail : "added to"
+    items ||--o{ item_request_details : "recorded in"
+    items ||--|| units : "measured by"
+    users ||--o{ item_requests : "creates request"
+    users ||--o{ item_requests : "responds"
+    users ||--o{ item_additions : "performs addition"
+    item_requests ||--o{ item_request_details : "has details"
+    item_additions ||--o{ item_addition_details : "has details"
+    items ||--o{ item_addition_details : "added to"
     
     roles {
         id VARCHAR(100) PK
@@ -113,4 +113,35 @@ erDiagram
         quantity INTEGER 
         price DECIMAL(20_2)
         created_at DATETIME
+    }
+
+    stock_opname {
+        id VARCHAR(100) PK
+        user_id VARCHAR(100) FK
+        responder_id VARCHAR(100) FK
+        status ENUM "pending,approved,rejected"
+        opname_date DATETIME
+        created_at DATETIME
+        updated_at DATETIME
+        responded_at DATETIME
+    }
+
+    stock_opname_details {
+        id VARCHAR(100) PK
+        stock_opname_id VARCHAR(100) FK
+        item_id VARCHAR(100) FK
+        system_stock INTEGER
+        physical_stock INTEGER
+        reason_id VARCHAR(100) FK
+        remarks TEXT
+        created_at DATETIME
+        updated_at DATETIME
+    }
+
+    opname_reasons {
+        id VARCHAR(100) PK
+        reason VARCHAR(100)
+        created_at DATETIME
+        updated_at DATETIME
+        deleted_at DATETIME
     }

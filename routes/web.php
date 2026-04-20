@@ -8,16 +8,18 @@ use App\Http\Controllers\ItemRequestController;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\OpnameReasonController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\StockOpnameController;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\UserController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [LandingPageController::class, 'showPage']);
-Route::get("/vs", [ReportController::class,"itemInOutComparisonPage"]);
+Route::get('/vs', [ReportController::class, 'itemInOutComparisonPage']);
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'loginPage'])->name('login');
@@ -43,6 +45,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [NotificationController::class, 'getCurrentUserNotifications']);
         Route::post('/{id}/read', [NotificationController::class, 'markAsReadNotification'])->name('.read');
         Route::get('/unread/exists', [NotificationController::class, 'isUnreadNotificationExists'])->name('.unread.exists');
+        Route::post('/subscribe', [NotificationController::class, 'subscribe']);
+        Route::post('/unsubscribe', [NotificationController::class, 'unsubscribe']);
     });
 
     Route::prefix('/users')->name('users')->group(function () {
@@ -110,12 +114,25 @@ Route::middleware('auth')->group(function () {
         });
     });
 
+    Route::prefix('/opname')->name('opname')->group(function () {
+        Route::get('/form', [StockOpnameController::class, 'form'])->name('.form');
+        Route::inertia('/approval', 'OpnameApproval');
+
+        Route::prefix('/reasons')->name('.reasons')->group(function () {
+            Route::get('/', [OpnameReasonController::class, 'showPage']);
+            Route::post('/', [OpnameReasonController::class, 'create'])->name('.create');
+            Route::put('/{id}', [OpnameReasonController::class, 'update'])->name('.update')->whereUuid('id');
+            Route::delete('/{id}', [OpnameReasonController::class, 'delete'])->name('.delete')->whereUuid('id');
+        });
+    });
+
     Route::can('administrator-petugas-bendahara')->group(function () {
         Route::get('/expenditures/exports/view', [ItemController::class, 'itemExpenditureReport'])->name('items.expenditures.exports.view');
         Route::get('/expenditures/exports/xlsx', [ItemController::class, 'toExpenditureXlsx'])->name('items.expenditures.exports.xlsx');
         Route::get('/expenditures/units/exports/view', [ItemRequestController::class, 'unitExpenditureReport'])->name('expenditures.units.exports.view');
         Route::get('/expenditures/units/exports/xlsx', [ItemRequestController::class, 'toUnitExpenditureXlsx'])->name('expenditures.units.exports.xlsx');
-        Route::get('/items/in-out-comparison', [ReportController::class, 'itemInOutComparisonPage'])->name('items.inout-comparisons');
+        Route::get('/items/in-out-comparison/exports/view', [ReportController::class, 'itemInOutComparisonPage'])->name('items.inout-comparisons');
+        Route::get('/items/in-out-comparison/exports/xlsx', [ReportController::class, 'itemInOutComparisonXlsx'])->name('items.inout-comparisons.xlsx');
     });
 
     Route::inertia('/stakeholders', 'StakeHolder')->name('stakeholders');

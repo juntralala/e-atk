@@ -13,7 +13,7 @@ return new class extends Migration
             $table->string('name', 255);
             $table->string('username', 255);
             $table->string('password', 100);
-            $table->string('telepon', 20);
+            $table->string('telepon', 20)->nullable();
             $table->string('role_id', 100);
             $table->string('profile_photo_path', 500)->nullable();
             // $table->rememberToken();

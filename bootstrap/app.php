@@ -32,11 +32,11 @@ return Application::configure(basePath: dirname(__DIR__))
         });
         $exceptions->render(function (ModelNotFoundException $e) {
             if (request()->hasHeader('X-Inertia')) {
-                $e->getModel();
                 return back()->withErrors([
-                    'message' => "Ups!, data tidak ditemukan",
+                    'message' => 'Ups!, data tidak ditemukan',
                 ]);
             }
+
             return false;
         });
     })->create();

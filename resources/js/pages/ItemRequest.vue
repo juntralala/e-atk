@@ -2,7 +2,7 @@
 import PageTitleHighlightPart from '@/components/atoms/PageTitleHighlightPart.vue';
 import ApplicationLayout from '@/layouts/ApplicationLayout.vue';
 import { canAcceptItemRequest, canDeleteItemRequest, canPrintItemRequest, canRejectItemRequest } from '@/lib/can';
-import { formatDateIndonesia as formatDate, formatRp } from '@/lib/formatters';
+import { formatDateIndonesia as formatDate, formatRelativeTime, formatRp } from '@/lib/formatters';
 import { Head, router } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 
@@ -14,7 +14,7 @@ const {
   auth,
   itemRequests: itemRequestsProp,
   filters,
-  settings
+  settings,
 } = defineProps({
   auth: {
     type: Object,
@@ -31,7 +31,7 @@ const {
   settings: {
     type: Object,
     default: () => ({}),
-  }
+  },
 });
 
 const currentUser = auth?.user;
@@ -577,7 +577,7 @@ function canEdit(request) {
             {{ item.responder?.name || '-' }}
           </template>
           <template #item.response_date="{ item }">
-            {{ formatDate(item.response_date) }}
+            {{ formatDate(item.response_date) || '-' }}
           </template>
           <template #item.actions="{ item }">
             <v-btn
@@ -624,7 +624,7 @@ function canEdit(request) {
                   </v-list-item>
 
                   <v-list-item
-                    v-if="canAcceptItemRequest($page?.props?.auth?.user)"
+                    v-if="canAcceptItemRequest($page?.props?.auth?.user) && !item.responded_at"
                     value="approve"
                     @click="showApproveDialog(item)"
                   >
@@ -637,7 +637,7 @@ function canEdit(request) {
                   </v-list-item>
 
                   <v-list-item
-                    v-if="canRejectItemRequest($page?.props?.auth?.user)"
+                    v-if="canRejectItemRequest($page?.props?.auth?.user) && !item.responded_at"
                     value="reject"
                     @click="showRejectDialog(item)"
                   >
@@ -902,8 +902,8 @@ function canEdit(request) {
               cols="12"
               md="6"
             >
-              <div class="text-caption text-grey">Tanggal Permintaan</div>
-              <div class="text-body-1 font-weight-medium">{{ formatDate(selectedRequest.request_date) }}</div>
+              <div class="text-caption text-grey">Waktu Permintaan</div>
+              <div class="text-body-1 font-weight-medium">{{ formatRelativeTime(selectedRequest.created_at) }}</div>
             </v-col>
             <v-col
               cols="12"
@@ -944,8 +944,8 @@ function canEdit(request) {
               cols="12"
               md="6"
             >
-              <div class="text-caption text-grey">Tanggal Diterima/Ditolak</div>
-              <div class="text-body-1 font-weight-medium">{{ formatDate(selectedRequest.response_date) }}</div>
+              <div class="text-caption text-grey">Waktu Diterima/Ditolak</div>
+              <div class="text-body-1 font-weight-medium">{{ formatRelativeTime(selectedRequest.responded_at) }}</div>
             </v-col>
           </v-row>
 

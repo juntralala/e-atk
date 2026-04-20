@@ -58,4 +58,9 @@ class Item extends Model
     {
         return $this->hasMany(ItemRequestDetail::class);
     }
+
+    public function stockOpnameDetails()
+    {
+        return $this->hasMany(StockOpnameDetail::class);
+    }
 }

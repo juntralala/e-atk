@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\NotificationSubcribeRequest;
 use App\Http\Resources\NotificationResource;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -33,7 +35,7 @@ class NotificationController extends Controller
             'data' => DB::table('notifications')
                 ->where('notifiable_type', auth()->user()::class)
                 ->where('notifiable_id', auth()->user()->id)
-                ->whereNull('created_at')
+                ->whereNull('read_at')
                 ->exists(),
         ]);
     }
@@ -47,5 +49,28 @@ class NotificationController extends Controller
         $notification->markAsRead();
 
         return response()->json(['message' => 'Notification marked as read']);
+    }
+
+    public function subscribe(NotificationSubcribeRequest $request)
+    {
+        /** @var User */
+        $user = $request->user();
+        $user->updatePushSubscription(
+            $request->input('endpoint'),
+            $request->input('keys.p256dh'),
+            $request->input('keys.auth'),
+        );
+
+        return response(status: 200);
+    }
+
+    public function unsubcribe(Request $request)
+    {
+        $request->validate([
+            'endpoint' => 'required|url',
+        ]);
+        $request->user()->deletePushSubscription($request->input('endpoint'));
+
+        return response(status: 200);
     }
 }

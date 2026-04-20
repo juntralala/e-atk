@@ -12,7 +12,9 @@ defineOptions({
 defineProps({
   comparisons: {
     type: Array,
-    default() { return []; },
+    default() {
+      return [];
+    },
   },
 });
 
@@ -26,26 +28,36 @@ function parseYearMonth(dateStr) {
 const params = new URLSearchParams(window.location.search);
 const now = new Date();
 
-const yearMonthStart = ref(
-  parseYearMonth(params.get('start')) ?? { month: now.getMonth() + 1, year: now.getFullYear() }
-);
-const yearMonthEnd = ref(
-  parseYearMonth(params.get('end')) ?? { month: now.getMonth() + 1, year: now.getFullYear() }
-);
+const yearMonthStart = ref(parseYearMonth(params.get('start')) ?? { month: now.getMonth() + 1, year: now.getFullYear() });
+const yearMonthEnd = ref(parseYearMonth(params.get('end')) ?? { month: now.getMonth() + 1, year: now.getFullYear() });
 
-function handleYearMonthChange() {
+function formatYearMonthStart(yearMonthStart) {
   const { year, month } = yearMonthStart.value;
   const mm = String(month).padStart(2, '0');
+  return `${year}-${mm}-01 00:00:00+08:00`;
+}
+
+function formatYearMonthEnd(yearMonthEnd) {
   const endYear = yearMonthEnd.value.year;
   const endMonth = String(yearMonthEnd.value.month).padStart(2, '0');
+  return `${endYear}-${endMonth}-${new Date(endYear, endMonth, 0).getDate()} 23:59:59+08:00`;
+}
 
-  const start = `${year}-${mm}-01 00:00:00+08:00`;
-  const end = `${endYear}-${endMonth}-${new Date(endYear, endMonth, 0).getDate()} 23:59:59+08:00`;
+function handleYearMonthChange() {
+  const start = formatYearMonthStart(yearMonthStart);
+  const end = formatYearMonthEnd(yearMonthEnd);
 
   router.visit(route('items.inout-comparisons', { start, end }), {
     preserveScroll: true,
     preserveState: true,
     replace: true,
+  });
+}
+
+function handleDownloadSpreadSheet() {
+  window.location.href = route('items.inout-comparisons.xlsx', {
+    start: formatYearMonthStart(yearMonthStart),
+    end: formatYearMonthEnd(yearMonthEnd),
   });
 }
 </script>
@@ -62,7 +74,10 @@ function handleYearMonthChange() {
       </v-col>
     </v-row>
     <v-row>
-      <v-col cols="12" md="">
+      <v-col
+        cols="12"
+        md=""
+      >
         <YearMonthPicker
           label="Awal"
           v-model="yearMonthStart"
@@ -70,7 +85,10 @@ function handleYearMonthChange() {
           @change="handleYearMonthChange"
         />
       </v-col>
-      <v-col cols="12" md="">
+      <v-col
+        cols="12"
+        md=""
+      >
         <YearMonthPicker
           label="Akhir"
           v-model="yearMonthEnd"
@@ -79,7 +97,12 @@ function handleYearMonthChange() {
         />
       </v-col>
       <v-col class="flex justify-end">
-        <v-btn>Spreadsheet</v-btn>
+        <v-btn
+          @click="handleDownloadSpreadSheet"
+          color="blue"
+          variant="tonal"
+          >Spreadsheet</v-btn
+        >
       </v-col>
     </v-row>
     <v-row>

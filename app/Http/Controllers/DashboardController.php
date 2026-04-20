@@ -145,7 +145,7 @@ class DashboardController extends Controller
             'itemRequestDetails.item.unit:id,name',
         ])
             ->limit(5)
-            ->orderBy('created_at')
+            ->orderBy('created_at', 'desc')
             ->get();
         $itemRequests = $itemRequests->map(fn ($itemRequest) => [
             'id' => $itemRequest->id,

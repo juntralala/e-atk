@@ -1,12 +1,12 @@
 <script setup>
-import { formatDateTimeIndonesia } from '@/lib/formatters';
+import { formatRelativeTime } from '@/lib/formatters';
 import { Link } from '@inertiajs/vue3';
 import axios from 'axios';
 import { onMounted, onUnmounted, ref } from 'vue';
 
 const notifications = ref({ data: [], currentPage: 1, perPage: 8, lastPage: 1, total: 0 });
 const currentPage = ref(1);
-const unreadCount = ref(false);
+const isUnreadExists = ref(false);
 const isInitialLoading = ref(false);
 const isLoadingMore = ref(false);
 const isReloading = ref(false);
@@ -39,10 +39,9 @@ async function loadNotifications(page = 1) {
 }
 
 async function isUnreadNotificationExists() {
-  //
   try {
     const response = await axios.get(route('notifications.unread.exists'));
-    unreadCount.value = response.data.data; // <- boolean
+    isUnreadExists.value = response.data.data; // <- boolean
   } catch (err) {
     console.error(err);
   }
@@ -81,29 +80,6 @@ function loadMore() {
   loadNotifications(currentPage.value + 1);
 }
 
-// Format waktu relatif untuk notifikasi
-function formatRelativeTime(dateString) {
-  const now = new Date();
-  const date = new Date(dateString);
-  const diffInMs = now - date;
-  const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
-  const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
-
-  // Jika kurang dari 24 jam, tampilkan waktu relatif
-  if (diffInHours < 24) {
-    if (diffInMinutes < 1) {
-      return 'Baru saja';
-    } else if (diffInMinutes < 60) {
-      return `${diffInMinutes} menit yang lalu`;
-    } else {
-      return `${diffInHours} jam yang lalu`;
-    }
-  }
-
-  // Jika lebih dari 24 jam, tampilkan tanggal lengkap
-  return formatDateTimeIndonesia(dateString);
-}
-
 let interval = null;
 onMounted(() => (interval = setInterval(isUnreadNotificationExists, 12_000)));
 onUnmounted(() => clearInterval(interval));
@@ -119,7 +95,7 @@ onUnmounted(() => clearInterval(interval));
     @click="reloadNotifications"
   >
     <v-badge
-      v-if="unreadCount"
+      v-if="isUnreadExists"
       color="warning"
       dot
     >

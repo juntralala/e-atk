@@ -42,7 +42,7 @@ const formattedDate = computed(() => formatDateIndonesia(pickedDate.value));
       v-slot="{ isActive }"
       activator="parent"
       :close-on-content-click="false"
-      transition="scale-transition"
+      transition="slide-y-transition"
     >
       <v-date-picker
         v-model="pickedDate"

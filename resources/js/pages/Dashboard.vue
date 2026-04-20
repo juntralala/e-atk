@@ -2,19 +2,7 @@
 import ApplicationLayout from '@/layouts/ApplicationLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import axios from 'axios';
-import {
-  ArcElement,
-  BarElement,
-  CategoryScale,
-  Chart as ChartJS,
-  Filler,
-  Legend,
-  LinearScale,
-  LineElement,
-  PointElement,
-  Title,
-  Tooltip,
-} from 'chart.js';
+import { ArcElement, BarElement, CategoryScale, Chart as ChartJS, Filler, Legend, LinearScale, LineElement, PointElement, Title, Tooltip } from 'chart.js';
 import { computed, onMounted, ref } from 'vue';
 import { Bar, Doughnut, Line, Pie } from 'vue-chartjs';
 
@@ -367,31 +355,55 @@ onMounted(refreshAll);
   <Head>
     <title>Dashboard</title>
   </Head>
-  <div class="dashboard-root">
-    <div class="dash-header mb-6">
+  <div class="min-h-dvh! p-6! font-[DM_Sans,Plus_Jakarta_Sans,sans-serif]">
+    <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
       <div>
-        <h1 class="dash-title">Dashboard</h1>
-        <p class="dash-subtitle">Ringkasan aktivitas gudang ATK</p>
+        <h1 class="font-[Plus_Jakarta_Sans,sans-serif]! text-[1.75rem] leading-[1.2] font-extrabold text-[rgb(var(--v-theme-on-surface))]">Dashboard</h1>
+        <p class="mt-0.5 font-[#64748b] text-sm!">Ringkasan aktivitas gudang ATK</p>
       </div>
-      <v-btn variant="tonal" color="primary" prepend-icon="mdi-refresh" @click="refreshAll">
+      <v-btn
+        variant="tonal"
+        color="primary"
+        prepend-icon="mdi-refresh"
+        @click="refreshAll">
         Refresh
       </v-btn>
     </div>
 
     <!-- Summary Cards -->
     <v-row class="mb-2">
-      <v-col v-for="card in summaryCards" :key="card.title" cols="12" sm="6" lg="3">
-        <v-card class="summary-card h-full w-full" variant="flat" rounded="lg">
+      <v-col
+        v-for="card in summaryCards"
+        :key="card.title"
+        cols="12"
+        sm="6"
+        lg="3">
+        <v-card
+          class="summary-card h-full w-full"
+          variant="flat"
+          rounded="lg">
           <v-card-text class="d-flex align-center ga-4 pa-5">
-            <div class="card-icon-wrap" :style="{ background: card.bg }">
-              <v-icon :color="card.color" size="26">{{ card.icon }}</v-icon>
+            <div
+              class="card-icon-wrap"
+              :style="{ background: card.bg }">
+              <v-icon
+                :color="card.color"
+                size="26"
+                :icon="card.icon" />
             </div>
             <div>
               <div class="card-label">{{ card.title }}</div>
-              <div class="card-value" :style="{ color: card.color }">
+              <div
+                class="card-value"
+                :style="{ color: card.color }">
                 <span v-if="loading.summary">—</span>
-                <span v-else-if="errors.summary" class="card-value-error">
-                  <v-icon size="18" color="error">mdi-alert-circle-outline</v-icon>
+                <span
+                  v-else-if="errors.summary"
+                  class="card-value-error">
+                  <v-icon
+                    size="18"
+                    color="error"
+                    icon="mdi-alert-circle-outline" />
                 </span>
                 <span v-else>{{ card.value.toLocaleString() }}</span>
               </div>
@@ -404,30 +416,63 @@ onMounted(refreshAll);
     <!-- Monthly Expenditures -->
     <v-row class="mb-2">
       <v-col cols="12">
-        <v-card class="chart-card" variant="flat" rounded="lg">
+        <v-card
+          class="chart-card"
+          variant="flat"
+          rounded="lg">
           <v-card-title class="chart-title">
-            <v-icon class="mr-2" color="primary">mdi-chart-line</v-icon>
+            <v-icon
+              class="mr-2"
+              color="primary"
+              >mdi-chart-line</v-icon
+            >
             Pengeluaran Bulanan
           </v-card-title>
           <v-card-text>
             <div class="chart-wrap chart-wrap--tall">
-              <div v-if="loading.monthly" class="chart-loader">
-                <v-progress-circular indeterminate color="primary" size="36" />
+              <div
+                v-if="loading.monthly"
+                class="chart-loader">
+                <v-progress-circular
+                  indeterminate
+                  color="primary"
+                  size="36" />
               </div>
-              <div v-else-if="errors.monthly" class="chart-empty">
-                <v-icon size="40" color="error" class="mb-2">mdi-wifi-off</v-icon>
+              <div
+                v-else-if="errors.monthly"
+                class="chart-empty">
+                <v-icon
+                  size="40"
+                  color="error"
+                  class="mb-2"
+                  icon="mdi-wifi-off" />
                 <p class="empty-title">Gagal memuat data</p>
                 <p class="empty-sub">Periksa koneksi atau coba refresh halaman</p>
-                <v-btn size="small" variant="tonal" color="error" class="mt-3" prepend-icon="mdi-refresh" @click="fetchMonthly">
+                <v-btn
+                  size="small"
+                  variant="tonal"
+                  color="error"
+                  class="mt-3"
+                  prepend-icon="mdi-refresh"
+                  @click="fetchMonthly">
                   Coba Lagi
                 </v-btn>
               </div>
-              <div v-else-if="!hasMonthlyData" class="chart-empty">
-                <v-icon size="40" color="secondary" class="mb-2">mdi-chart-line-variant</v-icon>
+              <div
+                v-else-if="!hasMonthlyData"
+                class="chart-empty">
+                <v-icon
+                  size="40"
+                  color="secondary"
+                  class="mb-2"
+                  icon="mdi-chart-line-variant" />
                 <p class="empty-title">Belum ada data pengeluaran</p>
                 <p class="empty-sub">Data akan muncul setelah ada transaksi keluar</p>
               </div>
-              <Line v-else :data="monthlyChart" :options="monthlyOptions" />
+              <Line
+                v-else
+                :data="monthlyChart"
+                :options="monthlyOptions" />
             </div>
           </v-card-text>
         </v-card>
@@ -436,61 +481,131 @@ onMounted(refreshAll);
 
     <!-- Per Item & Per Unit -->
     <v-row class="mb-2">
-      <v-col cols="12" md="7">
-        <v-card class="chart-card" variant="flat" rounded="lg" height="100%">
+      <v-col
+        cols="12"
+        md="7">
+        <v-card
+          class="chart-card"
+          variant="flat"
+          rounded="lg"
+          height="100%">
           <v-card-title class="chart-title">
-            <v-icon class="mr-2" color="primary">mdi-package-variant</v-icon>
+            <v-icon
+              class="mr-2"
+              color="primary"
+              icon="mdi-package-variant" />
             Pengeluaran per Barang (Bulan ini)
           </v-card-title>
           <v-card-text>
             <div class="chart-wrap">
-              <div v-if="loading.perItem" class="chart-loader">
-                <v-progress-circular indeterminate color="primary" size="36" />
+              <div
+                v-if="loading.perItem"
+                class="chart-loader">
+                <v-progress-circular
+                  indeterminate
+                  color="primary"
+                  size="36" />
               </div>
-              <div v-else-if="errors.perItem" class="chart-empty">
-                <v-icon size="36" color="error" class="mb-2">mdi-wifi-off</v-icon>
+              <div
+                v-else-if="errors.perItem"
+                class="chart-empty">
+                <v-icon
+                  size="36"
+                  color="error"
+                  class="mb-2"
+                  icon="mdi-wifi-off" />
                 <p class="empty-title">Gagal memuat data</p>
                 <p class="empty-sub">Tidak dapat terhubung ke server</p>
-                <v-btn size="small" variant="tonal" color="error" class="mt-3" prepend-icon="mdi-refresh" @click="fetchPerItem">
+                <v-btn
+                  size="small"
+                  variant="tonal"
+                  color="error"
+                  class="mt-3"
+                  prepend-icon="mdi-refresh"
+                  @click="fetchPerItem">
                   Coba Lagi
                 </v-btn>
               </div>
-              <div v-else-if="!hasPerItemData" class="chart-empty">
-                <v-icon size="36" color="secondary" class="mb-2">mdi-package-variant-closed</v-icon>
+              <div
+                v-else-if="!hasPerItemData"
+                class="chart-empty">
+                <v-icon
+                  size="36"
+                  color="secondary"
+                  class="mb-2"
+                  icon="mdi-package-variant-closed" />
                 <p class="empty-title">Tidak ada pengeluaran bulan ini</p>
                 <p class="empty-sub">Belum ada barang yang dikeluarkan</p>
               </div>
-              <Bar v-else :data="perItemChart" :options="barOptions" />
+              <Bar
+                v-else
+                :data="perItemChart"
+                :options="barOptions" />
             </div>
           </v-card-text>
         </v-card>
       </v-col>
 
-      <v-col cols="12" md="5">
-        <v-card class="chart-card" variant="flat" rounded="lg" height="100%">
+      <v-col
+        cols="12"
+        md="5">
+        <v-card
+          class="chart-card"
+          variant="flat"
+          rounded="lg"
+          height="100%">
           <v-card-title class="chart-title">
-            <v-icon class="mr-2" color="secondary">mdi-office-building-outline</v-icon>
+            <v-icon
+              class="mr-2"
+              color="secondary"
+              icon="mdi-office-building-outline" />
             Pengeluaran per Unit (Bulan ini)
           </v-card-title>
           <v-card-text>
             <div class="chart-wrap">
-              <div v-if="loading.perUnit" class="chart-loader">
-                <v-progress-circular indeterminate color="secondary" size="36" />
+              <div
+                v-if="loading.perUnit"
+                class="chart-loader">
+                <v-progress-circular
+                  indeterminate
+                  color="secondary"
+                  size="36" />
               </div>
-              <div v-else-if="errors.perUnit" class="chart-empty">
-                <v-icon size="36" color="error" class="mb-2">mdi-wifi-off</v-icon>
+              <div
+                v-else-if="errors.perUnit"
+                class="chart-empty">
+                <v-icon
+                  size="36"
+                  color="error"
+                  class="mb-2"
+                  icon="mdi-wifi-off" />
                 <p class="empty-title">Gagal memuat data</p>
                 <p class="empty-sub">Tidak dapat terhubung ke server</p>
-                <v-btn size="small" variant="tonal" color="error" class="mt-3" prepend-icon="mdi-refresh" @click="fetchPerUnit">
+                <v-btn
+                  size="small"
+                  variant="tonal"
+                  color="error"
+                  class="mt-3"
+                  prepend-icon="mdi-refresh"
+                  @click="fetchPerUnit">
                   Coba Lagi
                 </v-btn>
               </div>
-              <div v-else-if="!hasPerUnitData" class="chart-empty">
-                <v-icon size="36" color="secondary" class="mb-2">mdi-office-building-outline</v-icon>
+              <div
+                v-else-if="!hasPerUnitData"
+                class="chart-empty">
+                <v-icon
+                  size="36"
+                  color="secondary"
+                  class="mb-2"
+                  icon="mdi-office-building-outline" />
                 <p class="empty-title">Tidak ada data per unit</p>
                 <p class="empty-sub">Belum ada permintaan yang diproses</p>
               </div>
-              <Bar v-else :data="perUnitChart" :options="horizontalBarOptions" />
+              <Bar
+                v-else
+                :data="perUnitChart"
+                :options="horizontalBarOptions" />
             </div>
           </v-card-text>
         </v-card>
@@ -500,96 +615,205 @@ onMounted(refreshAll);
     <!-- Doughnut, Pie & Recent Requests -->
     <v-row class="mb-2">
       <!-- Status Distribution -->
-      <v-col cols="12" sm="6" md="4">
-        <v-card class="chart-card" variant="flat" rounded="lg" height="100%">
+      <v-col
+        cols="12"
+        sm="6"
+        md="4">
+        <v-card
+          class="chart-card"
+          variant="flat"
+          rounded="lg"
+          height="100%">
           <v-card-title class="chart-title">
-            <v-icon class="mr-2" color="success">mdi-chart-donut</v-icon>
+            <v-icon
+              class="mr-2"
+              color="success"
+              icon="mdi-chart-donut" />
             Status Permintaan ({{ new Date().getFullYear() }})
           </v-card-title>
           <v-card-text>
             <div class="chart-wrap chart-wrap--donut">
-              <div v-if="loading.statusDist" class="chart-loader">
-                <v-progress-circular indeterminate color="success" size="36" />
+              <div
+                v-if="loading.statusDist"
+                class="chart-loader">
+                <v-progress-circular
+                  indeterminate
+                  color="success"
+                  size="36" />
               </div>
-              <div v-else-if="errors.statusDist" class="chart-empty">
-                <v-icon size="36" color="error" class="mb-2">mdi-wifi-off</v-icon>
+              <div
+                v-else-if="errors.statusDist"
+                class="chart-empty">
+                <v-icon
+                  size="36"
+                  color="error"
+                  class="mb-2"
+                  icon="mdi-wifi-off" />
                 <p class="empty-title">Gagal memuat data</p>
-                <v-btn size="small" variant="tonal" color="error" class="mt-3" prepend-icon="mdi-refresh" @click="fetchStatusDist">
+                <v-btn
+                  size="small"
+                  variant="tonal"
+                  color="error"
+                  class="mt-3"
+                  prepend-icon="mdi-refresh"
+                  @click="fetchStatusDist">
                   Coba Lagi
                 </v-btn>
               </div>
-              <div v-else-if="!hasStatusDistData" class="chart-empty">
-                <v-icon size="36" color="secondary" class="mb-2">mdi-chart-donut-variant</v-icon>
+              <div
+                v-else-if="!hasStatusDistData"
+                class="chart-empty">
+                <v-icon
+                  size="36"
+                  color="secondary"
+                  class="mb-2"
+                  icon="mdi-chart-donut-variant" />
                 <p class="empty-title">Belum ada permintaan</p>
                 <p class="empty-sub">Status permintaan akan tampil di sini</p>
               </div>
-              <Doughnut v-else :data="statusDistChart" :options="doughnutOptions" />
+              <Doughnut
+                v-else
+                :data="statusDistChart"
+                :options="doughnutOptions" />
             </div>
           </v-card-text>
         </v-card>
       </v-col>
 
       <!-- Top Items -->
-      <v-col cols="12" sm="6" md="4">
-        <v-card class="chart-card" variant="flat" rounded="lg" height="100%">
+      <v-col
+        cols="12"
+        sm="6"
+        md="4">
+        <v-card
+          class="chart-card"
+          variant="flat"
+          rounded="lg"
+          height="100%">
           <v-card-title class="chart-title">
-            <v-icon class="mr-2" color="warning">mdi-podium</v-icon>
+            <v-icon
+              class="mr-2"
+              color="warning"
+              icon="mdi-podium" />
             Top 5 Barang Diminta Bulan Ini
           </v-card-title>
           <v-card-text>
             <div class="chart-wrap chart-wrap--donut">
-              <div v-if="loading.topItems" class="chart-loader">
-                <v-progress-circular indeterminate color="warning" size="36" />
+              <div
+                v-if="loading.topItems"
+                class="chart-loader">
+                <v-progress-circular
+                  indeterminate
+                  color="warning"
+                  size="36" />
               </div>
-              <div v-else-if="errors.topItems" class="chart-empty">
-                <v-icon size="36" color="error" class="mb-2">mdi-wifi-off</v-icon>
+              <div
+                v-else-if="errors.topItems"
+                class="chart-empty">
+                <v-icon
+                  size="36"
+                  color="error"
+                  class="mb-2"
+                  icon="mdi-wifi-off" />
                 <p class="empty-title">Gagal memuat data</p>
-                <v-btn size="small" variant="tonal" color="error" class="mt-3" prepend-icon="mdi-refresh" @click="fetchTopItems">
+                <v-btn
+                  size="small"
+                  variant="tonal"
+                  color="error"
+                  class="mt-3"
+                  prepend-icon="mdi-refresh"
+                  @click="fetchTopItems">
                   Coba Lagi
                 </v-btn>
               </div>
-              <div v-else-if="!hasTopItemsData" class="chart-empty">
-                <v-icon size="36" color="secondary" class="mb-2">mdi-podium-silver</v-icon>
+              <div
+                v-else-if="!hasTopItemsData"
+                class="chart-empty">
+                <v-icon
+                  size="36"
+                  color="secondary"
+                  class="mb-2"
+                  icon="mdi-podium-silver" />
                 <p class="empty-title">Belum ada data bulan ini</p>
                 <p class="empty-sub">Data top barang akan muncul setelah ada permintaan</p>
               </div>
-              <Pie v-else :data="topItemsChart" :options="pieOptions" />
+              <Pie
+                v-else
+                :data="topItemsChart"
+                :options="pieOptions" />
             </div>
           </v-card-text>
         </v-card>
       </v-col>
 
       <!-- Recent Requests -->
-      <v-col cols="12" md="4">
-        <v-card class="chart-card" variant="flat" rounded="lg" height="100%">
+      <v-col
+        cols="12"
+        md="4">
+        <v-card
+          class="chart-card"
+          variant="flat"
+          rounded="lg"
+          height="100%">
           <v-card-title class="chart-title">
-            <v-icon class="mr-2" color="info">mdi-clipboard-clock-outline</v-icon>
+            <v-icon
+              class="mr-2"
+              color="info"
+              icon="mdi-clipboard-clock-outline" />
             Permintaan Terbaru
           </v-card-title>
           <v-card-text class="pa-0">
-            <div v-if="loading.recentRequests" class="chart-loader" style="height: 200px">
-              <v-progress-circular indeterminate color="info" size="36" />
+            <div
+              v-if="loading.recentRequests"
+              class="chart-loader"
+              style="height: 200px">
+              <v-progress-circular
+                indeterminate
+                color="info"
+                size="36" />
             </div>
-            <div v-else-if="errors.recentRequests" class="chart-empty" style="height: 200px">
-              <v-icon size="36" color="error" class="mb-2">mdi-wifi-off</v-icon>
+            <div
+              v-else-if="errors.recentRequests"
+              class="chart-empty"
+              style="height: 200px">
+              <v-icon
+                size="36"
+                color="error"
+                class="mb-2"
+                icon="mdi-wifi-off" />
               <p class="empty-title">Gagal memuat permintaan</p>
-              <v-btn size="small" variant="tonal" color="error" class="mt-3" prepend-icon="mdi-refresh" @click="fetchRecentRequests">
+              <v-btn
+                size="small"
+                variant="tonal"
+                color="error"
+                class="mt-3"
+                prepend-icon="mdi-refresh"
+                @click="fetchRecentRequests">
                 Coba Lagi
               </v-btn>
             </div>
-            <div v-else-if="!recentRequests.length" class="chart-empty" style="height: 200px">
-              <v-icon size="36" color="secondary" class="mb-2">mdi-clipboard-check-outline</v-icon>
+            <div
+              v-else-if="!recentRequests.length"
+              class="chart-empty"
+              style="height: 200px">
+              <v-icon
+                size="36"
+                color="secondary"
+                class="mb-2"
+                icon="mdi-clipboard-check-outline" />
               <p class="empty-title">Belum ada permintaan</p>
               <p class="empty-sub">Permintaan terbaru akan tampil di sini</p>
             </div>
-            <v-list v-else bg-color="transparent" lines="two">
+            <v-list
+              v-else
+              bg-color="transparent"
+              lines="two">
               <v-list-item
                 v-for="req in recentRequests"
                 :key="req.id"
                 :title="req.requester"
                 rounded="lg"
-                class="req-item mx-2 mb-1"
-              >
+                class="req-item mx-2 mb-1">
                 <template #subtitle>
                   <v-chip
                     v-for="item in req.items"
@@ -597,18 +821,25 @@ onMounted(refreshAll);
                     density="comfortable"
                     size="x-small"
                     class="ms-1"
-                  >{{ item.name }} {{ item.quantity }} {{ item.unit }}</v-chip>
+                    >{{ item.name }} {{ item.quantity }} {{ item.unit }}</v-chip
+                  >
                 </template>
                 <template #append>
                   <div class="flex flex-col! items-center">
-                    <v-chip :color="statusColor(req.status)" size="x-small" variant="tonal">
+                    <v-chip
+                      :color="statusColor(req.status)"
+                      size="x-small"
+                      variant="tonal">
                       {{ statusLabel(req.status) }}
                     </v-chip>
                     <span class="text-xs">{{ req.date }}</span>
                   </div>
                 </template>
                 <template #prepend>
-                  <v-avatar size="34" :color="statusColor(req.status)" variant="tonal">
+                  <v-avatar
+                    size="34"
+                    :color="statusColor(req.status)"
+                    variant="tonal">
                     <span style="font-size: 11px; font-weight: 700">{{ req.requester.charAt(0) }}</span>
                   </v-avatar>
                 </template>
@@ -622,38 +853,13 @@ onMounted(refreshAll);
 </template>
 
 <style scoped>
-.dashboard-root {
-  font-family: 'DM Sans', 'Plus Jakarta Sans', sans-serif;
-  padding: 24px;
-  min-height: 100vh;
-}
-
-/* Header */
-.dash-header {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-.dash-title {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 1.75rem;
-  font-weight: 800;
-  color: rgb(var(--v-theme-on-surface));
-  line-height: 1.2;
-}
-.dash-subtitle {
-  font-size: 0.875rem;
-  color: #64748b;
-  margin-top: 2px;
-}
-
 /* Summary Cards */
 .summary-card {
   background: rgba(var(--v-theme-surface-variant), 0.04) !important;
   border: 1px solid rgba(255, 255, 255, 0.06);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 .summary-card:hover {
   transform: translateY(-2px);

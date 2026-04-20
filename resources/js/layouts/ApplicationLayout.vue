@@ -54,14 +54,11 @@ watch(
   },
   { immediate: true },
 );
-watch(
-  () => showAlert.value,
-  (newVal) => {
-    if (!newVal) {
-      errors.message = '';
-    }
-  },
-);
+watch(showAlert, (newVal) => {
+  if (!newVal) {
+    alertMessage.value.message = '';
+  }
+});
 // penangkap error global END
 
 const { user } = auth;
@@ -110,21 +107,18 @@ onUpdated(function () {
     <link
       rel="shortcut icon"
       :href="settings?.icon || 'favicon.ico'"
-      type="image/x-icon"
-    />
+      type="image/x-icon" />
     <title>{{ settings?.applicationName }}</title>
   </Head>
   <v-app>
     <v-app-bar
       elevation="1"
       color="blue-darken-2"
-      class="pe-2"
-    >
+      class="pe-2">
       <v-app-bar-title>
         <v-icon
           icon="mdi-menu"
-          @click="toggleDrawer"
-        />
+          @click="toggleDrawer" />
         <span class="ms-2">
           <Link href="/">
             <v-avatar variant="text">
@@ -138,12 +132,10 @@ onUpdated(function () {
         <Notification />
         <ProfilePhoto
           :url="auth?.user?.profile_photo_path"
-          id="profile-avatar"
-        />
+          id="profile-avatar" />
         <v-menu
           activator="#profile-avatar"
-          :close-on-content-click="false"
-        >
+          :close-on-content-click="false">
           <v-card min-width="170">
             <v-card-title>{{ user?.name }}</v-card-title>
             <v-card-subtitle>{{ user?.role?.name }}</v-card-subtitle>
@@ -155,8 +147,7 @@ onUpdated(function () {
               <Link
                 :href="route('logout')"
                 class="w-full! text-left"
-                method="post"
-              >
+                method="post">
                 <v-list-item value="logout"> Log out </v-list-item>
               </Link>
             </v-list>
@@ -169,8 +160,7 @@ onUpdated(function () {
         v-model:selected="selectedMenu"
         v-model:opened="expandedGroups"
         color="blue"
-        mandatory
-      >
+        mandatory>
         <DrawerItem
           v-if="canInDashboard(user)"
           :href="route('dashboards')"
@@ -189,6 +179,13 @@ onUpdated(function () {
           icon="mdi-package-variant-plus"
           >Penambahan Barang</DrawerItem
         >
+          <!-- Sembunyikan dulu (belom selesai) -->
+        <DrawerItem
+          v-if="false"
+          :href="route('opname')"
+          icon="mdi-clipboard-check "
+          >Stock Opname</DrawerItem
+        >
         <DrawerItem
           v-if="canRequestItem(user)"
           :href="route('items.requests.form')"
@@ -203,8 +200,7 @@ onUpdated(function () {
         >
         <v-list-group
           v-if="canReadReport(user)"
-          value="report"
-        >
+          value="report">
           <template #activator="{ props }">
             <v-list-item v-bind="props">
               <v-list-item-title>
@@ -251,8 +247,7 @@ onUpdated(function () {
         </v-list-group>
         <v-list-group
           v-if="canSeeMasterData(user)"
-          value="master"
-        >
+          value="master">
           <template #activator="{ props }">
             <v-list-item v-bind="props">
               <v-list-item-title>
@@ -260,6 +255,13 @@ onUpdated(function () {
               </v-list-item-title>
             </v-list-item>
           </template>
+          <!-- Sembunyikan dulu (belom selesai) -->
+          <DrawerItem
+            v-if="false" 
+            :href="route('opname.reasons')"
+            icon="mdi-ruler"
+            >Sebab Stock Opname</DrawerItem
+          >
           <DrawerItem
             v-if="canInUnitPage(user)"
             :href="route('units')"
@@ -298,24 +300,28 @@ onUpdated(function () {
     <AlertDialog
       v-model="showAlert"
       :message="alertMessage"
-      title="Error"
-    />
+      title="Error" />
 
     <Footer
       v-if="!(xs && user?.role?.name == 'unit')"
       :namaInstansi="settings?.institutionName"
-      :alamatInstansi="settings?.institutionAddress"
-    ></Footer>
+      :alamatInstansi="settings?.institutionAddress"></Footer>
     <v-bottom-navigation v-else>
-      <v-btn value="history" @click="router.visit(route('items'), {preserveState: true, preserveScroll: true})">
+      <v-btn
+        value="items"
+        @click="router.visit(route('items'), { preserveState: true, preserveScroll: true })">
         <v-icon>mdi-package</v-icon>
         <span>Daftar Barang</span>
       </v-btn>
-      <v-btn value="request" @click="router.get(route('items.requests.form'), {preserveState: true, preserveScroll: true})">
+      <v-btn
+        value="request"
+        @click="router.get(route('items.requests.form'), { preserveState: true, preserveScroll: true })">
         <v-icon>mdi-clipboard-list</v-icon>
         <span>Minta Barang</span>
       </v-btn>
-      <v-btn value="history" @click="router.get(route('items.requests'), {preserveState: true, preserveScroll: true})">
+      <v-btn
+        value="history"
+        @click="router.get(route('items.requests'), { preserveState: true, preserveScroll: true })">
         <v-icon>mdi-clipboard-text-clock</v-icon>
         <span>Permintaan</span>
       </v-btn>

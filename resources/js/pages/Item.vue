@@ -1,6 +1,7 @@
 <script setup>
 import PageTitleHighlightPart from '@/components/atoms/PageTitleHighlightPart.vue';
 import AlertDialog from '@/components/organisms/AlertDialog.vue';
+import DeleteActionVListItem from '@/components/organisms/DeleteActionVListItem.vue';
 import ApplicationLayout from '@/layouts/ApplicationLayout.vue';
 import { canActItem } from '@/lib/can';
 import { formatRp } from '@/lib/formatters';
@@ -18,7 +19,9 @@ const props = defineProps({
   },
   units: {
     type: [Array, null],
-    default() {return [];},
+    default() {
+      return [];
+    },
   },
 });
 
@@ -49,7 +52,7 @@ const totalPages = computed(() => Math.ceil(totalItems.value / itemsPerPage.valu
 function changePage(page) {
   // tampil animasi loading, hanya jika perpindahan halaman agak instant
   // (mencegah flickering pada perangkat dengan sinyal cepat dan performa kuat)
-  timeId = setTimeout(function() {
+  timeId = setTimeout(function () {
     loading.value = true;
   }, 200);
   router.get(
@@ -61,7 +64,7 @@ function changePage(page) {
       onFinish() {
         clearTimeout(timeId);
         loading.value = false;
-      }
+      },
     },
   );
 }
@@ -101,9 +104,8 @@ const submitForm = () => {
         const hasNonFieldError = Object.keys(errors).some((key) => !fieldErrors.includes(key));
 
         if (hasNonFieldError || errors.message) {
-          errorTitle.value = 'Gagal Memperbarui!';
-          errorMessage.value = errors.message || 'Terjadi kesalahan saat memperbarui barang.';
-          errorDialog.value = true;
+          const message = errors.message || 'Terjadi kesalahan saat mengubah barang.';
+          openErrorDialog('Gagal Mengubah Barang!', message);
         }
       },
     });
@@ -120,27 +122,25 @@ const submitForm = () => {
         const hasNonFieldError = Object.keys(errors).some((key) => !fieldErrors.includes(key));
 
         if (hasNonFieldError || errors.message) {
-          errorTitle.value = 'Gagal Menyimpan!';
-          errorMessage.value = errors.message || 'Terjadi kesalahan saat menyimpan barang.';
-          errorDialog.value = true;
+          const message = errors.message || 'Terjadi kesalahan saat menambah barang.';
+          openErrorDialog('Gagal Menambah Barang!', message);
         }
       },
     });
   }
 };
 
-const deleteItem = (id) => {
-  form.delete(route('items.delete', id), {
-    onSuccess: () => {
-      router.reload();
-    },
-    onError: (errors) => {
-      errorTitle.value = 'Gagal Menghapus!';
-      errorMessage.value = errors.message || 'Terjadi kesalahan saat menghapus barang.';
-      errorDialog.value = true;
-    },
-  });
-};
+function closeErrorDialog() {
+  errorDialog.value = false;
+  errorTitle.value = null;
+  errorMessage.value = null;
+}
+
+function openErrorDialog(title, message) {
+  errorDialog.value = true;
+  errorTitle.value = title;
+  errorMessage.value = message;
+}
 
 const closeDialog = () => {
   dialog.value = false;
@@ -185,15 +185,13 @@ function handleSearchChange() {
     <AlertDialog
       v-model="errorDialog"
       :title="errorTitle"
-      :message="errorMessage"
-    />
+      :message="errorMessage" />
 
     <v-row>
       <v-col>
         <PageTitleHighlightPart
           :first-part-title="canActItem($page.props.auth.user) ? 'Data' : 'Daftar'"
-          second-part-title="Barang"
-        />
+          second-part-title="Barang" />
       </v-col>
     </v-row>
 
@@ -201,30 +199,26 @@ function handleSearchChange() {
       <v-col
         v-if="canActItem($page.props.auth.user)"
         cols="12"
-        md="6"
-      >
+        md="6">
         <v-btn
           variant="tonal"
           color="primary"
           prepend-icon="mdi-package-variant-plus"
-          @click="openAddDialog"
-        >
+          @click="openAddDialog">
           Tambah Barang
         </v-btn>
       </v-col>
 
       <v-col
         cols="12"
-        md="6"
-      >
+        md="6">
         <v-text-field
           color="blue"
           variant="outlined"
           v-model="search"
           @input="handleSearchChange"
           placeholder="Cari nama dan spesifikasi"
-          density="compact"
-        />
+          density="compact" />
       </v-col>
     </v-row>
 
@@ -241,14 +235,12 @@ function handleSearchChange() {
               <th class="text-left">Stok</th>
               <th
                 v-if="canActItem($page.props.auth.user)"
-                class="text-left"
-              >
+                class="text-left">
                 Harga
               </th>
               <th
                 v-if="canActItem($page.props.auth.user)"
-                class="w-1/12 text-left"
-              >
+                class="w-1/12 text-left">
                 Tindakan
               </th>
             </tr>
@@ -263,8 +255,7 @@ function handleSearchChange() {
           <tbody v-else>
             <tr
               v-for="(item, index) in itemsData"
-              :key="item.id"
-            >
+              :key="item.id">
               <td>{{ getItemNumber(index) }}</td>
               <td>{{ item.name }}</td>
               <td>{{ item.unit.name }}</td>
@@ -275,55 +266,22 @@ function handleSearchChange() {
                 <v-btn
                   size="small"
                   icon="mdi-dots-vertical"
-                  variant="text"
-                ></v-btn>
+                  variant="text"></v-btn>
                 <v-menu activator="parent">
                   <v-list density="compact">
                     <v-list-item
                       value="edit"
-                      @click="openEditDialog(item)"
-                    >
+                      @click="openEditDialog(item)">
                       <v-icon
                         icon="mdi-pencil"
-                        class="mr-2"
-                      />
+                        class="mr-2" />
                       Edit
                     </v-list-item>
-                    <v-list-item value="delete">
-                      <v-icon
-                        icon="mdi-delete"
-                        class="mr-2"
-                      />
-                      Hapus
-                      <v-dialog
-                        v-slot="{ isActive }"
-                        activator="parent"
-                        max-width="400"
-                      >
-                        <v-card>
-                          <v-card-title class="bg-blue-darken-2 text-center text-wrap">Konfirmasi!</v-card-title>
-                          <v-card-text>
-                            <div>
-                              Apakah Anda yakin ingin menghapus barang <span class="font-weight-bold text-blue-600">{{ item.name }}</span
-                              >?
-                            </div>
-                          </v-card-text>
-                          <v-card-actions>
-                            <v-spacer></v-spacer>
-                            <v-btn @click="isActive.value = false">Batal</v-btn>
-                            <v-btn
-                              color="error"
-                              @click="
-                                deleteItem(item.id);
-                                isActive.value = false;
-                              "
-                            >
-                              Hapus
-                            </v-btn>
-                          </v-card-actions>
-                        </v-card>
-                      </v-dialog>
-                    </v-list-item>
+                    <DeleteActionVListItem
+                      :delete-url="route('items.delete', item.id)"
+                      :name="item.name"
+                      @close-error-dialog="closeErrorDialog"
+                      @open-error-dialog="openErrorDialog" />
                   </v-list>
                 </v-menu>
               </td>
@@ -331,8 +289,7 @@ function handleSearchChange() {
             <tr v-if="!itemsData || itemsData.length === 0">
               <td
                 colspan="7"
-                class="text-grey text-center"
-              >
+                class="text-grey text-center">
                 Barang tidak ditemukan
               </td>
             </tr>
@@ -346,8 +303,7 @@ function handleSearchChange() {
               :model-value="currentPage"
               :length="totalPages"
               :total-visible="7"
-              @update:model-value="changePage"
-            />
+              @update:model-value="changePage" />
           </v-col>
         </v-row>
       </v-col>
@@ -360,15 +316,14 @@ function handleSearchChange() {
           <template v-if="itemsData && itemsData.length > 0">
             <template v-if="loading">
               <v-list-item class="d-flex justify-center">
-                <v-progress-circular indeterminate/>
+                <v-progress-circular indeterminate />
               </v-list-item>
             </template>
             <v-list-item
               v-else
               v-for="(item, index) in itemsData"
               :key="item.id"
-              class="my-1 py-3"
-            >
+              class="my-1 py-3">
               <div class="d-flex align-start justify-space-between w-100">
                 <div class="grow pr-2">
                   <div class="d-flex align-center mb-1">
@@ -391,59 +346,25 @@ function handleSearchChange() {
                       v-if="canActItem($page.props.auth.user)"
                       size="small"
                       icon="mdi-dots-vertical"
-                      variant="text"
-                    >
+                      variant="text">
                     </v-btn>
                     <v-menu
                       v-if="canActItem($page.props.auth.user)"
-                      activator="parent"
-                    >
+                      activator="parent">
                       <v-list density="compact">
                         <v-list-item
                           value="edit"
-                          @click="openEditDialog(item)"
-                        >
+                          @click="openEditDialog(item)">
                           <v-icon
                             icon="mdi-pencil"
-                            class="mr-2"
-                          />
+                            class="mr-2" />
                           Edit
                         </v-list-item>
-                        <v-list-item value="delete">
-                          <v-icon
-                            icon="mdi-delete"
-                            class="mr-2"
-                          />
-                          Hapus
-                          <v-dialog
-                            v-slot="{ isActive }"
-                            activator="parent"
-                            max-width="400"
-                          >
-                            <v-card>
-                              <v-card-title class="bg-blue-darken-2 text-center text-wrap">Konfirmasi!</v-card-title>
-                              <v-card-text>
-                                <div>
-                                  Apakah Anda yakin ingin menghapus barang <span class="font-weight-bold text-blue-600">{{ item.name }}</span
-                                  >?
-                                </div>
-                              </v-card-text>
-                              <v-card-actions>
-                                <v-spacer></v-spacer>
-                                <v-btn @click="isActive.value = false">Batal</v-btn>
-                                <v-btn
-                                  color="error"
-                                  @click="
-                                    deleteItem(item.id);
-                                    isActive.value = false;
-                                  "
-                                >
-                                  Hapus
-                                </v-btn>
-                              </v-card-actions>
-                            </v-card>
-                          </v-dialog>
-                        </v-list-item>
+                        <DeleteActionVListItem
+                          :name="item.name"
+                          :delete-url="route('items.delete', item.id)"
+                          @close-error-dialog="closeErrorDialog"
+                          @open-error-dialog="(message) => closeErrorDialog('Gagal menghapus barang', message)" />
                       </v-list>
                     </v-menu>
                   </div>
@@ -465,8 +386,7 @@ function handleSearchChange() {
               :model-value="currentPage"
               :length="totalPages"
               :total-visible="5"
-              @update:model-value="changePage"
-            />
+              @update:model-value="changePage" />
           </v-col>
         </v-row>
       </v-col>
@@ -476,8 +396,7 @@ function handleSearchChange() {
     <v-dialog
       v-model="dialog"
       max-width="700px"
-      persistent
-    >
+      persistent>
       <v-card>
         <v-card-title class="bg-blue-darken-2">
           <span class="text-h5">{{ editingId ? 'Edit Barang' : 'Tambah Barang Baru' }}</span>
@@ -488,21 +407,18 @@ function handleSearchChange() {
               <v-row>
                 <v-col
                   cols="12"
-                  md="6"
-                >
+                  md="6">
                   <v-text-field
                     v-model="form.name"
                     label="Nama Barang *"
                     :error-messages="form.errors.name"
-                    placeholder="Contoh: Laptop Dell"
+                    placeholder="Contoh: Buku"
                     required
-                    variant="outlined"
-                  ></v-text-field>
+                    variant="outlined"></v-text-field>
                 </v-col>
                 <v-col
                   cols="12"
-                  md="6"
-                >
+                  md="6">
                   <v-select
                     v-model="form.unit_id"
                     label="Satuan *"
@@ -512,8 +428,7 @@ function handleSearchChange() {
                     :error-messages="form.errors.unit_id"
                     placeholder="Pilih satuan"
                     required
-                    variant="outlined"
-                  ></v-select>
+                    variant="outlined"></v-select>
                 </v-col>
               </v-row>
               <v-row>
@@ -522,18 +437,16 @@ function handleSearchChange() {
                     v-model="form.spesification_name"
                     label="Spesifikasi *"
                     :error-messages="form.errors.spesification_name"
-                    placeholder="Contoh: Core i5, RAM 8GB, SSD 256GB"
+                    placeholder="Contoh: Sidu"
                     required
                     variant="outlined"
-                    rows="3"
-                  ></v-textarea>
+                    rows="3"></v-textarea>
                 </v-col>
               </v-row>
               <v-row>
                 <v-col
                   cols="12"
-                  md="6"
-                >
+                  md="6">
                   <v-text-field
                     v-model.number="form.stock"
                     label="Stok"
@@ -541,13 +454,11 @@ function handleSearchChange() {
                     type="number"
                     min="0"
                     placeholder="0"
-                    variant="outlined"
-                  ></v-text-field>
+                    variant="outlined"></v-text-field>
                 </v-col>
                 <v-col
                   cols="12"
-                  md="6"
-                >
+                  md="6">
                   <v-text-field
                     v-model.number="form.price"
                     label="Harga"
@@ -557,8 +468,7 @@ function handleSearchChange() {
                     step="0.01"
                     placeholder="0"
                     prefix="Rp"
-                    variant="outlined"
-                  ></v-text-field>
+                    variant="outlined"></v-text-field>
                 </v-col>
               </v-row>
             </v-form>
@@ -572,16 +482,14 @@ function handleSearchChange() {
             color="grey-darken-1"
             variant="text"
             :disabled="form.processing"
-            @click="closeDialog"
-          >
+            @click="closeDialog">
             Batal
           </v-btn>
           <v-btn
             color="primary"
             variant="tonal"
             :loading="form.processing"
-            @click="submitForm"
-          >
+            @click="submitForm">
             {{ editingId ? 'Perbarui' : 'Simpan' }}
           </v-btn>
         </v-card-actions>

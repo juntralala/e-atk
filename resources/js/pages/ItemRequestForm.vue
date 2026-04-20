@@ -87,24 +87,23 @@ function cancel() {
 </script>
 
 <template>
-  <v-container fluid class="pa-4 pa-md-6">
+  <v-container
+    fluid
+    class="pa-4 pa-md-6">
     <SuccessDialog
       v-model="successDialog"
-      message="Permintaan barang berhasil disimpan."
-    />
+      message="Permintaan barang berhasil disimpan." />
     <AlertDialog
       title="Gagal!"
       v-model="errorDialog"
-      :message="errorMessage"
-    />
-    
+      :message="errorMessage" />
+
     <!-- Header Section -->
     <v-row class="mb-4">
       <v-col>
         <PageTitleHighlightPart
           first-part-title="Minta"
-          second-part-title="Barang"
-        />
+          second-part-title="Barang" />
       </v-col>
     </v-row>
 
@@ -116,20 +115,16 @@ function cancel() {
           <div
             v-for="(item, index) in form.items"
             :key="index"
-            class="mb-4 pa-4 rounded-lg"
-            :class="index % 2 === 0 ? 'bg-grey-lighten-4' : 'bg-white'"
-          >
-            <div class="d-flex align-center gap-2 mb-3">
+            class="pa-4 mb-4 rounded-lg"
+            :class="index % 2 === 0 ? 'bg-grey-lighten-4' : 'bg-white'">
+            <div class="d-flex align-center mb-3 gap-2">
               <v-chip
                 size="small"
                 color="blue"
-                variant="flat"
-              >
+                variant="flat">
                 {{ index + 1 }}
               </v-chip>
-              <span class="text-body-2 text-grey-darken-2 font-weight-medium">
-                Barang {{ index + 1 }}
-              </span>
+              <span class="text-body-2 text-grey-darken-2 font-weight-medium"> Barang {{ index + 1 }} </span>
               <v-spacer></v-spacer>
               <v-btn
                 variant="text"
@@ -137,15 +132,16 @@ function cancel() {
                 icon
                 size="small"
                 :disabled="form.items.length === 1"
-                @click="deleteItem(index)"
-              >
+                @click="deleteItem(index)">
                 <v-icon size="20">mdi-close</v-icon>
               </v-btn>
             </div>
 
             <v-row>
               <!-- Item Selection -->
-              <v-col cols="12" md="8">
+              <v-col
+                cols="12"
+                md="8">
                 <v-autocomplete
                   v-model="item.item_id"
                   density="comfortable"
@@ -154,24 +150,28 @@ function cancel() {
                   item-value="id"
                   label="Pilih Barang"
                   placeholder="Ketik untuk mencari..."
-                  :hint="item.item_id ? `${getItemFromProp(item.item_id)?.spesification_name} - Stok: ${getItemFromProp(item.item_id)?.stock} ${getItemFromProp(item.item_id)?.unit?.name}` : ''"
+                  :hint="
+                    item.item_id
+                      ? `${getItemFromProp(item.item_id)?.spesification_name} - Stok: ${getItemFromProp(item.item_id)?.stock} ${getItemFromProp(item.item_id)?.unit?.name}`
+                      : ''
+                  "
                   persistent-hint
                   :error-messages="form.errors[`items.${index}.item_id`]"
                   variant="outlined"
                   color="blue"
-                  bg-color="white"
-                >
+                  bg-color="white">
                   <template v-slot:item="{ props: itemProps, item: barangItem }">
                     <v-list-item
                       v-bind="itemProps"
-                      :subtitle="`${barangItem.raw.spesification_name} - Stok: ${barangItem.raw.stock} ${barangItem.raw.unit.name}`"
-                    />
+                      :subtitle="`${barangItem.raw.spesification_name} - Stok: ${barangItem.raw.stock} ${barangItem.raw.unit.name}`" />
                   </template>
                 </v-autocomplete>
               </v-col>
 
               <!-- Quantity -->
-              <v-col cols="12" md="4">
+              <v-col
+                cols="12"
+                md="4">
                 <v-number-input
                   v-model="item.requested_quantity"
                   :min="1"
@@ -181,8 +181,7 @@ function cancel() {
                   :error-messages="form.errors[`items.${index}.requested_quantity`]"
                   variant="outlined"
                   color="blue"
-                  bg-color="white"
-                />
+                  bg-color="white" />
               </v-col>
             </v-row>
           </div>
@@ -195,9 +194,10 @@ function cancel() {
                 color="blue"
                 :disabled="form.processing"
                 @click="addItem"
-                block
-              >
-                <v-icon icon="mdi-plus" start></v-icon>
+                block>
+                <v-icon
+                  icon="mdi-plus"
+                  start></v-icon>
                 Tambah Barang
               </v-btn>
             </v-col>
@@ -212,9 +212,10 @@ function cancel() {
                 variant="outlined"
                 color="grey-darken-1"
                 :disabled="form.processing"
-                @click="cancel"
-              >
-                <v-icon icon="mdi-close" start></v-icon>
+                @click="cancel">
+                <v-icon
+                  icon="mdi-close"
+                  start></v-icon>
                 Batal
               </v-btn>
               <v-btn
@@ -222,9 +223,10 @@ function cancel() {
                 variant="flat"
                 color="blue"
                 :loading="form.processing"
-                :disabled="form.processing"
-              >
-                <v-icon icon="mdi-send" start></v-icon>
+                :disabled="form.processing">
+                <v-icon
+                  icon="mdi-send"
+                  start></v-icon>
                 Kirim
               </v-btn>
             </v-col>

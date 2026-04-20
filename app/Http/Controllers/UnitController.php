@@ -45,7 +45,7 @@ class UnitController extends Controller
     public function deleteUnit($id)
     {
         $unit = Unit::findOrFail($id);
-        if ($unit->items()->exists()) {
+        if (! $unit->items()->exists()) {
             $unit->forceDelete();
         } else {
             $unit->delete();

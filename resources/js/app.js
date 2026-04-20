@@ -1,16 +1,24 @@
 import '../css/app.css';
 
 import { createInertiaApp } from '@inertiajs/vue3';
+import '@mdi/font/css/materialdesignicons.css';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createApp, h } from 'vue';
-import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 import { createVuetify } from 'vuetify';
-import { id, en } from 'vuetify/locale';
+import { en, id } from 'vuetify/locale';
 import 'vuetify/styles';
-import '@mdi/font/css/materialdesignicons.css';
+import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
-const vuetify = createVuetify({ locale: { locale: 'id', messages: { id, en } } });
+const vuetify = createVuetify({
+    locale: {
+        locale: 'id',
+        messages: {
+            id,
+            en,
+        },
+    },
+});
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
@@ -26,4 +34,3 @@ createInertiaApp({
         color: '#4B5563',
     },
 });
-

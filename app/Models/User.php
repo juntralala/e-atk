@@ -9,10 +9,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use NotificationChannels\WebPush\HasPushSubscriptions;
 
 class User extends Authenticatable
 {
-    use HasFactory, HasUuids, Notifiable, SoftDeletes;
+    use HasFactory, HasPushSubscriptions, HasUuids, Notifiable, SoftDeletes;
 
     /**
      * @var list<string>
@@ -60,5 +61,15 @@ class User extends Authenticatable
     public function respondedItemRequests()
     {
         return $this->hasMany(ItemRequest::class, 'responder_id', 'id');
+    }
+
+    public function stockOpnames()
+    {
+        return $this->hasMany(StockOpname::class);
+    }
+
+    public function respondedStockOpnames()
+    {
+        return $this->hasMany(StockOpname::class, 'responder_id');
     }
 }

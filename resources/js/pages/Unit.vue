@@ -1,5 +1,6 @@
 <script setup>
 import PageTitleHighlightPart from '@/components/atoms/PageTitleHighlightPart.vue';
+import DeleteActionVListItem from '@/components/organisms/DeleteActionVListItem.vue';
 import ApplicationLayout from '@/layouts/ApplicationLayout.vue';
 import { router, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
@@ -11,7 +12,9 @@ defineOptions({
 defineProps({
   units: {
     type: [Array, null],
-    default() {return [];},
+    default() {
+      return [];
+    },
   },
 });
 
@@ -79,23 +82,6 @@ const submitForm = () => {
   }
 };
 
-const deleteUnit = (id) => {
-  form.delete(`/units/${id}`, {
-    onSuccess: () => {
-      router.reload();
-    },
-    onError: (errors) => {
-      errorMessage.value = errors.message || 'Terjadi kesalahan saat menghapus satuan.';
-      errorDialog.value = true;
-
-      setTimeout(() => {
-        errorDialog.value = false;
-        errorMessage.value = '';
-      }, 3000);
-    },
-  });
-};
-
 const closeDialog = () => {
   dialog.value = false;
   form.reset();
@@ -106,6 +92,11 @@ const closeErrorDialog = () => {
   errorDialog.value = false;
   errorMessage.value = '';
 };
+
+function openErrorDialog(message) {
+  errorMessage.value = message;
+  errorDialog.value = true;
+}
 
 let timeoutId;
 function handleSearchChange() {
@@ -138,16 +129,14 @@ function handleSearchChange() {
     <!-- Error Dialog - HANYA untuk error NON-FIELD -->
     <v-dialog
       v-model="errorDialog"
-      max-width="400"
-    >
+      max-width="400">
       <v-card>
         <v-card-text class="pa-8 text-center">
           <v-icon
             icon="mdi-alert-circle"
             size="64"
             color="error"
-            class="mb-4"
-          ></v-icon>
+            class="mb-4"></v-icon>
           <h2 class="text-h5 font-weight-bold mb-2">Gagal!</h2>
           <p class="text-body-1">{{ errorMessage }}</p>
         </v-card-text>
@@ -155,8 +144,7 @@ function handleSearchChange() {
           <v-btn
             color="error"
             variant="flat"
-            @click="closeErrorDialog"
-          >
+            @click="closeErrorDialog">
             Tutup
           </v-btn>
         </v-card-actions>
@@ -167,38 +155,33 @@ function handleSearchChange() {
       <v-col>
         <PageTitleHighlightPart
           first-part-title="Data"
-          second-part-title="Satuan Ukuran"
-        />
+          second-part-title="Satuan Ukuran" />
       </v-col>
     </v-row>
 
     <v-row class="justify-between">
       <v-col
         cols="12"
-        md="6"
-      >
+        md="6">
         <v-btn
           variant="tonal"
           color="primary"
           prepend-icon="mdi-plus"
-          @click="openAddDialog"
-        >
+          @click="openAddDialog">
           Tambah Satuan Ukuran
         </v-btn>
       </v-col>
 
       <v-col
         cols="12"
-        md="6"
-      >
+        md="6">
         <v-text-field
           color="blue"
           variant="outlined"
           v-model="search"
           @input="handleSearchChange"
           placeholder="Cari nama satuan"
-          density="compact"
-        />
+          density="compact" />
       </v-col>
     </v-row>
 
@@ -223,61 +206,29 @@ function handleSearchChange() {
           <tbody>
             <tr
               v-for="(unit, index) in units"
-              :key="unit.id"
-            >
+              :key="unit.id">
               <td>{{ index + 1 }}</td>
               <td>{{ unit.name }}</td>
               <td>
                 <v-btn
                   size="small"
                   icon="mdi-dots-vertical"
-                  variant="text"
-                ></v-btn>
+                  variant="text" />
                 <v-menu activator="parent">
                   <v-list density="compact">
                     <v-list-item
                       value="edit"
-                      @click="openEditDialog(unit)"
-                    >
+                      @click="openEditDialog(unit)">
                       <v-icon
                         icon="mdi-pencil"
-                        class="mr-2"
-                      />
+                        class="mr-2" />
                       Edit
                     </v-list-item>
-                    <v-list-item value="delete">
-                      <v-icon
-                        icon="mdi-delete"
-                        class="mr-2"
-                      />
-                      Hapus
-                      <v-dialog
-                        v-slot="{ isActive }"
-                        activator="parent"
-                        max-width="400"
-                      >
-                        <v-card>
-                          <v-card-title class="text-center">Konfirmasi!</v-card-title>
-                          <v-card-text>
-                            Apakah Anda yakin ingin menghapus <span class="font-weight-bold">{{ unit.name }}</span
-                            >?
-                          </v-card-text>
-                          <v-card-actions>
-                            <v-spacer></v-spacer>
-                            <v-btn @click="isActive.value = false">Batal</v-btn>
-                            <v-btn
-                              color="error"
-                              @click="
-                                deleteUnit(unit.id);
-                                isActive.value = false;
-                              "
-                            >
-                              Hapus
-                            </v-btn>
-                          </v-card-actions>
-                        </v-card>
-                      </v-dialog>
-                    </v-list-item>
+                    <DeleteActionVListItem
+                      :delete-url="route('units.delete', unit.id)"
+                      :name="unit.name"
+                      @close-error-dialog="closeErrorDialog"
+                      @open-error-dialog="openErrorDialog" />
                   </v-list>
                 </v-menu>
               </td>
@@ -285,8 +236,7 @@ function handleSearchChange() {
             <tr v-if="!units || units.length === 0">
               <td
                 colspan="3"
-                class="text-grey text-center"
-              >
+                class="text-grey text-center">
                 Belum ada satuan yang ditambahkan
               </td>
             </tr>
@@ -308,8 +258,7 @@ function handleSearchChange() {
             <v-list-item
               v-for="(unit, index) in units"
               :key="unit.id"
-              class="my-1 py-3"
-            >
+              class="my-1 py-3">
               <div class="d-flex align-center justify-space-between w-100">
                 <div class="d-flex align-center grow pr-2">
                   <span class="text-caption text-grey mr-2">{{ index + 1 }}.</span>
@@ -319,53 +268,22 @@ function handleSearchChange() {
                   <v-btn
                     size="small"
                     icon="mdi-dots-vertical"
-                    variant="text"
-                  ></v-btn>
+                    variant="text"></v-btn>
                   <v-menu activator="parent">
                     <v-list density="compact">
                       <v-list-item
                         value="edit"
-                        @click="openEditDialog(unit)"
-                      >
+                        @click="openEditDialog(unit)">
                         <v-icon
                           icon="mdi-pencil"
-                          class="mr-2"
-                        />
+                          class="mr-2" />
                         Edit
                       </v-list-item>
-                      <v-list-item value="delete">
-                        <v-icon
-                          icon="mdi-delete"
-                          class="mr-2"
-                        />
-                        Hapus
-                        <v-dialog
-                          v-slot="{ isActive }"
-                          activator="parent"
-                          max-width="400"
-                        >
-                          <v-card>
-                            <v-card-title class="text-center">Konfirmasi!</v-card-title>
-                            <v-card-text>
-                              Apakah Anda yakin ingin menghapus <span class="font-weight-bold">{{ unit.name }}</span
-                              >?
-                            </v-card-text>
-                            <v-card-actions>
-                              <v-spacer></v-spacer>
-                              <v-btn @click="isActive.value = false">Batal</v-btn>
-                              <v-btn
-                                color="error"
-                                @click="
-                                  deleteUnit(unit.id);
-                                  isActive.value = false;
-                                "
-                              >
-                                Hapus
-                              </v-btn>
-                            </v-card-actions>
-                          </v-card>
-                        </v-dialog>
-                      </v-list-item>
+                      <DeleteActionVListItem
+                        :delete-url="route('units.delete', unit.id)"
+                        :name="unit.name"
+                        @close-error-dialog="closeErrorDialog"
+                        @open-error-dialog="openErrorDialog" />
                     </v-list>
                   </v-menu>
                 </div>
@@ -385,8 +303,7 @@ function handleSearchChange() {
     <v-dialog
       v-model="dialog"
       max-width="600px"
-      persistent
-    >
+      persistent>
       <v-card>
         <v-card-title>
           <span class="text-h5">{{ editingId ? 'Edit Satuan Ukuran' : 'Tambah Satuan Ukuran Baru' }}</span>
@@ -402,8 +319,7 @@ function handleSearchChange() {
                     :error-messages="form.errors.name"
                     placeholder="e.g., pcs, kg, liter, box"
                     required
-                    variant="outlined"
-                  ></v-text-field>
+                    variant="outlined"></v-text-field>
                 </v-col>
               </v-row>
             </v-form>
@@ -416,16 +332,14 @@ function handleSearchChange() {
             color="grey-darken-1"
             variant="text"
             :disabled="form.processing"
-            @click="closeDialog"
-          >
+            @click="closeDialog">
             Batal
           </v-btn>
           <v-btn
             color="primary"
             variant="tonal"
             :loading="form.processing"
-            @click="submitForm"
-          >
+            @click="submitForm">
             {{ editingId ? 'Perbarui' : 'Simpan' }}
           </v-btn>
         </v-card-actions>
