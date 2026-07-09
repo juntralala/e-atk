@@ -13,6 +13,5 @@ function toggleShowPassword() {
     label="Password"
     :type="showPassword ? 'text' : 'password'"
     :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-    @click:append-inner="toggleShowPassword"
-  ></v-text-field>
+    @click:append-inner="toggleShowPassword"></v-text-field>
 </template>

@@ -87,23 +87,14 @@ function cancel() {
 </script>
 
 <template>
-  <v-container
-    fluid
-    class="pa-4 pa-md-6">
-    <SuccessDialog
-      v-model="successDialog"
-      message="Permintaan barang berhasil disimpan." />
-    <AlertDialog
-      title="Gagal!"
-      v-model="errorDialog"
-      :message="errorMessage" />
+  <v-container fluid class="pa-4 pa-md-6">
+    <SuccessDialog v-model="successDialog" message="Permintaan barang berhasil disimpan." />
+    <AlertDialog title="Gagal!" v-model="errorDialog" :message="errorMessage" />
 
     <!-- Header Section -->
     <v-row class="mb-4">
       <v-col>
-        <PageTitleHighlightPart
-          first-part-title="Minta"
-          second-part-title="Barang" />
+        <PageTitleHighlightPart first-part-title="Minta" second-part-title="Barang" />
       </v-col>
     </v-row>
 
@@ -118,10 +109,7 @@ function cancel() {
             class="pa-4 mb-4 rounded-lg"
             :class="index % 2 === 0 ? 'bg-grey-lighten-4' : 'bg-white'">
             <div class="d-flex align-center mb-3 gap-2">
-              <v-chip
-                size="small"
-                color="blue"
-                variant="flat">
+              <v-chip size="small" color="blue" variant="flat">
                 {{ index + 1 }}
               </v-chip>
               <span class="text-body-2 text-grey-darken-2 font-weight-medium"> Barang {{ index + 1 }} </span>
@@ -139,9 +127,7 @@ function cancel() {
 
             <v-row>
               <!-- Item Selection -->
-              <v-col
-                cols="12"
-                md="8">
+              <v-col cols="12" md="8">
                 <v-autocomplete
                   v-model="item.item_id"
                   density="comfortable"
@@ -169,9 +155,7 @@ function cancel() {
               </v-col>
 
               <!-- Quantity -->
-              <v-col
-                cols="12"
-                md="4">
+              <v-col cols="12" md="4">
                 <v-number-input
                   v-model="item.requested_quantity"
                   :min="1"
@@ -189,15 +173,8 @@ function cancel() {
           <!-- Add Item Button -->
           <v-row class="mt-2">
             <v-col>
-              <v-btn
-                variant="outlined"
-                color="blue"
-                :disabled="form.processing"
-                @click="addItem"
-                block>
-                <v-icon
-                  icon="mdi-plus"
-                  start></v-icon>
+              <v-btn variant="outlined" color="blue" :disabled="form.processing" @click="addItem" block>
+                <v-icon icon="mdi-plus" start></v-icon>
                 Tambah Barang
               </v-btn>
             </v-col>
@@ -208,25 +185,12 @@ function cancel() {
           <!-- Action Buttons -->
           <v-row>
             <v-col class="d-flex justify-end gap-3">
-              <v-btn
-                variant="outlined"
-                color="grey-darken-1"
-                :disabled="form.processing"
-                @click="cancel">
-                <v-icon
-                  icon="mdi-close"
-                  start></v-icon>
+              <v-btn variant="outlined" color="grey-darken-1" :disabled="form.processing" @click="cancel">
+                <v-icon icon="mdi-close" start></v-icon>
                 Batal
               </v-btn>
-              <v-btn
-                type="submit"
-                variant="flat"
-                color="blue"
-                :loading="form.processing"
-                :disabled="form.processing">
-                <v-icon
-                  icon="mdi-send"
-                  start></v-icon>
+              <v-btn type="submit" variant="flat" color="blue" :loading="form.processing" :disabled="form.processing">
+                <v-icon icon="mdi-send" start></v-icon>
                 Kirim
               </v-btn>
             </v-col>

@@ -127,54 +127,33 @@ function handleSearchChange() {
 <template>
   <v-container>
     <!-- Error Dialog - HANYA untuk error NON-FIELD -->
-    <v-dialog
-      v-model="errorDialog"
-      max-width="400">
+    <v-dialog v-model="errorDialog" max-width="400">
       <v-card>
         <v-card-text class="pa-8 text-center">
-          <v-icon
-            icon="mdi-alert-circle"
-            size="64"
-            color="error"
-            class="mb-4"></v-icon>
+          <v-icon icon="mdi-alert-circle" size="64" color="error" class="mb-4"></v-icon>
           <h2 class="text-h5 font-weight-bold mb-2">Gagal!</h2>
           <p class="text-body-1">{{ errorMessage }}</p>
         </v-card-text>
         <v-card-actions class="justify-center pb-6">
-          <v-btn
-            color="error"
-            variant="flat"
-            @click="closeErrorDialog">
-            Tutup
-          </v-btn>
+          <v-btn color="error" variant="flat" @click="closeErrorDialog"> Tutup </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
     <v-row>
       <v-col>
-        <PageTitleHighlightPart
-          first-part-title="Data"
-          second-part-title="Satuan Ukuran" />
+        <PageTitleHighlightPart first-part-title="Data" second-part-title="Satuan Ukuran" />
       </v-col>
     </v-row>
 
     <v-row class="justify-between">
-      <v-col
-        cols="12"
-        md="6">
-        <v-btn
-          variant="tonal"
-          color="primary"
-          prepend-icon="mdi-plus"
-          @click="openAddDialog">
+      <v-col cols="12" md="6">
+        <v-btn variant="tonal" color="primary" prepend-icon="mdi-plus" @click="openAddDialog">
           Tambah Satuan Ukuran
         </v-btn>
       </v-col>
 
-      <v-col
-        cols="12"
-        md="6">
+      <v-col cols="12" md="6">
         <v-text-field
           color="blue"
           variant="outlined"
@@ -204,24 +183,15 @@ function handleSearchChange() {
             </tr>
           </template>
           <tbody>
-            <tr
-              v-for="(unit, index) in units"
-              :key="unit.id">
+            <tr v-for="(unit, index) in units" :key="unit.id">
               <td>{{ index + 1 }}</td>
               <td>{{ unit.name }}</td>
               <td>
-                <v-btn
-                  size="small"
-                  icon="mdi-dots-vertical"
-                  variant="text" />
+                <v-btn size="small" icon="mdi-dots-vertical" variant="text" />
                 <v-menu activator="parent">
                   <v-list density="compact">
-                    <v-list-item
-                      value="edit"
-                      @click="openEditDialog(unit)">
-                      <v-icon
-                        icon="mdi-pencil"
-                        class="mr-2" />
+                    <v-list-item value="edit" @click="openEditDialog(unit)">
+                      <v-icon icon="mdi-pencil" class="mr-2" />
                       Edit
                     </v-list-item>
                     <DeleteActionVListItem
@@ -234,11 +204,7 @@ function handleSearchChange() {
               </td>
             </tr>
             <tr v-if="!units || units.length === 0">
-              <td
-                colspan="3"
-                class="text-grey text-center">
-                Belum ada satuan yang ditambahkan
-              </td>
+              <td colspan="3" class="text-grey text-center">Belum ada satuan yang ditambahkan</td>
             </tr>
           </tbody>
         </v-table>
@@ -255,28 +221,18 @@ function handleSearchChange() {
             </v-list-item>
           </template>
           <template v-else-if="units && units.length > 0">
-            <v-list-item
-              v-for="(unit, index) in units"
-              :key="unit.id"
-              class="my-1 py-3">
+            <v-list-item v-for="(unit, index) in units" :key="unit.id" class="my-1 py-3">
               <div class="d-flex align-center justify-space-between w-100">
                 <div class="d-flex align-center grow pr-2">
                   <span class="text-caption text-grey mr-2">{{ index + 1 }}.</span>
                   <span class="font-medium">{{ unit.name }}</span>
                 </div>
                 <div class="shrink-0">
-                  <v-btn
-                    size="small"
-                    icon="mdi-dots-vertical"
-                    variant="text"></v-btn>
+                  <v-btn size="small" icon="mdi-dots-vertical" variant="text"></v-btn>
                   <v-menu activator="parent">
                     <v-list density="compact">
-                      <v-list-item
-                        value="edit"
-                        @click="openEditDialog(unit)">
-                        <v-icon
-                          icon="mdi-pencil"
-                          class="mr-2" />
+                      <v-list-item value="edit" @click="openEditDialog(unit)">
+                        <v-icon icon="mdi-pencil" class="mr-2" />
                         Edit
                       </v-list-item>
                       <DeleteActionVListItem
@@ -300,10 +256,7 @@ function handleSearchChange() {
     </v-row>
 
     <!-- Add/Edit Satuan Dialog Form -->
-    <v-dialog
-      v-model="dialog"
-      max-width="600px"
-      persistent>
+    <v-dialog v-model="dialog" max-width="600px" persistent>
       <v-card>
         <v-card-title>
           <span class="text-h5">{{ editingId ? 'Edit Satuan Ukuran' : 'Tambah Satuan Ukuran Baru' }}</span>
@@ -328,18 +281,8 @@ function handleSearchChange() {
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn
-            color="grey-darken-1"
-            variant="text"
-            :disabled="form.processing"
-            @click="closeDialog">
-            Batal
-          </v-btn>
-          <v-btn
-            color="primary"
-            variant="tonal"
-            :loading="form.processing"
-            @click="submitForm">
+          <v-btn color="grey-darken-1" variant="text" :disabled="form.processing" @click="closeDialog"> Batal </v-btn>
+          <v-btn color="primary" variant="tonal" :loading="form.processing" @click="submitForm">
             {{ editingId ? 'Perbarui' : 'Simpan' }}
           </v-btn>
         </v-card-actions>

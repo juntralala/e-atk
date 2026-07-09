@@ -69,13 +69,20 @@ const submitForm = () => {
     },
     onError: (errors) => {
       // Cek apakah ada error non-field
-      const fieldErrors = ['icon', 'logo', 'applicationName', 'institutionName', 'institutionAddress', 'institutionPhone'];
-      const hasNonFieldError = Object.keys(errors).some(key => !fieldErrors.includes(key));
-      
+      const fieldErrors = [
+        'icon',
+        'logo',
+        'applicationName',
+        'institutionName',
+        'institutionAddress',
+        'institutionPhone',
+      ];
+      const hasNonFieldError = Object.keys(errors).some((key) => !fieldErrors.includes(key));
+
       if (hasNonFieldError || errors.message) {
         errorMessage.value = errors.message || 'Terjadi kesalahan saat memperbarui pengaturan.';
         errorDialog.value = true;
-        
+
         setTimeout(() => {
           errorDialog.value = false;
           errorMessage.value = '';
@@ -91,15 +98,12 @@ const submitForm = () => {
     <title>Pengaturan</title>
   </Head>
   <v-container>
-     <SuccessDialog v-model="successDialog" title="Berhasil!" message="Pengaturan berhasil diperbarui."/>
-     <AlertDialog v-model="errorDialog" title="Gagal!" :message="errorMessage"/>
+    <SuccessDialog v-model="successDialog" title="Berhasil!" message="Pengaturan berhasil diperbarui." />
+    <AlertDialog v-model="errorDialog" title="Gagal!" :message="errorMessage" />
 
     <v-row>
       <v-col>
-        <PageTitleHighlightPart
-          first-part-title="Pengaturan"
-          second-part-title="Aplikasi"
-        />
+        <PageTitleHighlightPart first-part-title="Pengaturan" second-part-title="Aplikasi" />
       </v-col>
     </v-row>
 
@@ -114,42 +118,38 @@ const submitForm = () => {
               <v-row>
                 <!-- Icon Upload -->
                 <v-col cols="12" md="6">
-                  <v-label class="mb-2 font-weight-bold">Icon Aplikasi</v-label>
+                  <v-label class="font-weight-bold mb-2">Icon Aplikasi</v-label>
                   <v-file-input
                     label="Pilih Icon"
                     accept="image/*"
                     prepend-icon="mdi-image"
                     :error-messages="form.errors.icon"
                     variant="outlined"
-                    @change="handleIconChange"
-                  ></v-file-input>
+                    @change="handleIconChange"></v-file-input>
                   <v-img
                     v-if="iconPreview"
                     :src="iconPreview"
                     max-width="150"
                     max-height="150"
-                    class="mt-2 border"
-                  ></v-img>
+                    class="mt-2 border"></v-img>
                 </v-col>
 
                 <!-- Logo Upload -->
                 <v-col cols="12" md="6">
-                  <v-label class="mb-2 font-weight-bold">Logo Aplikasi</v-label>
+                  <v-label class="font-weight-bold mb-2">Logo Aplikasi</v-label>
                   <v-file-input
                     label="Pilih Logo"
                     accept="image/*"
                     prepend-icon="mdi-image"
                     :error-messages="form.errors.logo"
                     variant="outlined"
-                    @change="handleLogoChange"
-                  ></v-file-input>
+                    @change="handleLogoChange"></v-file-input>
                   <v-img
                     v-if="logoPreview"
                     :src="logoPreview"
                     max-width="200"
                     max-height="150"
-                    class="mt-2 border"
-                  ></v-img>
+                    class="mt-2 border"></v-img>
                 </v-col>
 
                 <!-- Nama Aplikasi -->
@@ -161,8 +161,7 @@ const submitForm = () => {
                     placeholder="Masukkan nama aplikasi"
                     prepend-inner-icon="mdi-application"
                     required
-                    variant="outlined"
-                  ></v-text-field>
+                    variant="outlined"></v-text-field>
                 </v-col>
 
                 <!-- Nama Instansi -->
@@ -174,8 +173,7 @@ const submitForm = () => {
                     placeholder="Masukkan nama instansi"
                     prepend-inner-icon="mdi-office-building"
                     required
-                    variant="outlined"
-                  ></v-text-field>
+                    variant="outlined"></v-text-field>
                 </v-col>
 
                 <!-- Alamat Instansi -->
@@ -188,8 +186,7 @@ const submitForm = () => {
                     prepend-inner-icon="mdi-map-marker"
                     rows="3"
                     required
-                    variant="outlined"
-                  ></v-textarea>
+                    variant="outlined"></v-textarea>
                 </v-col>
 
                 <!-- Telepon Instansi -->
@@ -201,8 +198,7 @@ const submitForm = () => {
                     placeholder="Masukkan nomor telepon instansi"
                     prepend-inner-icon="mdi-phone"
                     required
-                    variant="outlined"
-                  ></v-text-field>
+                    variant="outlined"></v-text-field>
                 </v-col>
               </v-row>
             </v-form>
@@ -210,20 +206,10 @@ const submitForm = () => {
 
           <v-card-actions class="px-6 pb-6">
             <v-spacer></v-spacer>
-            <v-btn
-              color="grey-darken-1"
-              variant="text"
-              :disabled="form.processing"
-              @click="router.visit('home')"
-            >
+            <v-btn color="grey-darken-1" variant="text" :disabled="form.processing" @click="router.visit('home')">
               Batal
             </v-btn>
-            <v-btn
-              color="primary"
-              variant="tonal"
-              :loading="form.processing"
-              @click="submitForm"
-            >
+            <v-btn color="primary" variant="tonal" :loading="form.processing" @click="submitForm">
               Simpan Perubahan
             </v-btn>
           </v-card-actions>

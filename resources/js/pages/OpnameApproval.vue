@@ -133,17 +133,17 @@ function getDiffColor(diff) {
       <v-table density="comfortable" hover>
         <thead>
           <tr>
-            <th class="text-caption text-uppercase font-weight-medium" style="width: 40px;">#</th>
+            <th class="text-caption text-uppercase font-weight-medium" style="width: 40px">#</th>
             <th class="text-caption text-uppercase font-weight-medium">Tanggal</th>
             <th class="text-caption text-uppercase font-weight-medium">Dibuat Oleh</th>
             <th class="text-caption text-uppercase font-weight-medium">Jumlah Barang</th>
             <th class="text-caption text-uppercase font-weight-medium">Status</th>
-            <th class="text-caption text-uppercase font-weight-medium" style="width: 160px;">Aksi</th>
+            <th class="text-caption text-uppercase font-weight-medium" style="width: 160px">Aksi</th>
           </tr>
         </thead>
         <tbody>
           <tr v-if="opnames.length === 0">
-            <td colspan="6" class="text-center text-body-2 text-grey py-8">
+            <td colspan="6" class="text-body-2 text-grey py-8 text-center">
               Tidak ada data opname yang perlu disetujui.
             </td>
           </tr>
@@ -153,11 +153,7 @@ function getDiffColor(diff) {
             <td class="text-body-2">{{ opname.created_by?.name ?? '—' }}</td>
             <td class="text-body-2">{{ opname.items?.length ?? 0 }} barang</td>
             <td>
-              <v-chip
-                :color="statusColor(opname.status)"
-                size="small"
-                variant="tonal"
-                label>
+              <v-chip :color="statusColor(opname.status)" size="small" variant="tonal" label>
                 {{ statusLabel(opname.status) }}
               </v-chip>
             </td>
@@ -214,11 +210,7 @@ function getDiffColor(diff) {
               {{ selectedOpname.opname_date }} &bull; {{ selectedOpname.created_by?.name ?? '—' }}
             </div>
           </div>
-          <v-chip
-            :color="statusColor(selectedOpname.status)"
-            size="small"
-            variant="tonal"
-            label>
+          <v-chip :color="statusColor(selectedOpname.status)" size="small" variant="tonal" label>
             {{ statusLabel(selectedOpname.status) }}
           </v-chip>
         </v-card-title>
@@ -272,7 +264,10 @@ function getDiffColor(diff) {
               variant="tonal"
               color="error"
               size="small"
-              @click="detailDialog = false; openReject(selectedOpname.id)">
+              @click="
+                detailDialog = false;
+                openReject(selectedOpname.id);
+              ">
               <v-icon icon="mdi-close" start />
               Tolak
             </v-btn>
@@ -280,15 +275,16 @@ function getDiffColor(diff) {
               variant="flat"
               color="success"
               size="small"
-              @click="detailDialog = false; openConfirmApprove(selectedOpname.id)">
+              @click="
+                detailDialog = false;
+                openConfirmApprove(selectedOpname.id);
+              ">
               <v-icon icon="mdi-check" start />
               Setujui
             </v-btn>
           </div>
           <v-spacer v-else />
-          <v-btn variant="outlined" color="grey-darken-1" size="small" @click="detailDialog = false">
-            Tutup
-          </v-btn>
+          <v-btn variant="outlined" color="grey-darken-1" size="small" @click="detailDialog = false"> Tutup </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -300,10 +296,8 @@ function getDiffColor(diff) {
         <v-card-text class="text-body-2 text-grey-darken-2 px-4 py-2">
           Apakah kamu yakin ingin menyetujui stock opname ini? Stok barang akan diperbarui sesuai data fisik.
         </v-card-text>
-        <v-card-actions class="pa-4 pt-2 justify-end gap-2">
-          <v-btn variant="outlined" color="grey-darken-1" size="small" @click="confirmDialog = false">
-            Batal
-          </v-btn>
+        <v-card-actions class="pa-4 justify-end gap-2 pt-2">
+          <v-btn variant="outlined" color="grey-darken-1" size="small" @click="confirmDialog = false"> Batal </v-btn>
           <v-btn variant="flat" color="success" size="small" @click="confirmApprove">
             <v-icon icon="mdi-check" start />
             Ya, Setujui
@@ -328,7 +322,7 @@ function getDiffColor(diff) {
             :error-messages="rejectForm.errors.rejection_note"
             auto-grow />
         </v-card-text>
-        <v-card-actions class="pa-4 pt-0 justify-end gap-2">
+        <v-card-actions class="pa-4 justify-end gap-2 pt-0">
           <v-btn
             variant="outlined"
             color="grey-darken-1"
@@ -350,6 +344,5 @@ function getDiffColor(diff) {
         </v-card-actions>
       </v-card>
     </v-dialog>
-
   </v-container>
 </template>

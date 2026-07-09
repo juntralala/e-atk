@@ -234,8 +234,8 @@ class ItemAdditionController extends Controller
         $itemAdditions = ItemAddition::with([
             'user' => fn ($q) => $q->withTrashed(),
             'itemAdditionDetails',
-            'itemAdditionDetails.item',
-            'itemAdditionDetails.item.unit',
+            'itemAdditionDetails.item' => fn ($q) => $q->withTrashed(),
+            'itemAdditionDetails.item.unit' => fn ($q) => $q->withTrashed(),
         ])
             ->whereBetween('addition_date', [$start, $end])
             ->paginate(perPage: $perPage, page: $page)

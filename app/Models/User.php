@@ -72,4 +72,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(StockOpname::class, 'responder_id');
     }
+
+    public function stockAdjustments()
+    {
+        return $this->hasMany(StockAdjustment::class);
+    }
+
+    public function respondedStockAdjustments()
+    {
+        return $this->hasMany(StockAdjustment::class, 'responder_id');
+    }
 }

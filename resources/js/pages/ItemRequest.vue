@@ -168,7 +168,9 @@ function handleReject() {
 
 function handleAccept() {
   // Validasi jumlah yang diterima
-  const hasInvalidQuantity = approvalData.value.items.some((item) => item.received_quantity < 0 || item.received_quantity > item.requested_quantity);
+  const hasInvalidQuantity = approvalData.value.items.some(
+    (item) => item.received_quantity < 0 || item.received_quantity > item.requested_quantity,
+  );
 
   if (hasInvalidQuantity) {
     alert('Jumlah yang diterima tidak boleh negatif atau melebihi jumlah yang diminta');
@@ -213,7 +215,9 @@ function handleAccept() {
 
 function handleUpdate() {
   // Validasi jumlah yang diminta
-  const hasInvalidQuantity = editData.value.items.some((item) => !item.requested_quantity || item.requested_quantity <= 0);
+  const hasInvalidQuantity = editData.value.items.some(
+    (item) => !item.requested_quantity || item.requested_quantity <= 0,
+  );
 
   if (hasInvalidQuantity) {
     alert('Jumlah yang diminta harus lebih dari 0');
@@ -463,19 +467,13 @@ function canEdit(request) {
   <v-container>
     <v-row>
       <v-col>
-        <PageTitleHighlightPart
-          first-part-title="Daftar Permintaan"
-          second-part-title="Barang"
-        />
+        <PageTitleHighlightPart first-part-title="Daftar Permintaan" second-part-title="Barang" />
       </v-col>
     </v-row>
 
     <!-- Filter Section -->
     <v-row>
-      <v-col
-        cols="12"
-        md="6"
-      >
+      <v-col cols="12" md="6">
         <v-text-field
           v-model="search"
           label="Cari permintaan..."
@@ -484,13 +482,9 @@ function canEdit(request) {
           variant="outlined"
           density="compact"
           clearable
-          hide-details
-        />
+          hide-details />
       </v-col>
-      <v-col
-        cols="12"
-        md="4"
-      >
+      <v-col cols="12" md="4">
         <v-select
           v-model="statusFilter"
           label="Filter Status"
@@ -503,20 +497,10 @@ function canEdit(request) {
           variant="outlined"
           density="compact"
           clearable
-          hide-details
-        />
+          hide-details />
       </v-col>
-      <v-col
-        cols="12"
-        md="2"
-        class="d-flex align-center"
-      >
-        <v-btn
-          color="grey"
-          variant="outlined"
-          block
-          @click="resetFilters"
-        >
+      <v-col cols="12" md="2" class="d-flex align-center">
+        <v-btn color="grey" variant="outlined" block @click="resetFilters">
           <v-icon start>mdi-refresh</v-icon>
           Reset
         </v-btn>
@@ -543,8 +527,7 @@ function canEdit(request) {
           :items-per-page="itemsPerPage"
           :page="currentPage"
           class="hidden! md:block!"
-          @update:options="loadItems"
-        >
+          @update:options="loadItems">
           <template #headers>
             <tr class="bg-blue-darken-2">
               <th class="w-1/16">No</th>
@@ -565,11 +548,7 @@ function canEdit(request) {
           </template>
           <template #item.total_items="{ item }"> {{ getTotalItems(item) }} item </template>
           <template #item.status="{ item }">
-            <v-chip
-              :color="getStatusColor(item.status)"
-              size="small"
-              variant="flat"
-            >
+            <v-chip :color="getStatusColor(item.status)" size="small" variant="flat">
               {{ getStatusText(item.status) }}
             </v-chip>
           </template>
@@ -580,90 +559,51 @@ function canEdit(request) {
             {{ formatDate(item.response_date) || '-' }}
           </template>
           <template #item.actions="{ item }">
-            <v-btn
-              variant="text"
-              icon
-            >
+            <v-btn variant="text" icon>
               <v-icon icon="mdi-dots-vertical" />
               <v-menu activator="parent">
                 <v-list density="compact">
-                  <v-list-item
-                    value="view"
-                    @click="showDetail(item)"
-                  >
-                    <v-icon
-                      icon="mdi-eye"
-                      class="mr-2"
-                    />
+                  <v-list-item value="view" @click="showDetail(item)">
+                    <v-icon icon="mdi-eye" class="mr-2" />
                     Detail
                   </v-list-item>
 
                   <v-list-item
                     v-if="canPrintItemRequest($page?.props?.auth?.user, item)"
                     value="print"
-                    @click="printRequest(item)"
-                  >
-                    <v-icon
-                      icon="mdi-printer"
-                      class="mr-2"
-                    />
+                    @click="printRequest(item)">
+                    <v-icon icon="mdi-printer" class="mr-2" />
                     Cetak
                   </v-list-item>
 
-                  <v-list-item
-                    v-if="canEdit(item)"
-                    value="edit"
-                    @click="showEditDialog(item)"
-                  >
-                    <v-icon
-                      icon="mdi-pencil"
-                      class="mr-2"
-                      color="blue"
-                    />
+                  <v-list-item v-if="canEdit(item)" value="edit" @click="showEditDialog(item)">
+                    <v-icon icon="mdi-pencil" class="mr-2" color="blue" />
                     Edit
                   </v-list-item>
 
                   <v-list-item
                     v-if="canAcceptItemRequest($page?.props?.auth?.user) && !item.responded_at"
                     value="approve"
-                    @click="showApproveDialog(item)"
-                  >
-                    <v-icon
-                      icon="mdi-check-circle"
-                      class="mr-2"
-                      color="green"
-                    />
+                    @click="showApproveDialog(item)">
+                    <v-icon icon="mdi-check-circle" class="mr-2" color="green" />
                     Terima
                   </v-list-item>
 
                   <v-list-item
                     v-if="canRejectItemRequest($page?.props?.auth?.user) && !item.responded_at"
                     value="reject"
-                    @click="showRejectDialog(item)"
-                  >
-                    <v-icon
-                      icon="mdi-close-circle"
-                      class="mr-2"
-                      color="red"
-                    />
+                    @click="showRejectDialog(item)">
+                    <v-icon icon="mdi-close-circle" class="mr-2" color="red" />
                     Tolak
                   </v-list-item>
 
                   <v-list-item
                     value="delete"
                     v-if="canDeleteItemRequest($page?.props?.auth?.user, item)"
-                    :disabled="disableDeleteButton(item)"
-                  >
-                    <v-icon
-                      icon="mdi-delete"
-                      class="mr-2"
-                    />
+                    :disabled="disableDeleteButton(item)">
+                    <v-icon icon="mdi-delete" class="mr-2" />
                     Hapus
-                    <v-dialog
-                      v-slot="{ isActive }"
-                      activator="parent"
-                      max-width="400"
-                    >
+                    <v-dialog v-slot="{ isActive }" activator="parent" max-width="400">
                       <v-card>
                         <v-card-title class="bg-blue-darken-2 text-center text-wrap"> Konfirmasi! </v-card-title>
                         <v-card-text>
@@ -678,8 +618,7 @@ function canEdit(request) {
                             @click="
                               deleteItemRequest(item.id);
                               isActive.value = false;
-                            "
-                          >
+                            ">
                             Ya
                           </v-btn>
                           <v-btn @click="isActive.value = false">Batal</v-btn>
@@ -698,102 +637,56 @@ function canEdit(request) {
     <!-- Mobile Card View -->
     <v-row class="md:hidden!">
       <v-col>
-        <v-progress-circular
-          v-if="loading"
-          indeterminate
-          class="d-block mx-auto my-4"
-        />
-        <v-row
-          v-for="(request, index) in itemRequests"
-          :key="request.id"
-        >
+        <v-progress-circular v-if="loading" indeterminate class="d-block mx-auto my-4" />
+        <v-row v-for="(request, index) in itemRequests" :key="request.id">
           <v-col>
             <v-card>
               <v-card-actions class="bg-blue-darken-2 flex justify-end">
-                <v-btn
-                  variant="text"
-                  icon
-                >
+                <v-btn variant="text" icon>
                   <v-icon icon="mdi-dots-vertical" />
                   <v-menu activator="parent">
                     <v-list density="compact">
-                      <v-list-item
-                        value="view"
-                        @click="showDetail(request)"
-                      >
-                        <v-icon
-                          icon="mdi-eye"
-                          class="mr-2"
-                        />
+                      <v-list-item value="view" @click="showDetail(request)">
+                        <v-icon icon="mdi-eye" class="mr-2" />
                         Detail
                       </v-list-item>
 
                       <v-list-item
                         v-if="canPrintItemRequest($page?.props?.auth?.user, request)"
                         value="print"
-                        @click="printRequest(request)"
-                      >
-                        <v-icon
-                          icon="mdi-printer"
-                          class="mr-2"
-                        />
+                        @click="printRequest(request)">
+                        <v-icon icon="mdi-printer" class="mr-2" />
                         Cetak
                       </v-list-item>
 
-                      <v-list-item
-                        v-if="canEdit(request)"
-                        value="edit"
-                        @click="showEditDialog(request)"
-                      >
-                        <v-icon
-                          icon="mdi-pencil"
-                          class="mr-2"
-                          color="blue"
-                        />
+                      <v-list-item v-if="canEdit(request)" value="edit" @click="showEditDialog(request)">
+                        <v-icon icon="mdi-pencil" class="mr-2" color="blue" />
                         Edit
                       </v-list-item>
 
                       <v-list-item
                         v-if="canAcceptItemRequest($page?.props?.auth?.user)"
                         value="approve"
-                        @click="showApproveDialog(request)"
-                      >
-                        <v-icon
-                          icon="mdi-check-circle"
-                          class="mr-2"
-                          color="green"
-                        />
+                        @click="showApproveDialog(request)">
+                        <v-icon icon="mdi-check-circle" class="mr-2" color="green" />
                         Terima
                       </v-list-item>
 
                       <v-list-item
                         v-if="canRejectItemRequest($page?.props?.auth?.user)"
                         value="reject"
-                        @click="showRejectDialog(request)"
-                      >
-                        <v-icon
-                          icon="mdi-close-circle"
-                          class="mr-2"
-                          color="red"
-                        />
+                        @click="showRejectDialog(request)">
+                        <v-icon icon="mdi-close-circle" class="mr-2" color="red" />
                         Tolak
                       </v-list-item>
 
                       <v-list-item
                         value="delete"
                         v-if="canDeleteItemRequest($page?.props?.auth?.user, request)"
-                        :disabled="disableDeleteButton(request)"
-                      >
-                        <v-icon
-                          icon="mdi-delete"
-                          class="mr-2"
-                        />
+                        :disabled="disableDeleteButton(request)">
+                        <v-icon icon="mdi-delete" class="mr-2" />
                         Hapus
-                        <v-dialog
-                          v-slot="{ isActive }"
-                          activator="parent"
-                          max-width="400"
-                        >
+                        <v-dialog v-slot="{ isActive }" activator="parent" max-width="400">
                           <v-card>
                             <v-card-title class="bg-blue-darken-2 text-center text-wrap"> Konfirmasi! </v-card-title>
                             <v-card-text>
@@ -808,8 +701,7 @@ function canEdit(request) {
                                 @click="
                                   deleteItemRequest(request.id);
                                   isActive.value = false;
-                                "
-                              >
+                                ">
                                 Ya
                               </v-btn>
                               <v-btn @click="isActive.value = false">Batal</v-btn>
@@ -841,11 +733,7 @@ function canEdit(request) {
                 <v-row>
                   <v-col cols="5">Status</v-col>
                   <v-col>
-                    <v-chip
-                      :color="getStatusColor(request.status)"
-                      size="small"
-                      variant="flat"
-                    >
+                    <v-chip :color="getStatusColor(request.status)" size="small" variant="flat">
                       {{ getStatusText(request.status) }}
                     </v-chip>
                   </v-col>
@@ -870,27 +758,18 @@ function canEdit(request) {
               :model-value="currentPage"
               :length="Math.ceil(totalItems / itemsPerPage)"
               total-visible="5"
-              @update:model-value="(page) => loadItems({ page, itemsPerPage })"
-            />
+              @update:model-value="(page) => loadItems({ page, itemsPerPage })" />
           </v-col>
         </v-row>
       </v-col>
     </v-row>
 
     <!-- Detail Dialog -->
-    <v-dialog
-      v-model="detailDialog"
-      max-width="900"
-      scrollable
-    >
+    <v-dialog v-model="detailDialog" max-width="900" scrollable>
       <v-card v-if="selectedRequest">
         <v-card-title class="bg-blue-darken-2 d-flex align-center justify-space-between">
           <span>Detail Permintaan Barang</span>
-          <v-btn
-            icon
-            variant="text"
-            @click="detailDialog = false"
-          >
+          <v-btn icon variant="text" @click="detailDialog = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </v-card-title>
@@ -898,24 +777,14 @@ function canEdit(request) {
         <v-card-text class="pt-4">
           <!-- Info Permintaan -->
           <v-row>
-            <v-col
-              cols="12"
-              md="6"
-            >
+            <v-col cols="12" md="6">
               <div class="text-caption text-grey">Waktu Permintaan</div>
               <div class="text-body-1 font-weight-medium">{{ formatRelativeTime(selectedRequest.created_at) }}</div>
             </v-col>
-            <v-col
-              cols="12"
-              md="6"
-            >
+            <v-col cols="12" md="6">
               <div class="text-caption text-grey">Status</div>
               <div>
-                <v-chip
-                  :color="getStatusColor(selectedRequest.status)"
-                  size="small"
-                  variant="flat"
-                >
+                <v-chip :color="getStatusColor(selectedRequest.status)" size="small" variant="flat">
                   {{ getStatusText(selectedRequest.status) }}
                 </v-chip>
               </div>
@@ -923,27 +792,18 @@ function canEdit(request) {
           </v-row>
 
           <v-row>
-            <v-col
-              cols="12"
-              md="6"
-            >
+            <v-col cols="12" md="6">
               <div class="text-caption text-grey">Dipinta Oleh</div>
               <div class="text-body-1 font-weight-medium">{{ selectedRequest.requester?.name }}</div>
             </v-col>
-            <v-col
-              cols="12"
-              md="6"
-            >
+            <v-col cols="12" md="6">
               <div class="text-caption text-grey">Penerima Permintaan</div>
               <div class="text-body-1 font-weight-medium">{{ selectedRequest.responder?.name || '-' }}</div>
             </v-col>
           </v-row>
 
           <v-row v-if="selectedRequest.response_date">
-            <v-col
-              cols="12"
-              md="6"
-            >
+            <v-col cols="12" md="6">
               <div class="text-caption text-grey">Waktu Diterima/Ditolak</div>
               <div class="text-body-1 font-weight-medium">{{ formatRelativeTime(selectedRequest.responded_at) }}</div>
             </v-col>
@@ -968,29 +828,18 @@ function canEdit(request) {
                 <th>Nama Barang</th>
                 <th>Nama Spesifikasi</th>
                 <th class="text-right">Jumlah Diminta</th>
-                <th
-                  class="text-right"
-                  v-if="selectedRequest.status !== 'pending'"
-                >
-                  Jumlah Diterima
-                </th>
+                <th class="text-right" v-if="selectedRequest.status !== 'pending'">Jumlah Diterima</th>
                 <th class="text-right">Harga Satuan</th>
                 <th class="text-right">Subtotal</th>
               </tr>
             </thead>
             <tbody>
-              <tr
-                v-for="(detail, index) in selectedRequest.item_request_details"
-                :key="detail.id"
-              >
+              <tr v-for="(detail, index) in selectedRequest.item_request_details" :key="detail.id">
                 <td>{{ index + 1 }}</td>
                 <td>{{ detail.item?.name }}</td>
                 <td>{{ detail.item?.spesification_name }}</td>
                 <td class="text-right">{{ detail.requested_quantity }} {{ detail.item?.unit?.name }}</td>
-                <td
-                  class="text-right"
-                  v-if="selectedRequest.status !== 'pending'"
-                >
+                <td class="text-right" v-if="selectedRequest.status !== 'pending'">
                   {{ detail.received_quantity }} {{ detail.item?.unit?.name }}
                 </td>
                 <td class="text-right">{{ formatRp(detail.price) }}</td>
@@ -999,12 +848,7 @@ function canEdit(request) {
             </tbody>
             <tfoot>
               <tr class="bg-grey-lighten-2 font-weight-bold">
-                <td
-                  :colspan="selectedRequest.status !== 'pending' ? 6 : 5"
-                  class="text-right"
-                >
-                  Total
-                </td>
+                <td :colspan="selectedRequest.status !== 'pending' ? 6 : 5" class="text-right">Total</td>
                 <td class="text-right">{{ formatRp(getTotalValue(selectedRequest)) }}</td>
               </tr>
             </tfoot>
@@ -1013,22 +857,13 @@ function canEdit(request) {
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn
-            variant="tonal"
-            color="grey"
-            @click="detailDialog = false"
-          >
-            Tutup
-          </v-btn>
+          <v-btn variant="tonal" color="grey" @click="detailDialog = false"> Tutup </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
     <!-- Reject Dialog -->
-    <v-dialog
-      v-model="rejectDialog"
-      max-width="500"
-    >
+    <v-dialog v-model="rejectDialog" max-width="500">
       <v-card>
         <v-card-title class="bg-red-darken-2 text-center"> Tolak Permintaan Barang </v-card-title>
 
@@ -1042,35 +877,19 @@ function canEdit(request) {
             placeholder="Masukkan alasan penolakan..."
             rows="4"
             variant="outlined"
-            required
-          />
+            required />
         </v-card-text>
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn
-            variant="tonal"
-            color="grey"
-            @click="rejectDialog = false"
-          >
-            Batal
-          </v-btn>
-          <v-btn
-            color="red"
-            @click="handleReject"
-          >
-            Tolak Permintaan
-          </v-btn>
+          <v-btn variant="tonal" color="grey" @click="rejectDialog = false"> Batal </v-btn>
+          <v-btn color="red" @click="handleReject"> Tolak Permintaan </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
     <!-- Approve Dialog -->
-    <v-dialog
-      v-model="approveDialog"
-      max-width="800"
-      scrollable
-    >
+    <v-dialog v-model="approveDialog" max-width="800" scrollable>
       <v-card>
         <v-card-title class="bg-green-darken-2 text-center"> Terima Permintaan Barang </v-card-title>
 
@@ -1089,19 +908,11 @@ function canEdit(request) {
                 <th>Nama Barang</th>
                 <th>Nama Spesifikasi</th>
                 <th class="text-right">Diminta</th>
-                <th
-                  class="text-right"
-                  style="width: 150px"
-                >
-                  Diterima
-                </th>
+                <th class="text-right" style="width: 150px">Diterima</th>
               </tr>
             </thead>
             <tbody>
-              <tr
-                v-for="(item, index) in approvalData.items"
-                :key="item.id"
-              >
+              <tr v-for="(item, index) in approvalData.items" :key="item.id">
                 <td>{{ index + 1 }}</td>
                 <td>{{ item.item_name }}</td>
                 <td>{{ item.specification }}</td>
@@ -1115,8 +926,7 @@ function canEdit(request) {
                     density="compact"
                     variant="outlined"
                     hide-details
-                    :suffix="item.unit"
-                  />
+                    :suffix="item.unit" />
                 </td>
               </tr>
             </tbody>
@@ -1129,35 +939,19 @@ function canEdit(request) {
             label="Catatan (Opsional)"
             placeholder="Tambahkan catatan jika diperlukan..."
             rows="3"
-            variant="outlined"
-          />
+            variant="outlined" />
         </v-card-text>
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn
-            variant="tonal"
-            color="grey"
-            @click="approveDialog = false"
-          >
-            Batal
-          </v-btn>
-          <v-btn
-            color="green"
-            @click="handleAccept"
-          >
-            Terima Permintaan
-          </v-btn>
+          <v-btn variant="tonal" color="grey" @click="approveDialog = false"> Batal </v-btn>
+          <v-btn color="green" @click="handleAccept"> Terima Permintaan </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
     <!-- Edit Dialog -->
-    <v-dialog
-      v-model="editDialog"
-      max-width="900"
-      scrollable
-    >
+    <v-dialog v-model="editDialog" max-width="900" scrollable>
       <v-card>
         <v-card-title class="bg-blue-darken-2 text-center"> Edit Permintaan Barang </v-card-title>
 
@@ -1175,20 +969,12 @@ function canEdit(request) {
                 <th>No</th>
                 <th>Nama Barang</th>
                 <th>Nama Spesifikasi</th>
-                <th
-                  class="text-right"
-                  style="width: 180px"
-                >
-                  Jumlah Diminta
-                </th>
+                <th class="text-right" style="width: 180px">Jumlah Diminta</th>
                 <th style="width: 80px">Aksi</th>
               </tr>
             </thead>
             <tbody>
-              <tr
-                v-for="(item, index) in editData.items"
-                :key="item.id"
-              >
+              <tr v-for="(item, index) in editData.items" :key="item.id">
                 <td>{{ index + 1 }}</td>
                 <td>{{ item.item_name }}</td>
                 <td>{{ item.specification }}</td>
@@ -1200,8 +986,7 @@ function canEdit(request) {
                     density="compact"
                     variant="outlined"
                     hide-details
-                    :suffix="item.unit"
-                  />
+                    :suffix="item.unit" />
                 </td>
                 <td class="text-center">
                   <v-btn
@@ -1210,8 +995,7 @@ function canEdit(request) {
                     color="red"
                     variant="text"
                     @click="removeItemFromEdit(index)"
-                    :disabled="editData.items.length === 1"
-                  >
+                    :disabled="editData.items.length === 1">
                     <v-icon>mdi-delete</v-icon>
                   </v-btn>
                 </td>
@@ -1222,19 +1006,8 @@ function canEdit(request) {
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn
-            variant="tonal"
-            color="grey"
-            @click="editDialog = false"
-          >
-            Batal
-          </v-btn>
-          <v-btn
-            color="blue"
-            @click="handleUpdate"
-          >
-            Simpan Perubahan
-          </v-btn>
+          <v-btn variant="tonal" color="grey" @click="editDialog = false"> Batal </v-btn>
+          <v-btn color="blue" @click="handleUpdate"> Simpan Perubahan </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

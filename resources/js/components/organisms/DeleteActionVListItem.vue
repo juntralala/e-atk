@@ -32,14 +32,9 @@ function handleDeleteClick(deleteUrl) {
 
 <template>
   <v-list-item value="delete">
-    <v-icon
-      icon="mdi-delete"
-      class="mr-2" />
+    <v-icon icon="mdi-delete" class="mr-2" />
     Hapus
-    <v-dialog
-      v-slot="{ isActive }"
-      activator="parent"
-      max-width="400">
+    <v-dialog v-slot="{ isActive }" activator="parent" max-width="400">
       <v-card>
         <v-card-title class="bg-blue-darken-2 text-center">Konfirmasi Hapus!</v-card-title>
         <v-card-text>

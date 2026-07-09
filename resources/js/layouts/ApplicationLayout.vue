@@ -104,21 +104,13 @@ onUpdated(function () {
 
 <template>
   <Head>
-    <link
-      rel="shortcut icon"
-      :href="settings?.icon || 'favicon.ico'"
-      type="image/x-icon" />
+    <link rel="shortcut icon" :href="settings?.icon || 'favicon.ico'" type="image/x-icon" />
     <title>{{ settings?.applicationName }}</title>
   </Head>
   <v-app>
-    <v-app-bar
-      elevation="1"
-      color="blue-darken-2"
-      class="pe-2">
+    <v-app-bar elevation="1" color="blue-darken-2" class="pe-2">
       <v-app-bar-title>
-        <v-icon
-          icon="mdi-menu"
-          @click="toggleDrawer" />
+        <v-icon icon="mdi-menu" @click="toggleDrawer" />
         <span class="ms-2">
           <Link href="/">
             <v-avatar variant="text">
@@ -129,13 +121,9 @@ onUpdated(function () {
         </span>
       </v-app-bar-title>
       <template #append>
-        <Notification />
-        <ProfilePhoto
-          :url="auth?.user?.profile_photo_path"
-          id="profile-avatar" />
-        <v-menu
-          activator="#profile-avatar"
-          :close-on-content-click="false">
+        <Notification :user-id="user.id" />
+        <ProfilePhoto :url="auth?.user?.profile_photo_path" id="profile-avatar" />
+        <v-menu activator="#profile-avatar" :close-on-content-click="false">
           <v-card min-width="170">
             <v-card-title>{{ user?.name }}</v-card-title>
             <v-card-subtitle>{{ user?.role?.name }}</v-card-subtitle>
@@ -144,10 +132,7 @@ onUpdated(function () {
               <Link :href="route('profile')">
                 <v-list-item value="profile">Profil</v-list-item>
               </Link>
-              <Link
-                :href="route('logout')"
-                class="w-full! text-left"
-                method="post">
+              <Link :href="route('logout')" class="w-full! text-left" method="post">
                 <v-list-item value="logout"> Log out </v-list-item>
               </Link>
             </v-list>
@@ -156,51 +141,32 @@ onUpdated(function () {
       </template>
     </v-app-bar>
     <v-navigation-drawer v-model="showDrawer">
-      <v-list
-        v-model:selected="selectedMenu"
-        v-model:opened="expandedGroups"
-        color="blue"
-        mandatory>
-        <DrawerItem
-          v-if="canInDashboard(user)"
-          :href="route('dashboards')"
-          icon="mdi-view-dashboard"
+      <v-list v-model:selected="selectedMenu" v-model:opened="expandedGroups" color="blue" mandatory>
+        <DrawerItem v-if="canInDashboard(user)" :href="route('dashboards')" icon="mdi-view-dashboard"
           >Dashboard</DrawerItem
         >
-        <DrawerItem
-          v-if="canInItemListPage(user)"
-          :href="route('items', { mode: 'view' })"
-          icon="mdi-package"
+        <DrawerItem v-if="canInItemListPage(user)" :href="route('items', { mode: 'view' })" icon="mdi-package"
           >Daftar Barang</DrawerItem
         >
-        <DrawerItem
-          v-if="canAddItem(user)"
-          :href="route('items.additions')"
-          icon="mdi-package-variant-plus"
+        <DrawerItem v-if="canAddItem(user)" :href="route('items.additions')" icon="mdi-package-variant-plus"
           >Penambahan Barang</DrawerItem
         >
-          <!-- Sembunyikan dulu (belom selesai) -->
-        <DrawerItem
-          v-if="false"
+        <!-- Sembunyikan dulu (belom selesai) -->
+        <!-- <DrawerItem
           :href="route('opname')"
           icon="mdi-clipboard-check "
           >Stock Opname</DrawerItem
-        >
-        <DrawerItem
-          v-if="canRequestItem(user)"
-          :href="route('items.requests.form')"
-          icon="mdi-clipboard-list"
+        > -->
+        <DrawerItem v-if="canRequestItem(user)" :href="route('items.requests.form')" icon="mdi-clipboard-list"
           >Minta Barang</DrawerItem
         >
-        <DrawerItem
-          v-if="canInItemRequestPage(user)"
-          :href="route('items.requests')"
-          icon="mdi-clipboard-text-clock"
+        <DrawerItem v-if="canInItemRequestPage(user)" :href="route('items.requests')" icon="mdi-clipboard-text-clock"
           >Permintaan</DrawerItem
         >
-        <v-list-group
-          v-if="canReadReport(user)"
-          value="report">
+        <DrawerItem v-if="true" :href="route('stock.adjustments.form')" icon="mdi-clipboard-edit-outline"
+          >Penyesuaian Stok</DrawerItem
+        >
+        <v-list-group v-if="canReadReport(user)" value="report">
           <template #activator="{ props }">
             <v-list-item v-bind="props">
               <v-list-item-title>
@@ -208,10 +174,7 @@ onUpdated(function () {
               </v-list-item-title>
             </v-list-item>
           </template>
-          <DrawerItem
-            v-if="canAccessItemReport(user)"
-            :href="route('items.exports.view')"
-            icon="mdi-package-variant"
+          <DrawerItem v-if="canAccessItemReport(user)" :href="route('items.exports.view')" icon="mdi-package-variant"
             >Barang</DrawerItem
           >
           <DrawerItem
@@ -244,10 +207,13 @@ onUpdated(function () {
             icon="mdi-compare-horizontal"
             >Keluar VS Masuk</DrawerItem
           >
+          <DrawerItem
+            :href="route('stock.adjustments.exports.view')"
+            icon="mdi-compare-horizontal"
+            >Penyesuaian Stok</DrawerItem
+          >
         </v-list-group>
-        <v-list-group
-          v-if="canSeeMasterData(user)"
-          value="master">
+        <v-list-group v-if="canSeeMasterData(user)" value="master">
           <template #activator="{ props }">
             <v-list-item v-bind="props">
               <v-list-item-title>
@@ -255,61 +221,36 @@ onUpdated(function () {
               </v-list-item-title>
             </v-list-item>
           </template>
+          <DrawerItem :href="route('stock.adjustments.reasons')" icon="mdi-comment-question-outline"
+            >Sebab Penyesuaian Stok</DrawerItem
+          >
           <!-- Sembunyikan dulu (belom selesai) -->
-          <DrawerItem
-            v-if="false" 
+          <!-- <DrawerItem
             :href="route('opname.reasons')"
-            icon="mdi-ruler"
+            icon="mdi-comment-question-outline"
             >Sebab Stock Opname</DrawerItem
-          >
-          <DrawerItem
-            v-if="canInUnitPage(user)"
-            :href="route('units')"
-            icon="mdi-ruler"
-            >Satuan</DrawerItem
-          >
-          <DrawerItem
-            v-if="canManageItem(user)"
-            :href="route('items')"
-            icon="mdi-package-variant-closed"
+          > -->
+          <DrawerItem v-if="canInUnitPage(user)" :href="route('units')" icon="mdi-ruler">Satuan</DrawerItem>
+          <DrawerItem v-if="canManageItem(user)" :href="route('items')" icon="mdi-package-variant-closed"
             >Barang</DrawerItem
           >
-          <DrawerItem
-            v-if="canInUserPage(user)"
-            :href="route('users')"
-            icon="mdi-account-group"
-            >Akun</DrawerItem
-          >
+          <DrawerItem v-if="canInUserPage(user)" :href="route('users')" icon="mdi-account-group">Akun</DrawerItem>
         </v-list-group>
-        <DrawerItem
-          v-if="canSetting(user)"
-          :href="route('settings')"
-          icon="mdi-cog"
-          >Pengaturan</DrawerItem
-        >
-        <DrawerItem
-          :href="route('stakeholders')"
-          icon="mdi-account-tie"
-          >Pemangku Kepentingan</DrawerItem
-        >
+        <DrawerItem v-if="canSetting(user)" :href="route('settings')" icon="mdi-cog">Pengaturan</DrawerItem>
+        <DrawerItem :href="route('stakeholders')" icon="mdi-account-tie">Pemangku Kepentingan</DrawerItem>
       </v-list>
     </v-navigation-drawer>
     <v-main>
       <slot />
     </v-main>
-    <AlertDialog
-      v-model="showAlert"
-      :message="alertMessage"
-      title="Error" />
+    <AlertDialog v-model="showAlert" :message="alertMessage" title="Error" />
 
     <Footer
       v-if="!(xs && user?.role?.name == 'unit')"
       :namaInstansi="settings?.institutionName"
       :alamatInstansi="settings?.institutionAddress"></Footer>
     <v-bottom-navigation v-else>
-      <v-btn
-        value="items"
-        @click="router.visit(route('items'), { preserveState: true, preserveScroll: true })">
+      <v-btn value="items" @click="router.visit(route('items'), { preserveState: true, preserveScroll: true })">
         <v-icon>mdi-package</v-icon>
         <span>Daftar Barang</span>
       </v-btn>

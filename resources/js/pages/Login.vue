@@ -47,49 +47,31 @@ function clearErrorOnUsernamePasswordChange() {
 
 <template>
   <v-container class="h-dvh">
-    <v-row
-      class="fill-height"
-      align="center"
-    >
+    <v-row class="fill-height" align="center">
       <v-col>
-        <v-card
-          class="ma-auto max-w-150! px-5"
-          rounded="xl  "
-        >
+        <v-card class="ma-auto max-w-150! px-5" rounded="xl  ">
           <v-card-title class="mt-5 text-center">
             <!-- <v-avatar v-if="settings?.icon"   class="mb-4" tile>
             </v-avatar> -->
-            <v-img
-              :src="settings?.icon"
-              height="100"
-              alt="Logo Aplikasi"
-            />
-            <div
-              v-if="settings?.institutionName"
-              class="text-blue-darken-3 text-2xl font-semibold"
-            >
+            <v-img :src="settings?.icon" height="100" alt="Logo Aplikasi" />
+            <div v-if="settings?.institutionName" class="text-blue-darken-3 text-2xl font-semibold">
               {{ settings?.institutionName }}
             </div>
             <v-card-subtitle class="text-center">Login</v-card-subtitle>
           </v-card-title>
-          <v-form
-            @submit.prevent="login"
-            v-model="isFormValid"
-          >
+          <v-form @submit.prevent="login" v-model="isFormValid">
             <v-card-text>
               <v-text-field
                 v-model="form.username"
                 :rules="validations.username"
                 label="Username"
                 :error-messages="form.errors.username"
-                @input="clearErrorOnUsernamePasswordChange"
-              />
+                @input="clearErrorOnUsernamePasswordChange" />
               <PasswordInput
                 v-model="form.password"
                 :rules="validations.password"
                 :error-message="form.errors.password"
-                @input="clearErrorOnUsernamePasswordChange"
-              />
+                @input="clearErrorOnUsernamePasswordChange" />
             </v-card-text>
             <v-card-actions class="mb-3 justify-center">
               <v-btn
@@ -98,8 +80,7 @@ function clearErrorOnUsernamePasswordChange() {
                 variant="flat"
                 :loading="form.processing"
                 :disabled="form.processing || !isFormValid"
-                type="submit"
-              >
+                type="submit">
                 Login
               </v-btn>
             </v-card-actions>

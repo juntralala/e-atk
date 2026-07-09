@@ -79,18 +79,12 @@ function isCurrentUser(userId) {
   <v-container>
     <v-row>
       <v-col>
-        <PageTitleHighlightPart
-          first-part-title="Kelola"
-          second-part-title="Pengguna"
-        />
+        <PageTitleHighlightPart first-part-title="Kelola" second-part-title="Pengguna" />
       </v-col>
     </v-row>
     <v-row>
       <v-col class="flex items-center justify-between">
-        <v-btn
-          variant="tonal"
-          color="blue-darken-2"
-        >
+        <v-btn variant="tonal" color="blue-darken-2">
           <span>
             <v-icon icon="mdi-account-plus" />
             Tambah pengguna
@@ -99,8 +93,7 @@ function isCurrentUser(userId) {
             title="Tambah Pengguna Baru"
             :url="route('users.create')"
             mode="create"
-            activator="parent"
-          />
+            activator="parent" />
         </v-btn>
 
         <div class="d-flex items-center gap-2">
@@ -108,8 +101,7 @@ function isCurrentUser(userId) {
             v-model="showDeleted"
             color="blue-darken-2"
             hide-details
-            @update:model-value="loadItems({ page: 1, itemsPerPage })"
-          />
+            @update:model-value="loadItems({ page: 1, itemsPerPage })" />
           <v-icon size="x-large">mdi-account-reactivate</v-icon>
         </div>
       </v-col>
@@ -123,8 +115,7 @@ function isCurrentUser(userId) {
           v-model="search"
           @input="handleSearchChange"
           placeholder="Cari nama atau username"
-          density="compact"
-        />
+          density="compact" />
       </v-col>
     </v-row>
 
@@ -147,8 +138,7 @@ function isCurrentUser(userId) {
           :items-per-page="itemsPerPage"
           :page="currentPage"
           class="hidden! md:block!"
-          @update:items-per-page="(data) => loadItems({ itemsPerPage: data, currentPage })"
-        >
+          @update:items-per-page="(data) => loadItems({ itemsPerPage: data, currentPage })">
           <template #headers>
             <tr class="bg-blue-darken-2">
               <th class="w-1/16">No</th>
@@ -168,10 +158,7 @@ function isCurrentUser(userId) {
               <td>{{ item.telepon || '-' }}</td>
               <td>{{ item.role?.name }}</td>
               <td v-if="showDeleted">
-                <span
-                  v-if="item.deleted_at"
-                  class="text-medium!"
-                >
+                <span v-if="item.deleted_at" class="text-medium!">
                   {{
                     new Date(item.deleted_at)
                       .toLocaleString('id-ID', { dateStyle: 'short' })
@@ -183,22 +170,12 @@ function isCurrentUser(userId) {
                 <span v-else>-</span>
               </td>
               <td>
-                <v-btn
-                  variant="text"
-                  icon
-                >
+                <v-btn variant="text" icon>
                   <v-icon icon="mdi-dots-vertical" />
                   <v-menu activator="parent">
                     <v-list density="compact">
-                      <v-list-item
-                        v-if="!item.deleted_at"
-                        value="edit"
-                        :disabled="isCurrentUser(item.id)"
-                      >
-                        <v-icon
-                          icon="mdi-pencil"
-                          class="mr-2"
-                        />
+                      <v-list-item v-if="!item.deleted_at" value="edit" :disabled="isCurrentUser(item.id)">
+                        <v-icon icon="mdi-pencil" class="mr-2" />
                         Edit
                         <CreateUpdateUserForm
                           mode="edit"
@@ -211,29 +188,18 @@ function isCurrentUser(userId) {
                             password: '',
                             role: item.role_id,
                             telepon: item.telepon,
-                          }"
-                        />
+                          }" />
                       </v-list-item>
-                      <v-list-item
-                        v-if="!item.deleted_at"
-                        value="delete"
-                        :disabled="isCurrentUser(item.id)"
-                      >
-                        <v-icon
-                          icon="mdi-delete"
-                          class="mr-2"
-                        />
+                      <v-list-item v-if="!item.deleted_at" value="delete" :disabled="isCurrentUser(item.id)">
+                        <v-icon icon="mdi-delete" class="mr-2" />
                         Hapus
-                        <v-dialog
-                          v-slot="{ isActive }"
-                          activator="parent"
-                          max-width="400"
-                        >
+                        <v-dialog v-slot="{ isActive }" activator="parent" max-width="400">
                           <v-card>
                             <v-card-title class="bg-blue-darken-2 text-center text-wrap">Konfirmasi!</v-card-title>
                             <v-card-text>
                               <div>
-                                Apakah yakin untuk menghapus pengguna dengan nama <span class="text-blue-600">{{ item.name }}</span>
+                                Apakah yakin untuk menghapus pengguna dengan nama
+                                <span class="text-blue-600">{{ item.name }}</span>
                               </div>
                             </v-card-text>
                             <v-card-actions>
@@ -249,25 +215,16 @@ function isCurrentUser(userId) {
                           </v-card>
                         </v-dialog>
                       </v-list-item>
-                      <v-list-item
-                        v-if="item.deleted_at"
-                        value="restore"
-                      >
-                        <v-icon
-                          icon="mdi-restore"
-                          class="mr-2"
-                        />
+                      <v-list-item v-if="item.deleted_at" value="restore">
+                        <v-icon icon="mdi-restore" class="mr-2" />
                         Pulihkan
-                        <v-dialog
-                          v-slot="{ isActive }"
-                          activator="parent"
-                          max-width="400"
-                        >
+                        <v-dialog v-slot="{ isActive }" activator="parent" max-width="400">
                           <v-card>
                             <v-card-title class="bg-blue-darken-2 text-center text-wrap">Konfirmasi!</v-card-title>
                             <v-card-text>
                               <div>
-                                Apakah yakin untuk memulihkan pengguna dengan nama <span class="text-blue-600">{{ item.name }}</span
+                                Apakah yakin untuk memulihkan pengguna dengan nama
+                                <span class="text-blue-600">{{ item.name }}</span
                                 >?
                               </div>
                             </v-card-text>
@@ -297,34 +254,17 @@ function isCurrentUser(userId) {
     <!-- Mobile Card View -->
     <v-row class="md:hidden!">
       <v-col>
-        <v-progress-circular
-          v-if="loading"
-          indeterminate
-          class="d-block mx-auto my-4"
-        />
-        <v-row
-          v-for="user in users"
-          :key="user.id"
-        >
+        <v-progress-circular v-if="loading" indeterminate class="d-block mx-auto my-4" />
+        <v-row v-for="user in users" :key="user.id">
           <v-col>
             <v-card :class="{ 'bg-red-accent-1': user.deleted_at }">
               <v-card-actions class="bg-blue-darken-2 flex justify-end">
-                <v-btn
-                  variant="text"
-                  icon
-                >
+                <v-btn variant="text" icon>
                   <v-icon icon="mdi-dots-vertical" />
                   <v-menu activator="parent">
                     <v-list density="compact">
-                      <v-list-item
-                        v-if="!user.deleted_at"
-                        value="edit"
-                        :disabled="isCurrentUser(user.id)"
-                      >
-                        <v-icon
-                          icon="mdi-pencil"
-                          class="mr-2"
-                        />
+                      <v-list-item v-if="!user.deleted_at" value="edit" :disabled="isCurrentUser(user.id)">
+                        <v-icon icon="mdi-pencil" class="mr-2" />
                         Sunting
                         <CreateUpdateUserForm
                           mode="edit"
@@ -337,29 +277,18 @@ function isCurrentUser(userId) {
                             password: '',
                             role: user.role_id,
                             telepon: user.telepon,
-                          }"
-                        />
+                          }" />
                       </v-list-item>
-                      <v-list-item
-                        v-if="!user.deleted_at"
-                        value="delete"
-                        :disabled="isCurrentUser(user.id)"
-                      >
-                        <v-icon
-                          icon="mdi-delete"
-                          class="mr-2"
-                        />
+                      <v-list-item v-if="!user.deleted_at" value="delete" :disabled="isCurrentUser(user.id)">
+                        <v-icon icon="mdi-delete" class="mr-2" />
                         Hapus
-                        <v-dialog
-                          v-slot="{ isActive }"
-                          activator="parent"
-                          max-width="400"
-                        >
+                        <v-dialog v-slot="{ isActive }" activator="parent" max-width="400">
                           <v-card>
                             <v-card-title class="bg-blue-darken-2 text-center text-wrap">Konfirmasi!</v-card-title>
                             <v-card-text>
                               <div>
-                                Apakah yakin untuk menghapus pengguna dengan nama <span class="text-blue-600">{{ user.name }}</span>
+                                Apakah yakin untuk menghapus pengguna dengan nama
+                                <span class="text-blue-600">{{ user.name }}</span>
                               </div>
                             </v-card-text>
                             <v-card-actions>
@@ -375,25 +304,16 @@ function isCurrentUser(userId) {
                           </v-card>
                         </v-dialog>
                       </v-list-item>
-                      <v-list-item
-                        v-if="user.deleted_at"
-                        value="restore"
-                      >
-                        <v-icon
-                          icon="mdi-restore"
-                          class="mr-2"
-                        />
+                      <v-list-item v-if="user.deleted_at" value="restore">
+                        <v-icon icon="mdi-restore" class="mr-2" />
                         Pulihkan
-                        <v-dialog
-                          v-slot="{ isActive }"
-                          activator="parent"
-                          max-width="400"
-                        >
+                        <v-dialog v-slot="{ isActive }" activator="parent" max-width="400">
                           <v-card>
                             <v-card-title class="bg-blue-darken-2 text-center text-wrap">Konfirmasi!</v-card-title>
                             <v-card-text>
                               <div>
-                                Apakah yakin untuk memulihkan pengguna dengan nama <span class="text-blue-600">{{ user.name }}</span
+                                Apakah yakin untuk memulihkan pengguna dengan nama
+                                <span class="text-blue-600">{{ user.name }}</span
                                 >?
                               </div>
                             </v-card-text>
@@ -447,8 +367,7 @@ function isCurrentUser(userId) {
               :model-value="currentPage"
               :length="Math.ceil(totalItems / itemsPerPage)"
               total-visible="5"
-              @update:model-value="(page) => loadItems({ page, itemsPerPage })"
-            />
+              @update:model-value="(page) => loadItems({ page, itemsPerPage })" />
           </v-col>
         </v-row>
       </v-col>

@@ -1,8 +1,18 @@
 <script setup>
 import { formatRelativeTime } from '@/lib/formatters';
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
+import { useEchoModel } from '@laravel/echo-vue';
 import axios from 'axios';
-import { onMounted, onUnmounted, ref } from 'vue';
+import { onMounted,onUnmounted,ref } from 'vue';
+
+const props = defineProps({
+  userId: {
+    type: String,
+    required: true
+  }
+});
+
+// const userId = props.auth.user.id;
 
 const notifications = ref({ data: [], currentPage: 1, perPage: 8, lastPage: 1, total: 0 });
 const currentPage = ref(1);
@@ -14,6 +24,7 @@ const isReloading = ref(false);
 onMounted(() => {
   isUnreadNotificationExists();
 });
+
 
 async function loadNotifications(page = 1) {
   try {
@@ -83,50 +94,28 @@ function loadMore() {
 let interval = null;
 onMounted(() => (interval = setInterval(isUnreadNotificationExists, 12_000)));
 onUnmounted(() => clearInterval(interval));
+
+const { channel } = useEchoModel('App.Models.User', userId);
+channel().notification(
+  function(notification) {
+    alert(notification.type);
+  }
+);
 </script>
 
 <template>
-  <v-btn
-    id="btn-notification"
-    rounded
-    class="pa-0 me-1"
-    width="50"
-    height="50"
-    @click="reloadNotifications"
-  >
-    <v-badge
-      v-if="isUnreadExists"
-      color="warning"
-      dot
-    >
-      <v-icon
-        icon="mdi-bell"
-        size="26"
-      />
+  <v-btn id="btn-notification" rounded class="pa-0 me-1" width="50" height="50" @click="reloadNotifications">
+    <v-badge v-if="isUnreadExists" color="warning" dot>
+      <v-icon icon="mdi-bell" size="26" />
     </v-badge>
-    <v-icon
-      v-else
-      icon="mdi-bell"
-      size="26"
-    />
+    <v-icon v-else icon="mdi-bell" size="26" />
   </v-btn>
 
-  <v-menu
-    activator="#btn-notification"
-    width="400"
-    :close-on-content-click="false"
-  >
+  <v-menu activator="#btn-notification" width="400" :close-on-content-click="false">
     <!-- Content - ketika loading dan notifikasi masih kosong START-->
     <v-list v-if="isInitialLoading">
-      <v-list-item
-        class="d-flex align-center justify-center"
-        style="min-height: 200px"
-      >
-        <v-progress-circular
-          indeterminate
-          color="primary"
-          size="50"
-        />
+      <v-list-item class="d-flex align-center justify-center" style="min-height: 200px">
+        <v-progress-circular indeterminate color="primary" size="50" />
       </v-list-item>
     </v-list>
     <!-- Content - ketika loading dan notifikasi masih kosong END-->
@@ -141,13 +130,11 @@ onUnmounted(() => clearInterval(interval));
         preserve-state
         :key="notification.id"
         :href="notification.url"
-        @click="notification.read_at = new Date().toISOString()"
-      >
+        @click="notification.read_at = new Date().toISOString()">
         <v-list-item
           @click="markRead(notification.id)"
           :class="notification.read_at ? 'bg-grey-50!' : 'bg-blue-50!'"
-          density="compact"
-        >
+          density="compact">
           <template #prepend>
             <v-avatar :icon="notification.icon || 'mdi-alert'" />
           </template>
@@ -162,26 +149,11 @@ onUnmounted(() => clearInterval(interval));
         </v-list-item>
       </Link>
 
-      <v-divider
-        v-if="currentPage < notifications.lastPage"
-        class="my-2"
-      />
+      <v-divider v-if="currentPage < notifications.lastPage" class="my-2" />
 
       <!-- Tombol Load More dengan loading -->
-      <v-list-item
-        v-if="currentPage < notifications.lastPage"
-        @click="loadMore"
-        density="compact"
-        class="pa-0 ma-0"
-      >
-        <v-btn
-          block
-          variant="text"
-          size="small"
-          :loading="isLoadingMore"
-        >
-          Lebih Banyak
-        </v-btn>
+      <v-list-item v-if="currentPage < notifications.lastPage" @click="loadMore" density="compact" class="pa-0 ma-0">
+        <v-btn block variant="text" size="small" :loading="isLoadingMore"> Lebih Banyak </v-btn>
       </v-list-item>
     </v-list>
     <!-- Content - Ketika ada notifikasi END -->

@@ -36,14 +36,8 @@ const formattedDate = computed(() => formatDateIndonesia(pickedDate.value));
     :label
     readonly
     prepend-inner-icon="mdi-calendar"
-    :error-messages="errorMessages"
-  >
-    <v-menu
-      v-slot="{ isActive }"
-      activator="parent"
-      :close-on-content-click="false"
-      transition="slide-y-transition"
-    >
+    :error-messages="errorMessages">
+    <v-menu v-slot="{ isActive }" activator="parent" :close-on-content-click="false" transition="slide-y-transition">
       <v-date-picker
         v-model="pickedDate"
         header="Pilih Tanggal"
@@ -52,8 +46,7 @@ const formattedDate = computed(() => formatDateIndonesia(pickedDate.value));
         :min="min"
         :max="max"
         @update:model-value="isActive.value = false"
-        min-width="100%"
-      />
+        min-width="100%" />
     </v-menu>
   </v-text-field>
 </template>

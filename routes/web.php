@@ -12,6 +12,8 @@ use App\Http\Controllers\OpnameReasonController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\StockAdjustmentController;
+use App\Http\Controllers\StockAdjustmentReasonController;
 use App\Http\Controllers\StockOpnameController;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\UserController;
@@ -126,6 +128,20 @@ Route::middleware('auth')->group(function () {
         });
     });
 
+    Route::prefix('/stock/adjustments')->name('stock.adjustments')->group(function () {
+        Route::get('/form', [StockAdjustmentController::class, 'form'])->name('.form');
+        Route::post('/', [StockAdjustmentController::class, 'create'])->name('.create');
+        Route::get('/exports/view', [StockAdjustmentController::class, 'stockAdjustmentReport'])->name('.exports.view');
+        Route::get('/exports/xlsx', [StockAdjustmentController::class, 'toXlsx'])->name('.exports.xlsx');
+
+        Route::prefix('/reasons')->name('.reasons')->group(function () {
+            Route::get('/', [StockAdjustmentReasonController::class, 'showPage']);
+            Route::post('/', [StockAdjustmentReasonController::class, 'create'])->name('.create');
+            Route::put('/{id}', [StockAdjustmentReasonController::class, 'update'])->name('.update');
+            Route::delete('/{id}', [StockAdjustmentReasonController::class, 'delete'])->name('.delete');
+        });
+    });
+
     Route::can('administrator-petugas-bendahara')->group(function () {
         Route::get('/expenditures/exports/view', [ItemController::class, 'itemExpenditureReport'])->name('items.expenditures.exports.view');
         Route::get('/expenditures/exports/xlsx', [ItemController::class, 'toExpenditureXlsx'])->name('items.expenditures.exports.xlsx');
@@ -140,3 +156,5 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::inertia('/counter', 'Counter');
+
+Route::inertia('/stock/adjustment', 'StockAdjustment');

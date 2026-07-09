@@ -8,16 +8,18 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('opname_reasons', function (Blueprint $table) {
+        Schema::create('stock_adjustment_reasons', function (Blueprint $table) {
             $table->string('id', 100)->primary();
             $table->string('reason', 100);
-            $table->dateTime('deleted_at')->nullable();
             $table->datetimes();
+            $table->softDeletesDatetime();
+
+            $table->index('reason');
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('opname_reasons');
+        Schema::dropIfExists('stock_adjustment_reasons');
     }
 };

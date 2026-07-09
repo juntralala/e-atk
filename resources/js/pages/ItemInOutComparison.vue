@@ -28,7 +28,9 @@ function parseYearMonth(dateStr) {
 const params = new URLSearchParams(window.location.search);
 const now = new Date();
 
-const yearMonthStart = ref(parseYearMonth(params.get('start')) ?? { month: now.getMonth() + 1, year: now.getFullYear() });
+const yearMonthStart = ref(
+  parseYearMonth(params.get('start')) ?? { month: now.getMonth() + 1, year: now.getFullYear() },
+);
 const yearMonthEnd = ref(parseYearMonth(params.get('end')) ?? { month: now.getMonth() + 1, year: now.getFullYear() });
 
 function formatYearMonthStart(yearMonthStart) {
@@ -67,42 +69,26 @@ function handleDownloadSpreadSheet() {
   <v-container>
     <v-row>
       <v-col>
-        <PageTitleHighlightPart
-          first-part-title="Laporan Barang"
-          second-part-title="Keluar vs Masuk"
-        />
+        <PageTitleHighlightPart first-part-title="Laporan Barang" second-part-title="Keluar vs Masuk" />
       </v-col>
     </v-row>
     <v-row>
-      <v-col
-        cols="12"
-        md=""
-      >
+      <v-col cols="12" md="">
         <YearMonthPicker
           label="Awal"
           v-model="yearMonthStart"
           :max-year="new Date().getFullYear()"
-          @change="handleYearMonthChange"
-        />
+          @change="handleYearMonthChange" />
       </v-col>
-      <v-col
-        cols="12"
-        md=""
-      >
+      <v-col cols="12" md="">
         <YearMonthPicker
           label="Akhir"
           v-model="yearMonthEnd"
           :max-year="new Date().getFullYear()"
-          @change="handleYearMonthChange"
-        />
+          @change="handleYearMonthChange" />
       </v-col>
       <v-col class="flex justify-end">
-        <v-btn
-          @click="handleDownloadSpreadSheet"
-          color="blue"
-          variant="tonal"
-          >Spreadsheet</v-btn
-        >
+        <v-btn @click="handleDownloadSpreadSheet" color="blue" variant="tonal">Spreadsheet</v-btn>
       </v-col>
     </v-row>
     <v-row>
@@ -121,10 +107,7 @@ function handleDownloadSpreadSheet() {
           </thead>
           <tbody>
             <template v-if="comparisons != null && comparisons.length > 0">
-              <tr
-                v-for="(comparison, index) in comparisons"
-                :key="comparison.name"
-              >
+              <tr v-for="(comparison, index) in comparisons" :key="comparison.name">
                 <td>{{ index + 1 }}</td>
                 <td>{{ comparison.item_name }}</td>
                 <td>{{ comparison.month }}</td>

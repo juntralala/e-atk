@@ -108,7 +108,6 @@ function submitForm() {
     </v-row>
 
     <form @submit.prevent="submitForm">
-
       <v-row class="mb-3">
         <v-col cols="12" md="3">
           <DatePicker
@@ -141,9 +140,8 @@ function submitForm() {
         :key="index"
         dense
         align="center"
-        class="mb-1 px-1 py-1 rounded"
+        class="mb-1 rounded px-1 py-1"
         :class="index % 2 === 0 ? 'bg-grey-lighten-4' : ''">
-
         <v-col cols="1">
           <span class="text-caption text-grey-darken-1">{{ index + 1 }}</span>
         </v-col>
@@ -161,12 +159,14 @@ function submitForm() {
             bg-color="white"
             hide-details
             :error="!!form.errors[`opnames.${index}.item_id`]"
-            @update:model-value="(val) => {
-              const found = getItemFromProp(val);
-              if (found) opname.system_stock = found.stock;
-            }">
+            @update:model-value="
+              (val) => {
+                const found = getItemFromProp(val);
+                if (found) opname.system_stock = found.stock;
+              }
+            ">
             <template #no-data>
-              <div class="pa-2 text-center text-caption">Tidak ada barang tersedia</div>
+              <div class="pa-2 text-caption text-center">Tidak ada barang tersedia</div>
             </template>
           </v-autocomplete>
         </v-col>
@@ -221,7 +221,7 @@ function submitForm() {
             hide-details
             :error="!!form.errors[`opnames.${index}.reason_id`]">
             <template #no-data>
-              <div class="pa-2 text-center text-caption">Tidak ada pilihan sebab tersedia</div>
+              <div class="pa-2 text-caption text-center">Tidak ada pilihan sebab tersedia</div>
             </template>
           </v-select>
         </v-col>
@@ -256,36 +256,22 @@ function submitForm() {
       <!-- Add + Actions -->
       <v-row align="center">
         <v-col cols="12" sm="6">
-          <v-btn
-            variant="outlined"
-            color="blue"
-            :disabled="form.processing"
-            @click="addOpnameInput">
+          <v-btn variant="outlined" color="blue" :disabled="form.processing" @click="addOpnameInput">
             <v-icon icon="mdi-plus" start />
             Tambah Barang
           </v-btn>
         </v-col>
         <v-col cols="12" sm="6" class="d-flex justify-end gap-2">
-          <v-btn
-            variant="outlined"
-            color="grey-darken-1"
-            :disabled="form.processing"
-            @click="cancel">
+          <v-btn variant="outlined" color="grey-darken-1" :disabled="form.processing" @click="cancel">
             <v-icon icon="mdi-close" start />
             Batal
           </v-btn>
-          <v-btn
-            type="submit"
-            variant="flat"
-            color="blue"
-            :loading="form.processing"
-            :disabled="form.processing">
+          <v-btn type="submit" variant="flat" color="blue" :loading="form.processing" :disabled="form.processing">
             <v-icon icon="mdi-content-save" start />
             Simpan
           </v-btn>
         </v-col>
       </v-row>
-
     </form>
   </v-container>
 </template>

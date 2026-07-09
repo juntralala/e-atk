@@ -13,6 +13,8 @@
         "inertiajs/inertia-laravel": "^2.0",
         "laravel-notification-channels/webpush": "^10.5",
         "laravel/framework": "^12.0",
+        "laravel/octane": "^2.17",
+        "laravel/reverb": "^1.0",
         "openspout/openspout": "^5.2",
         "tightenco/ziggy": "^2.4"
     },

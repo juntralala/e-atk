@@ -17,14 +17,16 @@ class UserController extends Controller
     {
         $search = $request->input('search');
         $showDeleted = $request->boolean('show_deleted');
+        $perPage = $request->integer('per_page', 10);
+        $page = $request->integer('page', 1);
         $users = User::when($showDeleted, function ($q) {
             $q->withTrashed();
             $q->orderBy('deleted_at', 'desc');
         })
             ->when($search != null, fn ($q) => $q->whereAny(['name', 'username'], 'LIKE', "%$search%"))
             ->paginate(
-                $request->integer('per_page', 10),
-                page: $request->integer('page', 1)
+                $perPage > 0 ? $perPage : User::count(),
+                page: $page
             );
 
         $users->through(function ($user, $key) use ($users) {

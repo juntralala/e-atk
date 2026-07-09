@@ -6,13 +6,13 @@ export const validators = {
     */
     required: (v, fieldName) => {
         let isValid = v != null && v != undefined && !Number.isNaN(v);
-        if(typeof v == 'string' || v instanceof String) {
+        if (typeof v == 'string' || v instanceof String) {
             isValid = isValid && v?.trim() != '';
         }
-        if((typeof fieldName == 'string' || fieldName instanceof String) && fieldName.trim() != '') {
+        if ((typeof fieldName == 'string' || fieldName instanceof String) && fieldName.trim() != '') {
             return isValid || `${fieldName} harus diisi`;
         } else {
             return isValid || 'Harus diisi';
         }
-    }
-}
+    },
+};

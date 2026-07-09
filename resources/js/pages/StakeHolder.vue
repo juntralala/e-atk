@@ -41,28 +41,18 @@ defineProps({
   <v-container class="py-8">
     <v-row>
       <v-col>
-        <PageTitleHighlightPart
-          first-part-title="Stakeholder"
-          second-part-title="Aplikasi"
-        />
+        <PageTitleHighlightPart first-part-title="Stakeholder" second-part-title="Aplikasi" />
         <p class="text-grey-darken-1 animated-subtitle mt-2 text-center">Pengguna utama yang terlibat dalam sistem</p>
       </v-col>
     </v-row>
 
     <v-row class="mt-4">
-      <v-col
-        v-for="(stakeholder, index) in stakeholders"
-        :key="index"
-        cols="12"
-        sm="6"
-        md="3"
-      >
+      <v-col v-for="(stakeholder, index) in stakeholders" :key="index" cols="12" sm="6" md="3">
         <v-card
           class="stakeholder-card h-full overflow-hidden text-center transition-all duration-300"
           elevation="2"
           hover
-          :style="`--animation-delay: ${index * 100}ms`"
-        >
+          :style="`--animation-delay: ${index * 100}ms`">
           <!-- Decorative top bar with wave animation -->
           <div class="wave-bar h-2 bg-linear-to-r from-blue-500 to-blue-700"></div>
 
@@ -85,15 +75,8 @@ defineProps({
               <div class="rotating-ring"></div>
 
               <!-- Avatar -->
-              <v-avatar
-                size="90"
-                class="bg-blue-darken-2 icon-avatar relative z-10 shadow-lg"
-              >
-                <v-icon
-                  size="50"
-                  color="white"
-                  class="icon-bounce"
-                >
+              <v-avatar size="90" class="bg-blue-darken-2 icon-avatar relative z-10 shadow-lg">
+                <v-icon size="50" color="white" class="icon-bounce">
                   {{ stakeholder.icon }}
                 </v-icon>
               </v-avatar>

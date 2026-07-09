@@ -64,13 +64,19 @@ class ReportController
             );
 
             $writer->addRow(Row::fromValuesWithStyle([
+                'UPTD RSUD Haji Darlan Ismail',
+            ], new Style(
+                fontBold: true,
+                cellAlignment: CellAlignment::CENTER,
+                backgroundColor: Color::rgb(255, 237, 206),
+            )));
+            $writer->addRow(Row::fromValuesWithStyle([
                 'Perbandingan Barang Masuk dan Keluar',
             ], new Style(
                 fontBold: true,
                 cellAlignment: CellAlignment::CENTER,
                 backgroundColor: Color::rgb(255, 237, 206),
             )));
-            $options->mergeCells(0, 1, 6, 1, $writer->getCurrentSheet()->getIndex());
             $writer->addRow(Row::fromValuesWithStyle([
                 'Periode '.$startMonth->locale('id')->isoFormat('MMMM YYYY').($startMonth->month != $endMonth->month || $startMonth->year != $endMonth->year ? ' - '.$endMonth->locale('id')->isoFormat('MMMM YYYY') : ''),
             ], new Style(
@@ -78,6 +84,8 @@ class ReportController
                 cellAlignment: CellAlignment::CENTER,
                 backgroundColor: Color::rgb(255, 237, 206),
             )));
+            $options->mergeCells(0, 1, 6, 1, $writer->getCurrentSheet()->getIndex());
+            $options->mergeCells(0, 3, 6, 3, $writer->getCurrentSheet()->getIndex());
             $options->mergeCells(0, 2, 6, 2, $writer->getCurrentSheet()->getIndex());
 
             $writer->addRow(Row::fromValues([]));

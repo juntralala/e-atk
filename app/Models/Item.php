@@ -63,4 +63,9 @@ class Item extends Model
     {
         return $this->hasMany(StockOpnameDetail::class);
     }
+
+    public function stockAdjustmentDetails()
+    {
+        return $this->hasMany(StockAdjustmentDetail::class);
+    }
 }

@@ -182,10 +182,7 @@ function handleSearchChange() {
   </Head>
   <v-container>
     <!-- Alert Dialog untuk error non-field -->
-    <AlertDialog
-      v-model="errorDialog"
-      :title="errorTitle"
-      :message="errorMessage" />
+    <AlertDialog v-model="errorDialog" :title="errorTitle" :message="errorMessage" />
 
     <v-row>
       <v-col>
@@ -196,22 +193,13 @@ function handleSearchChange() {
     </v-row>
 
     <v-row class="justify-between">
-      <v-col
-        v-if="canActItem($page.props.auth.user)"
-        cols="12"
-        md="6">
-        <v-btn
-          variant="tonal"
-          color="primary"
-          prepend-icon="mdi-package-variant-plus"
-          @click="openAddDialog">
+      <v-col v-if="canActItem($page.props.auth.user)" cols="12" md="6">
+        <v-btn variant="tonal" color="primary" prepend-icon="mdi-package-variant-plus" @click="openAddDialog">
           Tambah Barang
         </v-btn>
       </v-col>
 
-      <v-col
-        cols="12"
-        md="6">
+      <v-col cols="12" md="6">
         <v-text-field
           color="blue"
           variant="outlined"
@@ -233,16 +221,8 @@ function handleSearchChange() {
               <th class="text-left">Satuan</th>
               <th class="text-left">Spesifikasi</th>
               <th class="text-left">Stok</th>
-              <th
-                v-if="canActItem($page.props.auth.user)"
-                class="text-left">
-                Harga
-              </th>
-              <th
-                v-if="canActItem($page.props.auth.user)"
-                class="w-1/12 text-left">
-                Tindakan
-              </th>
+              <th v-if="canActItem($page.props.auth.user)" class="text-left">Harga</th>
+              <th v-if="canActItem($page.props.auth.user)" class="w-1/12 text-left">Tindakan</th>
             </tr>
           </thead>
           <template v-if="loading">
@@ -253,9 +233,7 @@ function handleSearchChange() {
             </tr>
           </template>
           <tbody v-else>
-            <tr
-              v-for="(item, index) in itemsData"
-              :key="item.id">
+            <tr v-for="(item, index) in itemsData" :key="item.id">
               <td>{{ getItemNumber(index) }}</td>
               <td>{{ item.name }}</td>
               <td>{{ item.unit.name }}</td>
@@ -263,18 +241,11 @@ function handleSearchChange() {
               <td>{{ item.stock }}</td>
               <td v-if="canActItem($page.props.auth.user)">{{ formatRp(item.price) }}</td>
               <td v-if="canActItem($page.props.auth.user)">
-                <v-btn
-                  size="small"
-                  icon="mdi-dots-vertical"
-                  variant="text"></v-btn>
+                <v-btn size="small" icon="mdi-dots-vertical" variant="text"></v-btn>
                 <v-menu activator="parent">
                   <v-list density="compact">
-                    <v-list-item
-                      value="edit"
-                      @click="openEditDialog(item)">
-                      <v-icon
-                        icon="mdi-pencil"
-                        class="mr-2" />
+                    <v-list-item value="edit" @click="openEditDialog(item)">
+                      <v-icon icon="mdi-pencil" class="mr-2" />
                       Edit
                     </v-list-item>
                     <DeleteActionVListItem
@@ -287,11 +258,7 @@ function handleSearchChange() {
               </td>
             </tr>
             <tr v-if="!itemsData || itemsData.length === 0">
-              <td
-                colspan="7"
-                class="text-grey text-center">
-                Barang tidak ditemukan
-              </td>
+              <td colspan="7" class="text-grey text-center">Barang tidak ditemukan</td>
             </tr>
           </tbody>
         </v-table>
@@ -319,11 +286,7 @@ function handleSearchChange() {
                 <v-progress-circular indeterminate />
               </v-list-item>
             </template>
-            <v-list-item
-              v-else
-              v-for="(item, index) in itemsData"
-              :key="item.id"
-              class="my-1 py-3">
+            <v-list-item v-else v-for="(item, index) in itemsData" :key="item.id" class="my-1 py-3">
               <div class="d-flex align-start justify-space-between w-100">
                 <div class="grow pr-2">
                   <div class="d-flex align-center mb-1">
@@ -348,16 +311,10 @@ function handleSearchChange() {
                       icon="mdi-dots-vertical"
                       variant="text">
                     </v-btn>
-                    <v-menu
-                      v-if="canActItem($page.props.auth.user)"
-                      activator="parent">
+                    <v-menu v-if="canActItem($page.props.auth.user)" activator="parent">
                       <v-list density="compact">
-                        <v-list-item
-                          value="edit"
-                          @click="openEditDialog(item)">
-                          <v-icon
-                            icon="mdi-pencil"
-                            class="mr-2" />
+                        <v-list-item value="edit" @click="openEditDialog(item)">
+                          <v-icon icon="mdi-pencil" class="mr-2" />
                           Edit
                         </v-list-item>
                         <DeleteActionVListItem
@@ -393,10 +350,7 @@ function handleSearchChange() {
     </v-row>
 
     <!-- Add/Edit Barang Dialog Form -->
-    <v-dialog
-      v-model="dialog"
-      max-width="700px"
-      persistent>
+    <v-dialog v-model="dialog" max-width="700px" persistent>
       <v-card>
         <v-card-title class="bg-blue-darken-2">
           <span class="text-h5">{{ editingId ? 'Edit Barang' : 'Tambah Barang Baru' }}</span>
@@ -405,9 +359,7 @@ function handleSearchChange() {
           <v-container>
             <v-form @submit.prevent="submitForm">
               <v-row>
-                <v-col
-                  cols="12"
-                  md="6">
+                <v-col cols="12" md="6">
                   <v-text-field
                     v-model="form.name"
                     label="Nama Barang *"
@@ -416,9 +368,7 @@ function handleSearchChange() {
                     required
                     variant="outlined"></v-text-field>
                 </v-col>
-                <v-col
-                  cols="12"
-                  md="6">
+                <v-col cols="12" md="6">
                   <v-select
                     v-model="form.unit_id"
                     label="Satuan *"
@@ -444,9 +394,7 @@ function handleSearchChange() {
                 </v-col>
               </v-row>
               <v-row>
-                <v-col
-                  cols="12"
-                  md="6">
+                <v-col cols="12" md="6">
                   <v-text-field
                     v-model.number="form.stock"
                     label="Stok"
@@ -456,9 +404,7 @@ function handleSearchChange() {
                     placeholder="0"
                     variant="outlined"></v-text-field>
                 </v-col>
-                <v-col
-                  cols="12"
-                  md="6">
+                <v-col cols="12" md="6">
                   <v-text-field
                     v-model.number="form.price"
                     label="Harga"
@@ -478,18 +424,8 @@ function handleSearchChange() {
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn
-            color="grey-darken-1"
-            variant="text"
-            :disabled="form.processing"
-            @click="closeDialog">
-            Batal
-          </v-btn>
-          <v-btn
-            color="primary"
-            variant="tonal"
-            :loading="form.processing"
-            @click="submitForm">
+          <v-btn color="grey-darken-1" variant="text" :disabled="form.processing" @click="closeDialog"> Batal </v-btn>
+          <v-btn color="primary" variant="tonal" :loading="form.processing" @click="submitForm">
             {{ editingId ? 'Perbarui' : 'Simpan' }}
           </v-btn>
         </v-card-actions>

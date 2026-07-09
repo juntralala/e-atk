@@ -22,14 +22,27 @@ const props = defineProps({
   },
   label: {
     type: String,
-    default: "periode"
-  }
+    default: 'periode',
+  },
 });
 
-const emit = defineEmits(['change'])
+const emit = defineEmits(['change']);
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'];
-const MONTHS_FULL = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+const MONTHS_FULL = [
+  'Januari',
+  'Februari',
+  'Maret',
+  'April',
+  'Mei',
+  'Juni',
+  'Juli',
+  'Agustus',
+  'September',
+  'Oktober',
+  'November',
+  'Desember',
+];
 
 const menu = ref(false);
 const displayYear = ref(model.value.year);
@@ -65,8 +78,7 @@ function onMenuOpen() {
     :close-on-content-click="false"
     transition="scale-transition"
     offset-y
-    @update:model-value="(val) => val && onMenuOpen()"
-  >
+    @update:model-value="(val) => val && onMenuOpen()">
     <template #activator="{ props: menuProps }">
       <v-text-field
         :model-value="yearMonthString"
@@ -77,8 +89,7 @@ function onMenuOpen() {
         hide-details
         readonly
         style="min-width: 200px"
-        append-inner-icon="mdi-calendar"
-      />
+        append-inner-icon="mdi-calendar" />
     </template>
 
     <v-card width="280">
@@ -89,16 +100,14 @@ function onMenuOpen() {
           variant="text"
           density="comfortable"
           :disabled="displayYear <= minYear"
-          @click="prevYear"
-        />
+          @click="prevYear" />
         <span class="text-body-1 font-weight-bold">{{ displayYear }}</span>
         <v-btn
           icon="mdi-chevron-right"
           variant="text"
           density="comfortable"
           :disabled="displayYear >= maxYear"
-          @click="nextYear"
-        />
+          @click="nextYear" />
       </v-card-title>
 
       <v-divider />
@@ -106,20 +115,14 @@ function onMenuOpen() {
       <!-- Grid bulan -->
       <v-card-text class="pa-3">
         <v-row no-gutters>
-          <v-col
-            v-for="(month, index) in MONTHS"
-            :key="index"
-            cols="3"
-            class="pa-1"
-          >
+          <v-col v-for="(month, index) in MONTHS" :key="index" cols="3" class="pa-1">
             <v-btn
               :variant="isSelected(index) ? 'flat' : 'text'"
               :color="isSelected(index) ? 'primary' : undefined"
               density="comfortable"
               block
               rounded="lg"
-              @click="selectMonth(index)"
-            >
+              @click="selectMonth(index)">
               {{ month }}
             </v-btn>
           </v-col>

@@ -10,16 +10,16 @@ export async function requestNotificationPermission() {
     }
 
     try {
-        const registration = await navigator.serviceWorker.register("/assets/js/workers/sw.js", {scope: "/"});
+        const registration = await navigator.serviceWorker.register('/assets/js/workers/sw.js', { scope: '/' });
         await navigator.serviceWorker.ready;
         const permission = await Notification.requestPermission();
-        if(permission != "granted") {
-            console.error("Akses notifikasi ditolak");
+        if (permission != 'granted') {
+            console.error('Akses notifikasi ditolak');
             return false;
         }
 
         const existingSubscription = await registration.pushManager.getSubscription();
-        if(existingSubscription) {
+        if (existingSubscription) {
             // kalau sudah subcribe ya nggak subcribe lagi
             return true;
         }
@@ -28,7 +28,7 @@ export async function requestNotificationPermission() {
             applicationServerKey: import.meta.env.VITE_VAPID_PUBLIC_KEY,
         });
 
-        await axios.post("/notifications/subscribe", subscription);
+        await axios.post('/notifications/subscribe', subscription);
         return true;
     } catch (e) {
         console.error(e);

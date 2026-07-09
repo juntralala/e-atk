@@ -38,4 +38,9 @@ class StockOpname extends Model
     {
         return $this->hasMany(StockOpnameDetail::class);
     }
+
+    public function stockAdjustment()
+    {
+        return $this->hasOne(StockAdjustment::class);
+    }
 }

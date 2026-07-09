@@ -5,29 +5,21 @@ import { Head, Link } from '@inertiajs/vue3';
 defineProps({
   settings: {
     type: [Object, null],
-    default: null
-  }
+    default: null,
+  },
 });
 </script>
 
 <template>
   <Head>
-    <link
-      rel="shortcut icon"
-      :href="settings?.icon || 'favicon.ico'"
-      type="image/x-icon"
-    />
+    <link rel="shortcut icon" :href="settings?.icon || 'favicon.ico'" type="image/x-icon" />
     <title>{{ settings?.applicationName }}</title>
   </Head>
   <v-app>
-    <v-app-bar
-      elevation="1" 
-      color="blue-darken-2"
-      class="pe-2"
-    >
+    <v-app-bar elevation="1" color="blue-darken-2" class="pe-2">
       <v-app-bar-title>
         <v-avatar v-if="settings?.icon" variant="text">
-          <v-img :src="settings?.icon"/>
+          <v-img :src="settings?.icon" />
         </v-avatar>
         <span class="ms-2">{{ settings?.applicationName }}</span>
       </v-app-bar-title>

@@ -27,31 +27,18 @@ function clearErrors() {
 </script>
 
 <template>
-  <v-dialog
-    v-model="showCreateFormDialog"
-    activator="parent"
-    class="max-w-200"
-    v-slot="{ isActive }">
+  <v-dialog v-model="showCreateFormDialog" activator="parent" class="max-w-200" v-slot="{ isActive }">
     <v-card>
       <v-card-title class="bg-blue-darken-2 text-center">Tambah Sebab Stock Opname</v-card-title>
       <v-form @submit.prevent="createOpnameReason" @input="clearErrors">
-      <v-card-text>
-          <v-text-field
-            v-model="form.reason"
-            label="Sebab"
-            :error-messages="form.errors.reason"
-            variant="outlined"/>
-          </v-card-text>
-          <v-card-actions>
-            <v-btn
-            variant="tonal"
-            color="blue"
-            type="submit"
-            >Simpan</v-btn
-            >
-            <v-btn @click="isActive.value = false">Batal</v-btn>
-          </v-card-actions>
-        </v-form>
+        <v-card-text>
+          <v-text-field v-model="form.reason" label="Sebab" :error-messages="form.errors.reason" variant="outlined" />
+        </v-card-text>
+        <v-card-actions>
+          <v-btn variant="tonal" color="blue" type="submit">Simpan</v-btn>
+          <v-btn @click="isActive.value = false">Batal</v-btn>
+        </v-card-actions>
+      </v-form>
     </v-card>
   </v-dialog>
 </template>

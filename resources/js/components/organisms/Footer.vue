@@ -6,13 +6,9 @@ defineProps({
 </script>
 
 <template>
-  <v-footer
-    app
-    color="secondary"
-    class="static! self-end py-2 max-h-15!"
-  >
+  <v-footer app color="secondary" class="static! max-h-15! self-end py-2">
     <div class="w-full">
-      <div class="flex flex-wrap justify-center items-center gap-4 mb-2">
+      <div class="mb-2 flex flex-wrap items-center justify-center gap-4">
         <div class="flex items-center gap-2">
           <v-icon size="small">mdi-map-marker</v-icon>
           <span class="text-sm">{{ alamatInstansi }}</span>
@@ -23,10 +19,8 @@ defineProps({
           <span class="text-sm">{{ $page?.props?.settings?.institutionPhone }}</span>
         </div>
       </div>
-      
-      <p class="text-center text-xs opacity-80">
-        ©2026 {{ namaInstansi }}. All rights reserved.
-      </p>
+
+      <p class="text-center text-xs opacity-80">©2026 {{ namaInstansi }}. All rights reserved.</p>
     </div>
   </v-footer>
 </template>

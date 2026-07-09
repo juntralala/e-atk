@@ -32,22 +32,15 @@ function closeFormDialog() {
 }
 </script>
 <template>
-  <v-list-item value="edit">  
-    <v-icon
-      icon="mdi-pencil"
-      class="me-2!" />
+  <v-list-item value="edit">
+    <v-icon icon="mdi-pencil" class="me-2!" />
     Edit
-    <v-dialog
-      activator="parent"
-      v-model="showFormDialog">
+    <v-dialog activator="parent" v-model="showFormDialog">
       <v-form @submit.prevent="handleSubmit">
         <v-card>
           <v-card-title class="bg-blue-darken-2 text-center">Edit Sebab Opname</v-card-title>
           <v-card-text>
-            <v-text-field
-              label="Sebab"
-              variant="outlined"
-              v-model="form.reason" />
+            <v-text-field label="Sebab" variant="outlined" v-model="form.reason" />
           </v-card-text>
           <v-card-actions>
             <v-btn type="submit">Simpan</v-btn>

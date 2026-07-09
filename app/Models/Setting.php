@@ -22,5 +22,12 @@ class Setting extends Model
         'institution_name',
         'institution_address',
         'institution_phone',
+        'stock_adjustment_approval',
+        'stock_opname_approval',
+    ];
+
+    protected $casts = [
+        'stock_adjustment_approval' => 'bool',
+        'stock_opname_approval' => 'bool',
     ];
 }

@@ -40,9 +40,7 @@ const startDate = ref(
     : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
 );
 
-const endDate = ref(
-  urlParams.value.get('end') ? new Date(urlParams.value.get('end')) : new Date(),
-);
+const endDate = ref(urlParams.value.get('end') ? new Date(urlParams.value.get('end')) : new Date());
 
 const selectedUnit = ref(urlParams.value.get('unit') || null);
 
@@ -51,7 +49,7 @@ const unitOptions = computed(() => [
   { title: 'Semua Unit', value: null },
   ...props.units.map((u) => ({
     title: typeof u === 'object' ? u.name : u,
-    value: typeof u === 'object' ? u.id ?? u.name : u,
+    value: typeof u === 'object' ? (u.id ?? u.name) : u,
   })),
 ]);
 
@@ -114,41 +112,19 @@ const formatNumber = (value) => {
   <v-container>
     <v-row>
       <v-col>
-        <PageTitleHighlightPart
-          first-part-title="Laporan"
-          second-part-title="Pengeluaran Barang"
-        />
+        <PageTitleHighlightPart first-part-title="Laporan" second-part-title="Pengeluaran Barang" />
       </v-col>
     </v-row>
 
     <!-- Filter Section -->
     <v-row class="items-start">
-      <v-col
-        cols="12"
-        md="3"
-      >
-        <DatePicker
-          v-model="startDate"
-          label="Tanggal Mulai"
-          density="compact"
-          :max="endDate"
-        />
+      <v-col cols="12" md="3">
+        <DatePicker v-model="startDate" label="Tanggal Mulai" density="compact" :max="endDate" />
       </v-col>
-      <v-col
-        cols="12"
-        md="3"
-      >
-        <DatePicker
-          v-model="endDate"
-          label="Tanggal Akhir"
-          density="compact"
-          :min="startDate"
-        />
+      <v-col cols="12" md="3">
+        <DatePicker v-model="endDate" label="Tanggal Akhir" density="compact" :min="startDate" />
       </v-col>
-      <v-col
-        cols="12"
-        md="3"
-      >
+      <v-col cols="12" md="3">
         <v-select
           v-model="selectedUnit"
           :items="unitOptions"
@@ -159,34 +135,15 @@ const formatNumber = (value) => {
           variant="outlined"
           clearable
           clear-icon="mdi-close-circle"
-          prepend-inner-icon="mdi-office-building-outline"
-        />
+          prepend-inner-icon="mdi-office-building-outline" />
       </v-col>
-      <v-col
-        cols="12"
-        md="3"
-        class="flex items-center gap-2"
-      >
-        <v-btn
-          variant="tonal"
-          color="blue-darken-2"
-          @click="applyFilter"
-        >
-          <v-icon
-            icon="mdi-filter"
-            class="mr-2"
-          />
+      <v-col cols="12" md="3" class="flex items-center gap-2">
+        <v-btn variant="tonal" color="blue-darken-2" @click="applyFilter">
+          <v-icon icon="mdi-filter" class="mr-2" />
           Filter
         </v-btn>
-        <v-btn
-          variant="tonal"
-          color="blue-darken-2"
-          @click="downloadSpreadsheet"
-        >
-          <v-icon
-            icon="mdi-download"
-            class="mr-2"
-          />
+        <v-btn variant="tonal" color="blue-darken-2" @click="downloadSpreadsheet">
+          <v-icon icon="mdi-download" class="mr-2" />
           Unduh
         </v-btn>
       </v-col>
@@ -207,14 +164,10 @@ const formatNumber = (value) => {
           ]"
           :items="itemExpenditures.data"
           :items-per-page="itemExpenditures.per_page"
-          hide-default-footer
-        >
+          hide-default-footer>
           <template #headers="{ headers }">
             <tr class="bg-blue-darken-2">
-              <th
-                v-for="i in headers.at(0).length"
-                :key="i"
-              >
+              <th v-for="i in headers.at(0).length" :key="i">
                 {{ headers.at(0).at(i - 1).title }}
               </th>
             </tr>
@@ -236,12 +189,7 @@ const formatNumber = (value) => {
           </template>
           <template #bottom>
             <tr class="bg-blue-lighten-5 font-weight-bold">
-              <td
-                colspan="6"
-                class="pa-4 text-right"
-              >
-                Total Keseluruhan:
-              </td>
+              <td colspan="6" class="pa-4 text-right">Total Keseluruhan:</td>
               <td class="pa-4">{{ formatCurrency(total) }}</td>
             </tr>
           </template>
@@ -256,8 +204,7 @@ const formatNumber = (value) => {
               :model-value="itemExpenditures.current_page"
               @update:model-value="handlePageChange"
               color="blue-darken-2"
-              :total-visible="7"
-            ></v-pagination>
+              :total-visible="7"></v-pagination>
           </v-col>
         </v-row>
 

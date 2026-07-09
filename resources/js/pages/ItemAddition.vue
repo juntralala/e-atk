@@ -122,27 +122,14 @@ const totalAmount = () => {
 </script>
 
 <template>
-  <v-container
-    fluid
-    class="pa-4 pa-md-6"
-  >
-    <SuccessDialog
-      v-model="successDialog"
-      message="Penambahan barang berhasil disimpan."
-    />
-    <AlertDialog
-      title="Gagal!"
-      v-model="errorDialog"
-      :message="errorMessage"
-    />
+  <v-container fluid class="pa-4 pa-md-6">
+    <SuccessDialog v-model="successDialog" message="Penambahan barang berhasil disimpan." />
+    <AlertDialog title="Gagal!" v-model="errorDialog" :message="errorMessage" />
 
     <!-- Header Section -->
     <v-row class="mb-4">
       <v-col>
-        <PageTitleHighlightPart
-          first-part-title="Penambahan"
-          second-part-title="Barang"
-        />
+        <PageTitleHighlightPart first-part-title="Penambahan" second-part-title="Barang" />
       </v-col>
     </v-row>
 
@@ -152,18 +139,14 @@ const totalAmount = () => {
         <form @submit.prevent="submitTransaction">
           <!-- Date Field -->
           <v-row class="mb-4">
-            <v-col
-              cols="12"
-              md="6"
-            >
+            <v-col cols="12" md="6">
               <DatePicker
                 label="Tanggal Penambahan"
                 v-model="form.addition_date"
                 :error-messages="form.errors.addition_date"
                 density="comfortable"
                 variant="outlined"
-                color="blue"
-              />
+                color="blue" />
             </v-col>
           </v-row>
 
@@ -174,14 +157,9 @@ const totalAmount = () => {
             v-for="(item, index) in form.items"
             :key="index"
             class="pa-4 mb-4 rounded-lg"
-            :class="index % 2 === 0 ? 'bg-grey-lighten-4' : 'bg-white'"
-          >
+            :class="index % 2 === 0 ? 'bg-grey-lighten-4' : 'bg-white'">
             <div class="d-flex align-center mb-3 gap-2">
-              <v-chip
-                size="small"
-                color="blue"
-                variant="flat"
-              >
+              <v-chip size="small" color="blue" variant="flat">
                 {{ index + 1 }}
               </v-chip>
               <span class="text-body-2 text-grey-darken-2 font-weight-medium"> Barang {{ index + 1 }} </span>
@@ -192,18 +170,14 @@ const totalAmount = () => {
                 icon
                 size="small"
                 :disabled="form.items.length === 1"
-                @click="deleteItem(index)"
-              >
+                @click="deleteItem(index)">
                 <v-icon size="20">mdi-close</v-icon>
               </v-btn>
             </div>
 
             <v-row>
               <!-- Item Selection -->
-              <v-col
-                cols="12"
-                md="6"
-              >
+              <v-col cols="12" md="6">
                 <v-autocomplete
                   v-model="item.item_id"
                   density="comfortable"
@@ -215,23 +189,17 @@ const totalAmount = () => {
                   :error-messages="form.errors[`items.${index}.item_id`]"
                   variant="outlined"
                   color="blue"
-                  bg-color="white"
-                >
+                  bg-color="white">
                   <template v-slot:item="{ props: itemProps, item: barangItem }">
                     <v-list-item
                       v-bind="itemProps"
-                      :subtitle="`${barangItem.raw.spesification_name} - Stok: ${barangItem.raw.stock} ${barangItem.raw.unit.name}`"
-                    />
+                      :subtitle="`${barangItem.raw.spesification_name} - Stok: ${barangItem.raw.stock} ${barangItem.raw.unit.name}`" />
                   </template>
                 </v-autocomplete>
               </v-col>
 
               <!-- Quantity -->
-              <v-col
-                cols="12"
-                sm="6"
-                md="3"
-              >
+              <v-col cols="12" sm="6" md="3">
                 <v-number-input
                   v-model="item.quantity"
                   :min="1"
@@ -241,16 +209,11 @@ const totalAmount = () => {
                   :error-messages="form.errors[`items.${index}.quantity`]"
                   variant="outlined"
                   color="blue"
-                  bg-color="white"
-                />
+                  bg-color="white" />
               </v-col>
 
               <!-- Price -->
-              <v-col
-                cols="12"
-                sm="6"
-                md="3"
-              >
+              <v-col cols="12" sm="6" md="3">
                 <v-text-field
                   v-model.number="item.price"
                   type="number"
@@ -262,16 +225,12 @@ const totalAmount = () => {
                   :error-messages="form.errors[`items.${index}.price`]"
                   variant="outlined"
                   color="blue"
-                  bg-color="white"
-                />
+                  bg-color="white" />
               </v-col>
             </v-row>
 
             <!-- Subtotal per item -->
-            <div
-              v-if="item.item_id && item.quantity && item.price"
-              class="mt-2 text-right"
-            >
+            <div v-if="item.item_id && item.quantity && item.price" class="mt-2 text-right">
               <span class="text-body-2 text-grey-darken-1">
                 Subtotal: <strong>{{ formatRupiah(item.quantity * item.price) }}</strong>
               </span>
@@ -281,17 +240,8 @@ const totalAmount = () => {
           <!-- Add Item Button -->
           <v-row class="mt-2">
             <v-col>
-              <v-btn
-                variant="outlined"
-                color="blue"
-                :disabled="form.processing"
-                @click="addItem"
-                block
-              >
-                <v-icon
-                  icon="mdi-plus"
-                  start
-                ></v-icon>
+              <v-btn variant="outlined" color="blue" :disabled="form.processing" @click="addItem" block>
+                <v-icon icon="mdi-plus" start></v-icon>
                 Tambah Barang
               </v-btn>
             </v-col>
@@ -314,29 +264,12 @@ const totalAmount = () => {
           <!-- Action Buttons -->
           <v-row class="mt-4">
             <v-col class="d-flex justify-end gap-3">
-              <v-btn
-                variant="outlined"
-                color="grey-darken-1"
-                :disabled="form.processing"
-                @click="cancel"
-              >
-                <v-icon
-                  icon="mdi-close"
-                  start
-                ></v-icon>
+              <v-btn variant="outlined" color="grey-darken-1" :disabled="form.processing" @click="cancel">
+                <v-icon icon="mdi-close" start></v-icon>
                 Batal
               </v-btn>
-              <v-btn
-                type="submit"
-                variant="flat"
-                color="blue"
-                :loading="form.processing"
-                :disabled="form.processing"
-              >
-                <v-icon
-                  icon="mdi-content-save"
-                  start
-                ></v-icon>
+              <v-btn type="submit" variant="flat" color="blue" :loading="form.processing" :disabled="form.processing">
+                <v-icon icon="mdi-content-save" start></v-icon>
                 Simpan
               </v-btn>
             </v-col>

@@ -2,10 +2,8 @@
 import ApplicationLayout from '@/layouts/ApplicationLayout.vue';
 
 defineOptions({
-  layout: ApplicationLayout
+  layout: ApplicationLayout,
 });
-
-
 </script>
 
 <template>
