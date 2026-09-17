@@ -22,7 +22,7 @@ class UserCreateRequest extends FormRequest
             'username' => ['required', 'min:4', 'max:255', 'regex:/^[A-Za-z0-9_.]+$/', 'not_regex:/^[0-9._]/', 'unique:users,username'],
             'password' => ['required', 'min:4', 'max:60'],
             'role' => ['required', Rule::exists('roles', 'id')],
-            'telepon' => ['nullable', 'string', 'min:4', 'max:60'],
+            'telepon' => ['nullable', 'string', 'min:4', 'max:60', 'regex:/^08[0-9]+$/'],
         ];
     }
 }

@@ -23,7 +23,7 @@ class UserUpdateRequest extends FormRequest
             'password' => ['nullable', 'min:4', 'max:60'],
             'pathFotoProfil' => ['nullable', 'mime_types:image/*', 'max:2048'],
             'role' => ['required', Rule::exists('roles', 'id')],
-            'telepon' => ['nullable', 'min:10', 'max:20', 'regex:/^08[0-9]+$/'],
+            'telepon' => ['nullable', 'string', 'min:10', 'max:20', 'regex:/^08[0-9]+$/'],
         ];
     }
 

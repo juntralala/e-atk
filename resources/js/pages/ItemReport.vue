@@ -20,7 +20,7 @@ const downloadSpreadsheet = () => {
 
 const handlePageChange = (page) => {
   router.get(
-    route('reports.items'),
+    route('items.exports.view'),
     { page },
     {
       preserveState: true,

@@ -113,6 +113,11 @@ async function fetchRoles() {
 onMounted(async () => {
   roles.value = await fetchRoles();
 });
+
+function clearInvalidForm() {
+  formRef.value.resetValidation();
+  form.clearErrors();
+}
 </script>
 
 <template>
@@ -156,6 +161,7 @@ onMounted(async () => {
               label="Role" />
 
             <v-text-field
+              @input="clearInvalidForm"
               v-model="form.telepon"
               label="No. Telepon"
               density="comfortable"
