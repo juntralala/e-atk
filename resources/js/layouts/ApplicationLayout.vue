@@ -10,6 +10,7 @@ import {
   canAccessItemReport,
   canAccessItemRequestReport,
   canAccessUnitExpenditureReport,
+  canActItem,
   canAddItem,
   canInDashboard,
   canInItemListPage,
@@ -163,7 +164,7 @@ onUpdated(function () {
         <DrawerItem v-if="canInItemRequestPage(user)" :href="route('items.requests')" icon="mdi-clipboard-text-clock"
           >Permintaan</DrawerItem
         >
-        <DrawerItem v-if="true" :href="route('stock.adjustments.form')" icon="mdi-clipboard-edit-outline"
+        <DrawerItem v-if="canActItem(user)" :href="route('stock.adjustments.form')" icon="mdi-clipboard-edit-outline"
           >Penyesuaian Stok</DrawerItem
         >
         <v-list-group v-if="canReadReport(user)" value="report">

@@ -128,19 +128,22 @@ Route::middleware('auth')->group(function () {
         });
     });
 
-    Route::prefix('/stock/adjustments')->name('stock.adjustments')->group(function () {
-        Route::get('/form', [StockAdjustmentController::class, 'form'])->name('.form');
-        Route::post('/', [StockAdjustmentController::class, 'create'])->name('.create');
-        Route::get('/exports/view', [StockAdjustmentController::class, 'stockAdjustmentReport'])->name('.exports.view');
-        Route::get('/exports/xlsx', [StockAdjustmentController::class, 'toXlsx'])->name('.exports.xlsx');
+    Route::prefix('/stock/adjustments')
+        ->name('stock.adjustments')
+        ->can('administrator-petugas')
+        ->group(function () {
+            Route::get('/form', [StockAdjustmentController::class, 'form'])->name('.form');
+            Route::post('/', [StockAdjustmentController::class, 'create'])->name('.create');
+            Route::get('/exports/view', [StockAdjustmentController::class, 'stockAdjustmentReport'])->name('.exports.view');
+            Route::get('/exports/xlsx', [StockAdjustmentController::class, 'toXlsx'])->name('.exports.xlsx');
 
-        Route::prefix('/reasons')->name('.reasons')->group(function () {
-            Route::get('/', [StockAdjustmentReasonController::class, 'showPage']);
-            Route::post('/', [StockAdjustmentReasonController::class, 'create'])->name('.create');
-            Route::put('/{id}', [StockAdjustmentReasonController::class, 'update'])->name('.update');
-            Route::delete('/{id}', [StockAdjustmentReasonController::class, 'delete'])->name('.delete');
+            Route::prefix('/reasons')->name('.reasons')->group(function () {
+                Route::get('/', [StockAdjustmentReasonController::class, 'showPage']);
+                Route::post('/', [StockAdjustmentReasonController::class, 'create'])->name('.create');
+                Route::put('/{id}', [StockAdjustmentReasonController::class, 'update'])->name('.update');
+                Route::delete('/{id}', [StockAdjustmentReasonController::class, 'delete'])->name('.delete');
+            });
         });
-    });
 
     Route::can('administrator-petugas-bendahara')->group(function () {
         Route::get('/expenditures/exports/view', [ItemController::class, 'itemExpenditureReport'])->name('items.expenditures.exports.view');
