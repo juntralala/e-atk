@@ -50,14 +50,14 @@ const showAlert = ref(false);
 // Computed properties untuk menggabungkan validasi lokal dan error dari server
 const nameRules = computed(() => [
   (v) => validators.required(v, 'name'),
-  (value) => value.length >= 4 || 'Nama harus setidaknya 4 karakter',
+  (value) => value.length >= 2 || 'Nama harus setidaknya 2 karakter',
   (value) => value.length < 255 || 'Nama tidak boleh lebih 255 karakter',
   () => !form.errors.name || form.errors.name,
 ]);
 
 const usernameRules = computed(() => [
   validators.required,
-  (value) => value.length >= 4 || 'Username harus setidaknya 4 karakter',
+  (value) => value.length >= 2 || 'Username harus setidaknya 2 karakter',
   (value) => value.length < 255 || 'Username tidak boleh lebih 255 karakter',
   (value) => !/^[0-9._]/.test(value) || 'Username hanya boleh diawali huruf',
   (value) => /^[A-Za-z0-9._]+$/.test(value) || 'Username hanya boleh huruf, nomer, titik dan _',

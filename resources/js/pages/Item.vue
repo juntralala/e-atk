@@ -378,7 +378,13 @@ function handleSearchChange() {
                     :error-messages="form.errors.unit_id"
                     placeholder="Pilih satuan"
                     required
-                    variant="outlined"></v-select>
+                    variant="outlined">
+                    <template #no-data>
+                      <v-list-item>
+                        <v-list-item-title>Belum ada satuan yang ditambahkan</v-list-item-title>
+                      </v-list-item>
+                    </template>
+                  </v-select>
                 </v-col>
               </v-row>
               <v-row>

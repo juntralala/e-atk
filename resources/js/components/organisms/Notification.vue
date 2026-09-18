@@ -1,6 +1,6 @@
 <script setup>
 import { formatRelativeTime } from '@/lib/formatters';
-import { Link, usePage } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 import { useEchoModel } from '@laravel/echo-vue';
 import axios from 'axios';
 import { onMounted,onUnmounted,ref } from 'vue';
@@ -95,7 +95,7 @@ let interval = null;
 onMounted(() => (interval = setInterval(isUnreadNotificationExists, 12_000)));
 onUnmounted(() => clearInterval(interval));
 
-const { channel } = useEchoModel('App.Models.User', userId);
+const { channel } = useEchoModel('App.Models.User', props.userId);
 channel().notification(
   function(notification) {
     alert(notification.type);

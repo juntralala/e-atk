@@ -129,6 +129,7 @@ function cancel() {
               <!-- Item Selection -->
               <v-col cols="12" md="8">
                 <v-autocomplete
+
                   v-model="item.item_id"
                   density="comfortable"
                   :items="items"
@@ -150,6 +151,13 @@ function cancel() {
                     <v-list-item
                       v-bind="itemProps"
                       :subtitle="`${barangItem.raw.spesification_name} - Stok: ${barangItem.raw.stock} ${barangItem.raw.unit.name}`" />
+                  </template>
+                  <template #no-data>
+                    <v-list-item>
+                      <v-list-item-title>
+                        Data item belum diinputkan admin
+                      </v-list-item-title>
+                    </v-list-item>
                   </template>
                 </v-autocomplete>
               </v-col>

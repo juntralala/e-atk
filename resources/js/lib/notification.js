@@ -10,13 +10,14 @@ export async function requestNotificationPermission() {
     }
 
     try {
-        const registration = await navigator.serviceWorker.register('/assets/js/workers/sw.js', { scope: '/' });
-        await navigator.serviceWorker.ready;
         const permission = await Notification.requestPermission();
         if (permission != 'granted') {
             console.error('Akses notifikasi ditolak');
             return false;
         }
+        
+        const registration = await navigator.serviceWorker.register('/sw.js');
+        await navigator.serviceWorker.ready;
 
         const existingSubscription = await registration.pushManager.getSubscription();
         if (existingSubscription) {
