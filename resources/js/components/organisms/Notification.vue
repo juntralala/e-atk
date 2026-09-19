@@ -95,12 +95,12 @@ let interval = null;
 onMounted(() => (interval = setInterval(isUnreadNotificationExists, 12_000)));
 onUnmounted(() => clearInterval(interval));
 
-const { channel } = useEchoModel('App.Models.User', props.userId);
-channel().notification(
-  function(notification) {
-    alert(notification.type);
-  }
-);
+// const { channel } = useEchoModel('App.Models.User', props.userId);
+// channel().notification(
+//   function(notification) {
+//     alert(notification.type);
+//   }
+// );
 </script>
 
 <template>
