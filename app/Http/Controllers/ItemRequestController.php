@@ -29,12 +29,12 @@ class ItemRequestController extends Controller
 {
     private function itemRequestReportQuery($start, $end, $status)
     {
-        return ItemRequest::with(['requester' => fn ($q) => $q->withTrashed()])
-            ->with(['responder' => fn ($q) => $q->withTrashed()])
+        return ItemRequest::with(['requester' => fn($q) => $q->withTrashed()])
+            ->with(['responder' => fn($q) => $q->withTrashed()])
             ->with('itemRequestDetails')
-            ->with(['itemRequestDetails.item' => fn ($q) => $q->withTrashed()])
-            ->with(['itemRequestDetails.item.unit' => fn ($q) => $q->withTrashed()])
-            ->when(! blank($status), fn ($q) => $q->where('status', $status))
+            ->with(['itemRequestDetails.item' => fn($q) => $q->withTrashed()])
+            ->with(['itemRequestDetails.item.unit' => fn($q) => $q->withTrashed()])
+            ->when(!blank($status), fn($q) => $q->where('status', $status))
             ->whereBetween('created_at', [$start, $end])
             ->orderBy('created_at', 'desc');
     }
@@ -46,7 +46,7 @@ class ItemRequestController extends Controller
                 $q->where('deleted_at', '>', $start);
                 $q->orWhere('deleted_at', null);
             })
-            ->whereHas('role', fn ($q) => $q->where('name', 'unit'))
+            ->whereHas('role', fn($q) => $q->where('name', 'unit'))
             ->with([
                 'itemRequests' => function ($q) use ($start, $end) {
                     $q->where('status', 'accepted')
@@ -71,7 +71,7 @@ class ItemRequestController extends Controller
         $search = $request->input('search');
         $status = $request->input('status');
 
-        $itemRequestPage = ItemRequest::query()
+        $itemRequestQuery = ItemRequest::query()
             ->with('requester')
             ->with('responder')
             ->with('itemRequestDetails')
@@ -96,12 +96,21 @@ class ItemRequestController extends Controller
             ->when($request->user()->role->name == 'unit', function ($q) {
                 $q->where('requester_id', request()->user()->id);
             })
-            ->orderBy('created_at', 'desc')
-            ->paginate(perPage: $perPage, page: $page)
-            ->withQueryString(); // Penting untuk mempertahankan query string saat pagination
+            ->orderBy('created_at', 'desc');
+
+        $itemRequests = null;
+        if ($perPage > -1) {
+            $itemRequests = $itemRequestQuery->paginate(perPage: $perPage, page: $page)
+                ->withQueryString(); // Penting untuk mempertahankan query string saat pagination
+        } else {
+            $itemRequests["data"] = $itemRequestQuery->get();
+            $itemRequests["total"] = $itemRequestQuery->count();
+            $itemRequests["per_page"] = $itemRequests['total'];
+            $itemRequests["current_page"] = 1;
+        }
 
         return Inertia::render('ItemRequest', [
-            'itemRequests' => $itemRequestPage,
+            'itemRequests' => $itemRequests,
             'filters' => [
                 'search' => $search,
                 'status' => $status,
@@ -147,13 +156,13 @@ class ItemRequestController extends Controller
             return redirect()
                 ->back()
                 ->withInput()
-                ->withErrors(['error' => 'Gagal membuat permintaan barang: '.$e->getMessage()]);
+                ->withErrors(['error' => 'Gagal membuat permintaan barang: ' . $e->getMessage()]);
         }
     }
 
     public function delete(ItemRequest $itemRequest, Request $request)
     {
-        if (! $itemRequest) {
+        if (!$itemRequest) {
             return back()->withErrors([
                 'message' => 'Permintaan barang yang ingin dihapus tidak ditemukan',
             ]);
@@ -212,12 +221,12 @@ class ItemRequestController extends Controller
             DB::beginTransaction();
             foreach ($validated['items'] as $item) {
                 $itemDetail = $itemRequest->itemRequestDetails()->find($item['id']);
-                if (! $itemDetail) {
+                if (!$itemDetail) {
                     throw new Exception('Item detail tidak ditemukan');
                 }
                 // Validasi apakah stok mencukupi
                 if ($item['received_quantity'] > $itemDetail->item->stock) {
-                    throw new Exception('Stok '.$itemDetail->item->name.' tidak mencukupi. Stok tersedia: '.$itemDetail->item->stock);
+                    throw new Exception('Stok ' . $itemDetail->item->name . ' tidak mencukupi. Stok tersedia: ' . $itemDetail->item->stock);
                 }
             }
 
@@ -265,7 +274,7 @@ class ItemRequestController extends Controller
         $itemRequests = $this->itemRequestReportQuery($start, $end, $status)
             ->paginate($perPage, page: $page)
             ->withQueryString();
-        $total = (! empty($status) && $status != 'accepted') ? 0 : ItemRequestDetail::whereHas('itemRequest', function ($q) use ($start, $end) {
+        $total = (!empty($status) && $status != 'accepted') ? 0 : ItemRequestDetail::whereHas('itemRequest', function ($q) use ($start, $end) {
             $q->whereBetween('created_at', [$start, $end]);
             $q->where('status', 'accepted');
         })->sum(DB::raw('price * responded_quantity'));
@@ -381,7 +390,7 @@ class ItemRequestController extends Controller
         $start->timezone('+8');
         $end->timezone('+8');
         $format = 'd-m-Y';
-        $filename = 'laporan-permintaan-barang-'.$start->format($format).'-'.$end->format($format).'.xlsx';
+        $filename = 'laporan-permintaan-barang-' . $start->format($format) . '-' . $end->format($format) . '.xlsx';
 
         return response()->streamDownload($callback, $filename);
     }
@@ -408,7 +417,7 @@ class ItemRequestController extends Controller
 
                 return $item;
             });
-        $totalExpenditure = ItemRequestDetail::whereHas('itemRequest', fn ($q) => $q->whereBetween('created_at', [$start, $end]))
+        $totalExpenditure = ItemRequestDetail::whereHas('itemRequest', fn($q) => $q->whereBetween('created_at', [$start, $end]))
             ->sum(DB::raw('responded_quantity * price'));
 
         return inertia('UnitExpenditureReport', [
@@ -515,7 +524,7 @@ class ItemRequestController extends Controller
         return response()
             ->streamDownload(
                 $callback,
-                'laporan-pengeluaran-unit-'.$start->format($format).'-'.$end->format($format).'.xlsx'
+                'laporan-pengeluaran-unit-' . $start->format($format) . '-' . $end->format($format) . '.xlsx'
             );
     }
 }

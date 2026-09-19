@@ -47,8 +47,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [NotificationController::class, 'getCurrentUserNotifications']);
         Route::post('/{id}/read', [NotificationController::class, 'markAsReadNotification'])->name('.read');
         Route::get('/unread/exists', [NotificationController::class, 'isUnreadNotificationExists'])->name('.unread.exists');
-        Route::post('/subscribe', [NotificationController::class, 'subscribe']);
-        Route::post('/unsubscribe', [NotificationController::class, 'unsubscribe']);
+        Route::post('/subscribe', [NotificationController::class, 'subscribe'])->name('.subscribe');
+        Route::post('/unsubscribe', [NotificationController::class, 'unsubscribe'])->name('.unsubscribe');
     });
 
     Route::prefix('/users')->name('users')->group(function () {
